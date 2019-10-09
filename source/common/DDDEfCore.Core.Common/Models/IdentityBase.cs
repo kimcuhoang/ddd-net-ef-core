@@ -29,4 +29,12 @@ namespace DDDEfCore.Core.Common.Models
 
         #endregion
     }
+
+    public static class IdentityFactory
+    {
+        public static TIdentity Create<TIdentity>() where TIdentity : IdentityBase
+        {
+            return Activator.CreateInstance<TIdentity>();
+        }
+    }
 }

@@ -12,7 +12,5 @@ namespace DDDEfCore.Core.DomainModels.Categories
         private CategoryId() { }
 
         #endregion
-
-        public static CategoryId New() => new CategoryId();
     }
 }

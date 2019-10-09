@@ -24,13 +24,13 @@ namespace DDDEfCore.Core.DomainModels.Categories
             this.DisplayName = categoryName;
         }
 
-        private Category() { }
+        private Category(string categoryName) : this(IdentityFactory.Create<CategoryId>(), categoryName) { }
 
         #endregion
 
         #region Creations
 
-        public static Category Create(string categoryName) => new Category(CategoryId.New(), categoryName);
+        public static Category Create(string categoryName) => new Category(categoryName);
 
         #endregion
 
