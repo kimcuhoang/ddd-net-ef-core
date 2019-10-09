@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DDDEfCore.Core.Common.Models;
-using DDDEfCore.Core.DomainModels.Categories;
-using DDDEfCore.Core.DomainModels.Exceptions;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions;
 
-namespace DDDEfCore.Core.DomainModels.Catalogs
+namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
     public class Catalog : AggregateRoot
     {
@@ -16,7 +14,7 @@ namespace DDDEfCore.Core.DomainModels.Catalogs
 
         private List<CatalogCategory> _categories = new List<CatalogCategory>();
 
-        public IEnumerable<CatalogCategory> Categories => this._categories.AsReadOnly();
+        public IEnumerable<CatalogCategory> Categories => this._categories;
 
         #region Constructors
 
@@ -31,6 +29,8 @@ namespace DDDEfCore.Core.DomainModels.Catalogs
         }
 
         private Catalog(string catalogName) : this(IdentityFactory.Create<CatalogId>(), catalogName) { }
+
+        private Catalog() { }
 
         #endregion
 

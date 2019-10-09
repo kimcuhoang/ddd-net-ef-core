@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DDDEfCore.Core.Common.Models;
-using DDDEfCore.Core.DomainModels.Exceptions;
+﻿using DDDEfCore.Core.Common.Models;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions;
 
-namespace DDDEfCore.Core.DomainModels.Categories
+namespace DDDEfCore.ProductCatalog.Core.DomainModels.Categories
 {
     public class Category : AggregateRoot
     {
@@ -25,6 +22,8 @@ namespace DDDEfCore.Core.DomainModels.Categories
         }
 
         private Category(string categoryName) : this(IdentityFactory.Create<CategoryId>(), categoryName) { }
+
+        private Category() { }
 
         #endregion
 

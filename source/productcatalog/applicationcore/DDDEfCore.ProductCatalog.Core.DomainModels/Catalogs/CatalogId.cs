@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using DDDEfCore.Core.Common.Models;
 
-namespace DDDEfCore.Core.DomainModels.Catalogs
+namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
     public class CatalogId : IdentityBase
     {
@@ -11,10 +9,9 @@ namespace DDDEfCore.Core.DomainModels.Catalogs
 
         public CatalogId(Guid id) : base(id) { }
 
-        private CatalogId() { }
+        public CatalogId() : base() { }
 
         #endregion
 
-        public static CatalogId New() => new CatalogId();
     }
 }

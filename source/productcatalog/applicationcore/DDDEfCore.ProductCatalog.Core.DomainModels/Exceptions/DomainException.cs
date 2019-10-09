@@ -1,7 +1,7 @@
-﻿using DDDEfCore.Core.Common.Exceptions;
-using System;
+﻿using System;
+using DDDEfCore.Core.Common.Exceptions;
 
-namespace DDDEfCore.Core.DomainModels.Exceptions
+namespace DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions
 {
     public class DomainException : ExceptionBase
     {

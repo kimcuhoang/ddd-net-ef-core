@@ -1,7 +1,7 @@
-﻿using DDDEfCore.Core.Common.Models;
-using System;
+﻿using System;
+using DDDEfCore.Core.Common.Models;
 
-namespace DDDEfCore.Core.DomainModels.Categories
+namespace DDDEfCore.ProductCatalog.Core.DomainModels.Categories
 {
     public class CategoryId : IdentityBase
     {
@@ -9,7 +9,7 @@ namespace DDDEfCore.Core.DomainModels.Categories
 
         public CategoryId(Guid id) : base(id) { }
 
-        private CategoryId() { }
+        public CategoryId() : base() { }
 
         #endregion
     }

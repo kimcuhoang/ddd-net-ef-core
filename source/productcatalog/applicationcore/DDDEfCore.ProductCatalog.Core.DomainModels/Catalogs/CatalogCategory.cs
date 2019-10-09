@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DDDEfCore.Core.Common.Models;
-using DDDEfCore.Core.DomainModels.Categories;
-using DDDEfCore.Core.DomainModels.Exceptions;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions;
 
-namespace DDDEfCore.Core.DomainModels.Catalogs
+namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
     public class CatalogCategory : EntityBase
     {
@@ -26,7 +25,7 @@ namespace DDDEfCore.Core.DomainModels.Catalogs
 
         private List<CatalogCategory> _subCategories = new List<CatalogCategory>();
 
-        public IEnumerable<CatalogCategory> SubCategories => this._subCategories.AsReadOnly();
+        public IEnumerable<CatalogCategory> SubCategories => this._subCategories;
 
         #region Constructors
 
@@ -39,6 +38,8 @@ namespace DDDEfCore.Core.DomainModels.Catalogs
 
         private CatalogCategory(CatalogId catalogId, CategoryId categoryId)
             : this(IdentityFactory.Create<CatalogCategoryId>(), catalogId, categoryId) { }
+
+        private CatalogCategory() { }
 
         #endregion
 
