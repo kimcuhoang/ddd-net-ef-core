@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "__", "__", "{9452B9A4-F1FD-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{78B8259D-9A21-4FF3-B2DF-41015EFE04E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.Core.Common", "source\common\DDDEfCore.Core.Common\DDDEfCore.Core.Common.csproj", "{B8B3F731-A198-4174-8A7D-A56BDE551797}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.Core.Common", "source\common\DDDEfCore.Core.Common\DDDEfCore.Core.Common.csproj", "{B8B3F731-A198-4174-8A7D-A56BDE551797}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProductCatalog", "ProductCatalog", "{087321C2-CBAF-43CB-94B8-0BBC1F522362}"
 EndProject
@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApplicationCore", "Applicat
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructures", "Infrastructures", "{0FF9B5E5-7E11-4CED-9E0E-F684AF00B075}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.Infrastructures.EfCore.Common", "source\common\DDDEfCore.Infrastructures.EfCore.Common\DDDEfCore.Infrastructures.EfCore.Common.csproj", "{8435BE50-6333-4B22-B47C-5B457D0780A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.Infrastructures.EfCore.Common", "source\common\DDDEfCore.Infrastructures.EfCore.Common\DDDEfCore.Infrastructures.EfCore.Common.csproj", "{8435BE50-6333-4B22-B47C-5B457D0780A2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{EFB7DF8C-0D8E-4518-8E92-DD075C8C371E}"
 EndProject
@@ -28,11 +28,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.In
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebApi", "WebApi", "{60285357-D120-45F6-A53B-897B7717822C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.ProductCatalog.WebApi", "source\productcatalog\webapi\DDDEfCore.ProductCatalog.WebApi\DDDEfCore.ProductCatalog.WebApi.csproj", "{400ADFB3-A29D-45B6-B303-A5943FAA0A91}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests\DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.csproj", "{69DE3AC4-C158-4887-932A-0234A8E6BF4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests\DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.csproj", "{69DE3AC4-C158-4887-932A-0234A8E6BF4A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Core.DomainModels.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Core.DomainModels.Tests\DDDEfCore.ProductCatalog.Core.DomainModels.Tests.csproj", "{B1A1D905-53D4-460B-B786-46B4EF325C18}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.WebApi", "source\productcatalog\webapi\DDDEfCore.ProductCatalog.WebApi\DDDEfCore.ProductCatalog.WebApi.csproj", "{A919ECFC-1637-4195-B150-32BCAA80FD43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,10 +56,6 @@ Global
 		{C59E9379-5D3D-447F-92AB-BE2A052A2B37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C59E9379-5D3D-447F-92AB-BE2A052A2B37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C59E9379-5D3D-447F-92AB-BE2A052A2B37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{400ADFB3-A29D-45B6-B303-A5943FAA0A91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{400ADFB3-A29D-45B6-B303-A5943FAA0A91}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{400ADFB3-A29D-45B6-B303-A5943FAA0A91}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{400ADFB3-A29D-45B6-B303-A5943FAA0A91}.Release|Any CPU.Build.0 = Release|Any CPU
 		{69DE3AC4-C158-4887-932A-0234A8E6BF4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{69DE3AC4-C158-4887-932A-0234A8E6BF4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69DE3AC4-C158-4887-932A-0234A8E6BF4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -68,6 +64,10 @@ Global
 		{B1A1D905-53D4-460B-B786-46B4EF325C18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1A1D905-53D4-460B-B786-46B4EF325C18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1A1D905-53D4-460B-B786-46B4EF325C18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A919ECFC-1637-4195-B150-32BCAA80FD43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A919ECFC-1637-4195-B150-32BCAA80FD43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A919ECFC-1637-4195-B150-32BCAA80FD43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A919ECFC-1637-4195-B150-32BCAA80FD43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,9 +81,9 @@ Global
 		{54DE0604-597C-4E60-A8B5-D598135292F1} = {681269B9-5CA9-4B41-8767-D7D1B1A47288}
 		{C59E9379-5D3D-447F-92AB-BE2A052A2B37} = {0FF9B5E5-7E11-4CED-9E0E-F684AF00B075}
 		{60285357-D120-45F6-A53B-897B7717822C} = {087321C2-CBAF-43CB-94B8-0BBC1F522362}
-		{400ADFB3-A29D-45B6-B303-A5943FAA0A91} = {60285357-D120-45F6-A53B-897B7717822C}
 		{69DE3AC4-C158-4887-932A-0234A8E6BF4A} = {EFB7DF8C-0D8E-4518-8E92-DD075C8C371E}
 		{B1A1D905-53D4-460B-B786-46B4EF325C18} = {EFB7DF8C-0D8E-4518-8E92-DD075C8C371E}
+		{A919ECFC-1637-4195-B150-32BCAA80FD43} = {60285357-D120-45F6-A53B-897B7717822C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A5BBA926-AD8E-4C99-9CA1-631F45530EDA}

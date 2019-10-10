@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using DDDEfCore.Core.Common.Models;
+﻿using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +6,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Respawn;
+using System;
+using System.Data;
+using System.IO;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
@@ -35,7 +33,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
             this._serviceScopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
         }
-
 
         #region Implementation of IAsyncLifetime
 
@@ -81,14 +78,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
             }
         }
 
-        public async Task<T> QueryScopeAsync<T>(Func<IServiceProvider, Task<T>> action) where T : AggregateRoot
-        {
-            using (var scope = this._serviceScopeFactory.CreateScope())
-            {
-                return await action(scope.ServiceProvider);
-            }
-        }
-
         public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
         {
             if (entities != null && entities.Any())
@@ -113,7 +102,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
             {
                 var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
                 var databaseMigration = serviceScope.ServiceProvider.GetService<DatabaseMigration>();
-                await databaseMigration.ApplyMigration(dbContext);
+                await databaseMigration.ApplyMigration();
 
                 
                 var dbConnection = dbContext.Database.GetDbConnection();

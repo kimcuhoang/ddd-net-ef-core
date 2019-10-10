@@ -8,7 +8,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db
 {
     public class ProductCatalogDbContext : ApplicationDbContextBase
     {
-        public ProductCatalogDbContext(DbContextOptions dbContextOptions, IConfiguration configuration) 
+        public ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> dbContextOptions, IConfiguration configuration) 
             : base(dbContextOptions, configuration)
         {
         }

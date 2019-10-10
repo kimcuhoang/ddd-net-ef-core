@@ -1,26 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Threading.Tasks;
-using DDDEfCore.Infrastructures.EfCore.Common.Exceptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.Infrastructures.EfCore.Common.Migration
 {
     public abstract class DatabaseMigration
     {
-        protected abstract bool HasPendingMigrations(DbContext dbContext);
+        protected DbContext DbContext { get; }
 
-        protected virtual async Task DoMigration(DbContext dbContext)
+        protected DatabaseMigration(DbContext dbContext)
+            => this.DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+
+        protected abstract bool HasPendingMigrations();
+
+        protected virtual async Task DoMigration()
         {
             await Task.FromResult(true);
         }
 
-        public async Task ApplyMigration(DbContext dbContext)
+        public async Task ApplyMigration()
         {
-            if (this.HasPendingMigrations(dbContext))
+            if (this.HasPendingMigrations())
             {
-                await this.DoMigration(dbContext);
+                await this.DoMigration();
             }
         }
     }
