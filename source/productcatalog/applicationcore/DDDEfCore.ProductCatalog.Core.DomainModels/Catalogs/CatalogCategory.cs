@@ -124,8 +124,12 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
                 GetDescendantRecursive(category, descendants);
             }
 
-            // At the leaf
-            descendants.Add(current);
+            // Don't get the root to list
+            if (current.Parent != null)
+            {
+                // At the leaf
+                descendants.Add(current);
+            }
         }
 
         #endregion
