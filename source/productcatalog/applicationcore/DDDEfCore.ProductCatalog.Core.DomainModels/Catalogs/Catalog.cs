@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using DDDEfCore.Core.Common.Models;
+﻿using DDDEfCore.Core.Common.Models;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
@@ -53,50 +53,64 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
             return this;
         }
 
-        public bool HasCategory(CategoryId categoryId)
-            => this._categories.Any(x => x.CategoryId == categoryId);
+        #endregion
 
-        public CatalogCategory AddCategoryRoot(CategoryId categoryId)
+        #region Behaviors with CatalogCategory
+
+        public CatalogCategory AddCategory(CategoryId categoryId, string displayName, CatalogCategory parentCatalogCategory = null)
         {
             if (categoryId == null)
-            {
-                throw new DomainException($"{nameof(categoryId)} is null.");
-            }
+                throw new DomainException($"{nameof(categoryId)} is null");
 
-            if (this.HasCategory(categoryId))
-            {
-                throw new DomainException($"{categoryId} is existing in {this.CatalogId}");
-            }
+            if (this._categories.Any(x => x.Parent == parentCatalogCategory && x.CategoryId == categoryId))
+                throw new DomainException($"Category#{categoryId} is existing in Catalog#{this.CatalogId}");
 
-            var catalogCategory = CatalogCategory.Create(this.CatalogId, categoryId);
+            var catalogCategory =
+                CatalogCategory.Create(this.CatalogId, categoryId, displayName, parentCatalogCategory);
 
             this._categories.Add(catalogCategory);
 
             return catalogCategory;
         }
 
-        public void RemoveCategoryWithDescendants(CategoryId categoryId)
+        public IEnumerable<CatalogCategory> FindCatalogCategoryRoots()
+            => this._categories.Where(x => x.Parent == null);
+
+        public IEnumerable<CatalogCategory> GetDescendantsOfCatalogCategory(CatalogCategory catalogCategory)
         {
-            if (categoryId == null)
-            {
-                throw new DomainException($"{nameof(categoryId)} is null.");
-            }
-
-            var catalogCategory = this._categories.FirstOrDefault(x => x.CategoryId == categoryId);
-
             if (catalogCategory == null)
+                throw new DomainException($"{nameof(catalogCategory)} is null.");
+            
+            var descendants = new List<CatalogCategory>();
+
+            this.GetDescendants(catalogCategory, descendants);
+
+            return descendants;
+        }
+
+        private void GetDescendants(CatalogCategory catalogCategory, List<CatalogCategory> descendants)
+        {
+            var children = this._categories.Where(x => x.Parent == catalogCategory);
+
+            foreach (var kid in children)
             {
-                throw new DomainException($"Could not found {categoryId} in {this.CatalogId}");
+                GetDescendants(kid, descendants);
             }
 
-            var relatedCategories = catalogCategory.GetDescendants();
+            descendants.Add(catalogCategory);
+        }
 
-            foreach (var category in relatedCategories)
+        public void RemoveCatalogCategoryWithDescendants(CatalogCategory catalogCategory)
+        {
+            if (catalogCategory == null)
+                throw new DomainException($"{nameof(catalogCategory)} is null.");
+
+            var descendants = this.GetDescendantsOfCatalogCategory(catalogCategory);
+
+            foreach (var kid in descendants)
             {
-                this._categories.Remove(category);
+                this._categories = this._categories.Where(x => x != kid).ToList();
             }
-
-            this._categories.Remove(catalogCategory);
         }
 
         #endregion

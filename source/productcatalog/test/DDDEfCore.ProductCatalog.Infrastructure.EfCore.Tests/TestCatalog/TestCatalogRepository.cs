@@ -18,8 +18,8 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         public TestCatalogRepository(TestCatalogFixture testFixture)
             => this._testFixture = testFixture ?? throw new ArgumentNullException(nameof(testFixture));
 
-        [Fact(DisplayName = "Should Create Catalog and Sub Categories Successfully")]
-        public async Task ShouldCreateCatalog_WithSubCategories_Successfully()
+        [Fact(DisplayName = "Create Catalog with Chain of Catalog-Categories Successfully")]
+        public async Task Create_Catalog_With_Chain_Of_CatalogCategories_Successfully()
         {
             await this._testFixture.InitData();
 
@@ -27,22 +27,36 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
             {
                 catalog.ShouldNotBeNull();
                 catalog.Equals(this._testFixture.Catalog).ShouldBeTrue();
-                catalog.Categories.Count().ShouldBe(3);
-                catalog.Categories.ShouldBeAssignableTo<IEnumerable<CatalogCategory>>();
+                catalog
+                    .Categories
+                    .Except(this._testFixture.CatalogCategories)
+                    .Any()
+                    .ShouldBeFalse();
 
-                var subCategoriesLv1 = catalog.Categories.Where(x => x.Parent == null).ToList();
-                subCategoriesLv1.ShouldHaveSingleItem();
+                var roots = catalog.FindCatalogCategoryRoots();
+                roots.ShouldHaveSingleItem();
 
-                var subCategoriesLv2 = subCategoriesLv1.SelectMany(x => x.SubCategories).ToList();
-                subCategoriesLv2.ShouldHaveSingleItem();
+                var descendantsOfLv1 = catalog.GetDescendantsOfCatalogCategory(this._testFixture.CatalogCategoryLv1);
+                descendantsOfLv1
+                    .Except(this._testFixture.CatalogCategories)
+                    .Any()
+                    .ShouldBeFalse();
 
-                var subCategoriesLv3 = subCategoriesLv2.SelectMany(x => x.SubCategories).ToList();
-                subCategoriesLv3.ShouldHaveSingleItem();
+                var descendantsOfLv2 = catalog.GetDescendantsOfCatalogCategory(this._testFixture.CatalogCategoryLv2);
+                descendantsOfLv2
+                    .Except(this._testFixture.CatalogCategories.Where(x => x != this._testFixture.CatalogCategoryLv1))
+                    .Any()
+                    .ShouldBeFalse();
+
+                var descendantsOfLv3 = catalog.GetDescendantsOfCatalogCategory(this._testFixture.CatalogCategoryLv3);
+                descendantsOfLv3
+                    .Except(this._testFixture.Catalog.Categories.Where(x => x != this._testFixture.CatalogCategoryLv1 && x != this._testFixture.CatalogCategoryLv2))
+                    .Any().ShouldBeFalse();
             });
         }
 
-        [Fact(DisplayName = "Should Update Catalog by Removing Sub Categories Successfully")]
-        public async Task ShouldUpdateCatalog_ByRemovingSubCategories_Successfully()
+        [Fact(DisplayName = "Catalog Should Remove Chain of CatalogCategories Successfully")]
+        public async Task Catalog_Should_Remove_Chain_of_CatalogCategories_Successfully()
         {
             await this._testFixture.InitData();
 
@@ -52,7 +66,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
                     .FindOneWithIncludeAsync(x => x.CatalogId == this._testFixture.Catalog.CatalogId,
                         x => x.Include(y => y.Categories));
 
-                catalog.RemoveCategoryWithDescendants(this._testFixture.CategoryLv1.CategoryId);
+                var catalogCategoryLv1 = catalog.FindCatalogCategoryRoots().FirstOrDefault();
+                catalogCategoryLv1.ShouldBe(this._testFixture.CatalogCategoryLv1);
+
+                catalog.RemoveCatalogCategoryWithDescendants(catalogCategoryLv1);
 
                 await repository.UpdateAsync(catalog);
             });
@@ -60,13 +77,12 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
             await this._testFixture.DoAssert(catalog =>
             {
                 catalog.ShouldNotBeNull();
-                catalog.Equals(this._testFixture.Catalog).ShouldBeTrue();
                 catalog.Categories.ShouldBeEmpty();
             });
         }
 
-        [Fact(DisplayName = "Should Remove Catalog with Sub Categories Successfully")]
-        public async Task ShouldRemoveCatalog_AndSubCategories_Successfully()
+        [Fact(DisplayName = "Remove Catalog Within CatalogCategories Successfully")]
+        public async Task RemoveCatalog_Within_CatalogCategories_Successfully()
         {
             await this._testFixture.InitData();
 

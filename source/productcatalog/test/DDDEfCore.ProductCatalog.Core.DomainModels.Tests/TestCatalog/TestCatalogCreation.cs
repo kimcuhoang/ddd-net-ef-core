@@ -31,23 +31,6 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalog
         {
             Should.Throw<DomainException>(() => Catalog.Create(string.Empty));
         }
-
-        [Fact(DisplayName = "Create Catalog With Sub Categories Successfully")]
-        public void CreateCatalog_With_SubCategories_Successfully()
-        {
-            var catalog = Catalog.Create(this._fixture.Create<string>());
-
-            var categoryId = IdentityFactory.Create<CategoryId>();
-
-            var catalogCategory = catalog.AddCategoryRoot(categoryId);
-
-            catalog.ShouldNotBeNull();
-            catalog.Categories.ShouldHaveSingleItem();
-            catalog.Categories.ShouldBeAssignableTo<IEnumerable<CatalogCategory>>();
-
-            catalogCategory.ShouldNotBeNull();
-            catalogCategory.ShouldBeAssignableTo<CatalogCategory>();
-            catalogCategory.CatalogCategoryId.ShouldNotBeNull();
-        }
+        
     }
 }

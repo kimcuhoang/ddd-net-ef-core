@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 {
     [DbContext(typeof(ProductCatalogDbContext))]
-    [Migration("20191011101243_Add_Product")]
-    partial class Add_Product
+    [Migration("20191014055327_Database_Initialize")]
+    partial class Database_Initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -37,9 +37,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                 {
                     b.Property<Guid>("CatalogCategoryId");
 
-                    b.Property<DateTime>("AvailableFromDate");
-
-                    b.Property<DateTime?>("AvailableToDate");
+                    b.Property<Guid?>("CatalogCategoryParentId");
 
                     b.Property<Guid>("CatalogId");
 
@@ -47,13 +45,11 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 
                     b.Property<string>("DisplayName");
 
-                    b.Property<Guid?>("ParentId");
-
                     b.HasKey("CatalogCategoryId");
 
-                    b.HasIndex("CatalogId");
+                    b.HasIndex("CatalogCategoryParentId");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("CatalogId");
 
                     b.ToTable("CatalogCategory");
                 });
@@ -84,14 +80,14 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogCategory", b =>
                 {
+                    b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogCategory", "Parent")
+                        .WithMany()
+                        .HasForeignKey("CatalogCategoryParentId");
+
                     b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.Catalog")
                         .WithMany("Categories")
                         .HasForeignKey("CatalogId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogCategory", "Parent")
-                        .WithMany("SubCategories")
-                        .HasForeignKey("ParentId");
                 });
 #pragma warning restore 612, 618
         }
