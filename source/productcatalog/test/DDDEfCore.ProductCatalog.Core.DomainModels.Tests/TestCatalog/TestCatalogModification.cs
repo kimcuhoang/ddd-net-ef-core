@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.Xunit2;
 using DDDEfCore.Core.Common.Models;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions;
 using Shouldly;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalog
@@ -17,6 +16,8 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalog
         private readonly IFixture _fixture;
 
         public TestCatalogModification() => this._fixture = new Fixture();
+
+        #region For Catalogs
 
         [Theory(DisplayName = "Modify Catalog By Changing Display Name Successfully")]
         [AutoData]
@@ -36,67 +37,86 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalog
             Should.Throw<DomainException>(() => catalog.ChangeDisplayName(string.Empty));
         }
 
-        [Fact(DisplayName = "Modify Catalog By Adding Sub Categories Successfully")]
-        public void ModifyCatalog_By_AddingSubCategories_Successfully()
+        #endregion
+
+        #region Catalog with CatalogCategory
+
+        [Fact(DisplayName = "Catalog Create Chain of CatalogCategories Successfully")]
+        public void Catalog_Create_Chain_Of_CatalogCategories_Successfully()
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv1 = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv2 = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv3 = IdentityFactory.Create<CategoryId>();
 
-            var catalogCategory = catalog.AddCategoryRoot(categoryId);
+            var catalogCategoryLv1 = 
+                catalog.AddCategory(categoryIdLv1, this._fixture.Create<string>());
 
-            catalog.ShouldNotBeNull();
-            catalog.Categories.ShouldHaveSingleItem();
-            catalog.Categories.ShouldBeAssignableTo<IEnumerable<CatalogCategory>>();
+            var catalogCategoryLv2 =
+                catalog.AddCategory(categoryIdLv2, this._fixture.Create<string>(), catalogCategoryLv1);
 
-            catalogCategory.ShouldNotBeNull();
-            catalogCategory.ShouldBeAssignableTo<CatalogCategory>();
-            catalogCategory.CatalogCategoryId.ShouldNotBeNull();
+            var catalogCategoryLv3 =
+                catalog.AddCategory(categoryIdLv3, this._fixture.Create<string>(), catalogCategoryLv2);
+
+            var catalogCategories = new List<CatalogCategory>
+            {
+                catalogCategoryLv1,
+                catalogCategoryLv2,
+                catalogCategoryLv3
+            };
+
+            catalog
+                .Categories
+                .Except(catalogCategories)
+                .Any()
+                .ShouldBeFalse();
+
+
+            var roots = catalog.FindCatalogCategoryRoots();
+            roots.ShouldHaveSingleItem();
+
+            var descendantsOfLv1 = catalog.GetDescendantsOfCatalogCategory(catalogCategoryLv1);
+            descendantsOfLv1
+                .Except(catalogCategories)
+                .Any()
+                .ShouldBeFalse();
+
+            var descendantsOfLv2 = catalog.GetDescendantsOfCatalogCategory(catalogCategoryLv2);
+            descendantsOfLv2
+                .Except(catalogCategories.Where(x => x != catalogCategoryLv1))
+                .Any()
+                .ShouldBeFalse();
+
+            var descendantsOfLv3 = catalog.GetDescendantsOfCatalogCategory(catalogCategoryLv3);
+            descendantsOfLv3
+                .Except(catalogCategories.Where(x => x != catalogCategoryLv1 && x != catalogCategoryLv2))
+                .Any()
+                .ShouldBeFalse();
         }
 
-        [Fact(DisplayName = "Modify Catalog By Adding Duplicate Categories Should Throw Exception")]
-        public void ModifyCatalog_By_AddingDuplicateCategories_ShouldThrowException()
+        [Fact(DisplayName = "Catalog Remove CatalogCategory Within Descendants Successfully")]
+        public void Catalog_Remove_CatalogCategory_Within_Descendants_Successfully()
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv1 = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv2 = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv3 = IdentityFactory.Create<CategoryId>();
 
-            catalog.AddCategoryRoot(categoryId);
+            var catalogCategoryLv1 =
+                catalog.AddCategory(categoryIdLv1, this._fixture.Create<string>());
 
-            Should.Throw<DomainException>(() => catalog.AddCategoryRoot(categoryId));
-        }
+            var catalogCategoryLv2 =
+                catalog.AddCategory(categoryIdLv2, this._fixture.Create<string>(), catalogCategoryLv1);
 
-        [Fact(DisplayName = "Modify Catalog By Adding Null of Category Should Throw Exception")]
-        public void ModifyCatalog_By_Adding_NullOfCategory_ShouldThrowException()
-        {
-            var catalog = Catalog.Create(this._fixture.Create<string>());
-            Should.Throw<DomainException>(() => catalog.AddCategoryRoot(null));
-        }
+            var catalogCategoryLv3 =
+                catalog.AddCategory(categoryIdLv3, this._fixture.Create<string>(), catalogCategoryLv2);
 
-        [Fact(DisplayName = "Modify Catalog By Removing Null of Category Should Throw Exception")]
-        public void ModifyCatalog_By_Removing_NullOfCategory_ShouldThrowException()
-        {
-            var catalog = Catalog.Create(this._fixture.Create<string>());
-            Should.Throw<DomainException>(() => catalog.RemoveCategoryWithDescendants(null));
-        }
-
-        [Fact(DisplayName = "Modify Catalog By Removing Undefined Category Should Throw Exception")]
-        public void ModifyCatalog_By_Removing_UndefinedCategory_ShouldThrowException()
-        {
-            var catalog = Catalog.Create(this._fixture.Create<string>());
-            var categoryId = IdentityFactory.Create<CategoryId>();
-            Should.Throw<DomainException>(() => catalog.RemoveCategoryWithDescendants(categoryId));
-        }
-
-        [Fact(DisplayName = "Modify Catalog By Removing Sub Category Successfully")]
-        public void ModifyCatalog_By_Removing_SubCategory_ShouldThrowException()
-        {
-            var catalog = Catalog.Create(this._fixture.Create<string>());
-            var categoryId = IdentityFactory.Create<CategoryId>();
-            catalog.AddCategoryRoot(categoryId);
-            
-            catalog.RemoveCategoryWithDescendants(categoryId);
+            catalog.RemoveCatalogCategoryWithDescendants(catalogCategoryLv1);
             catalog.Categories.ShouldBeEmpty();
         }
+
+        #endregion
     }
 }

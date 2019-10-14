@@ -4,6 +4,8 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -15,9 +17,21 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         public TestCatalogFixture(SharedFixture sharedFixture) : base(sharedFixture) { }
 
         public Catalog Catalog { get; private set; }
+
         public Category CategoryLv1 { get; private set; }
         public Category CategoryLv2 { get; private set; }
         public Category CategoryLv3 { get; private set; }
+
+        public CatalogCategory CatalogCategoryLv1 { get; private set; }
+        public CatalogCategory CatalogCategoryLv2 { get; private set; }
+        public CatalogCategory CatalogCategoryLv3 { get; private set; }
+
+        public IEnumerable<CatalogCategory> CatalogCategories => new List<CatalogCategory>
+        {
+            this.CatalogCategoryLv1,
+            this.CatalogCategoryLv2,
+            this.CatalogCategoryLv3
+        };
 
         #region Implementation of IAsyncLifetime
 
@@ -42,14 +56,12 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         {
             this.Catalog = Catalog.Create(this.Fixture.Create<string>());
 
-            var subCategoryLv1 = this.Catalog.AddCategoryRoot(this.CategoryLv1.CategoryId);
-            subCategoryLv1.WithDisplayName("Lv1");
-
-            var subCategoryLv2 = subCategoryLv1.AddSubCategory(this.CategoryLv2.CategoryId);
-            subCategoryLv2.WithDisplayName("Lv2");
-
-            var subCategoryLv3 = subCategoryLv2.AddSubCategory(this.CategoryLv3.CategoryId);
-            subCategoryLv3.WithDisplayName("Lv3");
+            this.CatalogCategoryLv1 =
+                this.Catalog.AddCategory(this.CategoryLv1.CategoryId, this.Fixture.Create<string>());
+            this.CatalogCategoryLv2 =
+                this.Catalog.AddCategory(this.CategoryLv2.CategoryId, this.Fixture.Create<string>(), this.CatalogCategoryLv1);
+            this.CatalogCategoryLv3 =
+                this.Catalog.AddCategory(this.CategoryLv3.CategoryId, this.Fixture.Create<string>(), this.CatalogCategoryLv2);
 
             await this.RepositoryExecute(async repository =>
             {
