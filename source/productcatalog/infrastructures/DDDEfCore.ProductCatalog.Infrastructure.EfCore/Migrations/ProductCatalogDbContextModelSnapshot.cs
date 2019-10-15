@@ -54,8 +54,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogProduct", b =>
                 {
-                    b.Property<Guid>("CatalogProductId")
-                        .HasColumnName("Id");
+                    b.Property<Guid>("CatalogProductId");
 
                     b.Property<Guid>("CatalogCategoryId");
 

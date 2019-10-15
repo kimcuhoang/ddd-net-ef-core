@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 {
     [DbContext(typeof(ProductCatalogDbContext))]
-    [Migration("20191014055327_Database_Initialize")]
+    [Migration("20191015015658_Database_Initialize")]
     partial class Database_Initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,6 +54,23 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                     b.ToTable("CatalogCategory");
                 });
 
+            modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogProduct", b =>
+                {
+                    b.Property<Guid>("CatalogProductId");
+
+                    b.Property<Guid>("CatalogCategoryId");
+
+                    b.Property<string>("DisplayName");
+
+                    b.Property<Guid>("ProductId");
+
+                    b.HasKey("CatalogProductId");
+
+                    b.HasIndex("CatalogCategoryId");
+
+                    b.ToTable("CatalogProduct");
+                });
+
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Categories.Category", b =>
                 {
                     b.Property<Guid>("CategoryId")
@@ -87,6 +104,14 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                     b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.Catalog")
                         .WithMany("Categories")
                         .HasForeignKey("CatalogId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogProduct", b =>
+                {
+                    b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogCategory", "CatalogCategory")
+                        .WithMany("Products")
+                        .HasForeignKey("CatalogCategoryId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

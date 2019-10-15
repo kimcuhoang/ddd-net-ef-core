@@ -19,7 +19,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
             builder
                 .Property(x => x.CatalogProductId)
                 .HasField("Id")
-                .HasColumnName("Id")
+                .UsePropertyAccessMode(PropertyAccessMode.Field)
                 .HasConversion(x => x.Id, x => new CatalogProductId(x));
 
             builder

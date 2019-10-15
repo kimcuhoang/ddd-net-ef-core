@@ -57,7 +57,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 
         #region Behaviors
 
-        public CatalogCategory WithDisplayName(string displayName)
+        public CatalogCategory ChangeDisplayName(string displayName)
         {
             if (string.IsNullOrWhiteSpace(displayName))
             {
@@ -73,7 +73,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 
         #region Behaviors with CatalogProduct
 
-        public CatalogProduct AddProduct(ProductId productId, string displayName)
+        public CatalogProduct CreateCatalogProduct(ProductId productId, string displayName)
         {
             if (productId == null)
                 throw new DomainException($"{nameof(productId)} is null.");
