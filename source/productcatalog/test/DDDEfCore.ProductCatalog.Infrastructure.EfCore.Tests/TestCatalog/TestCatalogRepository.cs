@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
+using AutoFixture.Xunit2;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
@@ -16,7 +19,9 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         private readonly TestCatalogFixture _testFixture;
 
         public TestCatalogRepository(TestCatalogFixture testFixture)
-            => this._testFixture = testFixture ?? throw new ArgumentNullException(nameof(testFixture));
+        {
+            this._testFixture = testFixture ?? throw new ArgumentNullException(nameof(testFixture));
+        }
 
         [Fact(DisplayName = "Create Catalog with Chain of Catalog-Categories Successfully")]
         public async Task Create_Catalog_With_Chain_Of_CatalogCategories_Successfully()
@@ -99,6 +104,37 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
             {
                 catalog.ShouldBeNull();
             });
+        }
+
+        [Theory(DisplayName = "Create 2 CatalogCategory Successfully")]
+        [AutoData]
+        public async Task Create_2_CatalogCategory_Successfully(string nameOfCategory1, string nameofCategory2)
+        {
+            await this._testFixture.InitData();
+
+            var category1 = Category.Create(nameOfCategory1);
+            var category2 = Category.Create(nameofCategory2);
+
+            CatalogCategory catalogCategory1 = null;
+            CatalogCategory catalogCategory2 = null;
+
+            await this._testFixture.SeedingData(category1, category2);
+
+            await this._testFixture.DoActionWithCatalog(catalog =>
+            {
+                catalogCategory1 =
+                    catalog.AddCategory(category1.CategoryId, category1.DisplayName);
+
+                catalogCategory2 =
+                    catalog.AddCategory(category2.CategoryId, category2.DisplayName);
+            });
+
+            await this._testFixture.DoAssert(catalog =>
+            {
+                catalog.Categories.ShouldContain(catalogCategory1);
+                catalog.Categories.ShouldContain(catalogCategory2);
+            });
+
         }
     }
 }

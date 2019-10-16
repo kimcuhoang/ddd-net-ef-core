@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 {
     [DbContext(typeof(ProductCatalogDbContext))]
-    [Migration("20191015015658_Database_Initialize")]
+    [Migration("20191016030030_Database_Initialize")]
     partial class Database_Initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

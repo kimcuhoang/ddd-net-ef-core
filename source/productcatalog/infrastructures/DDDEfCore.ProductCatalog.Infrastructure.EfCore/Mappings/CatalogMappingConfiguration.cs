@@ -23,6 +23,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
                 .HasMany(x => x.Categories)
                 .WithOne()
                 .HasForeignKey(x => x.CatalogId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }
 

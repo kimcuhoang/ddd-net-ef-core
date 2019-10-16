@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DDDEfCore.Core.Common.Models;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
@@ -82,5 +83,24 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         }
 
         #endregion
+
+        public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
+        {
+            await this.SharedFixture.SeedingData(entities);
+        }
+
+        public async Task DoActionWithCatalog(Action<Catalog> action)
+        {
+            await this.RepositoryExecute(async repository =>
+            {
+                var catalog = await repository
+                    .FindOneWithIncludeAsync(x => x.CatalogId == this.Catalog.CatalogId,
+                        x => x.Include(y => y.Categories));
+
+                action(catalog);
+
+                await repository.UpdateAsync(catalog);
+            });
+        }
     }
 }
