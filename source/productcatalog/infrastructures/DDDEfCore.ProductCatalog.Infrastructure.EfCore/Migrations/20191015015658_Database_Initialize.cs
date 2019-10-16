@@ -70,6 +70,26 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CatalogProduct",
+                columns: table => new
+                {
+                    CatalogProductId = table.Column<Guid>(nullable: false),
+                    DisplayName = table.Column<string>(nullable: true),
+                    ProductId = table.Column<Guid>(nullable: false),
+                    CatalogCategoryId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CatalogProduct", x => x.CatalogProductId);
+                    table.ForeignKey(
+                        name: "FK_CatalogProduct_CatalogCategory_CatalogCategoryId",
+                        column: x => x.CatalogCategoryId,
+                        principalTable: "CatalogCategory",
+                        principalColumn: "CatalogCategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CatalogCategory_CatalogCategoryParentId",
                 table: "CatalogCategory",
@@ -79,18 +99,26 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                 name: "IX_CatalogCategory_CatalogId",
                 table: "CatalogCategory",
                 column: "CatalogId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CatalogProduct_CatalogCategoryId",
+                table: "CatalogProduct",
+                column: "CatalogCategoryId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CatalogCategory");
+                name: "CatalogProduct");
 
             migrationBuilder.DropTable(
                 name: "Category");
 
             migrationBuilder.DropTable(
                 name: "Product");
+
+            migrationBuilder.DropTable(
+                name: "CatalogCategory");
 
             migrationBuilder.DropTable(
                 name: "Catalog");

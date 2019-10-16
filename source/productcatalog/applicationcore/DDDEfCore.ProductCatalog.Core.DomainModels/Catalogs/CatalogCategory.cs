@@ -4,6 +4,7 @@ using System.Linq;
 using DDDEfCore.Core.Common.Models;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
@@ -20,6 +21,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
         public CatalogCategory Parent { get; private set; }
 
         public bool IsRoot => Parent == null;
+
+        private List<CatalogProduct> _products = new List<CatalogProduct>();
+
+        public IEnumerable<CatalogProduct> Products => this._products;
 
         #region Constructors
 
@@ -52,7 +57,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 
         #region Behaviors
 
-        public CatalogCategory WithDisplayName(string displayName)
+        public CatalogCategory ChangeDisplayName(string displayName)
         {
             if (string.IsNullOrWhiteSpace(displayName))
             {
@@ -62,6 +67,33 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
             this.DisplayName = displayName;
 
             return this;
+        }
+
+        #endregion
+
+        #region Behaviors with CatalogProduct
+
+        public CatalogProduct CreateCatalogProduct(ProductId productId, string displayName)
+        {
+            if (productId == null)
+                throw new DomainException($"{nameof(productId)} is null.");
+
+            if (this._products.Any(x => x.ProductId == productId))
+                throw new DomainException($"Product#{productId} is existing in CatalogCategory#{this.CatalogCategoryId}");
+
+            var catalogProduct = CatalogProduct.Create(productId, displayName, this);
+
+            this._products.Add(catalogProduct);
+
+            return catalogProduct;
+        }
+
+        public void RemoveCatalogProduct(CatalogProduct catalogProduct)
+        {
+            if (catalogProduct == null)
+                throw new DomainException($"{nameof(catalogProduct)} is null");
+
+            this._products = _products.Where(x => x != catalogProduct).ToList();
         }
 
         #endregion
