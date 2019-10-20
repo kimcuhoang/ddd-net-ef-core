@@ -59,8 +59,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         public async Task Invalid_Command_ShouldThrowException()
         {
             var command = new RemoveCatalogCategoryCommand(Guid.Empty, Guid.Empty);
-            IRequestHandler<RemoveCatalogCategoryCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
+
+            IRequestHandler<RemoveCatalogCategoryCommand> handler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
 
             await Should.ThrowAsync<ValidationException>(async () =>
                 await handler.Handle(command, this.CancellationToken));

@@ -1,13 +1,13 @@
-﻿using DDDEfCore.Core.Common;
+﻿using System;
+using System.Linq;
+using DDDEfCore.Core.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory
 {
     public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCatalogCategoryCommand>
     {

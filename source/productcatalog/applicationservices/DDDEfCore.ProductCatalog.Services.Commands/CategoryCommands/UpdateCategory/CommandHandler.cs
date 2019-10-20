@@ -1,6 +1,5 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-using DDDEfCore.ProductCatalog.Services.Commands.Exceptions;
 using FluentValidation;
 using MediatR;
 using System;
@@ -28,30 +27,15 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
 
         protected override async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this.ValidateCommand(request, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var categoryId = new CategoryId(request.CategoryId);
-            var category = await this._repository.FindOneAsync(x => x.CategoryId == categoryId);
+            var category = await this._repository.FindOneAsync(x => x.CategoryId == request.CategoryId);
             
-            if (category == null)
-            {
-                throw new NotFoundEntityException($"Category#{request.CategoryId}");
-            }
-
             category.ChangeDisplayName(request.CategoryName);
 
             await this._repository.UpdateAsync(category);
         }
 
         #endregion
-
-        private async Task ValidateCommand(UpdateCategoryCommand request, CancellationToken cancellationToken)
-        {
-            var validateResult = await this._validator.ValidateAsync(request, cancellationToken);
-            if (!validateResult.IsValid)
-            {
-                throw new ValidationException($"Validation Failed For {nameof(UpdateCategoryCommand)}", validateResult.Errors);
-            }
-        }
     }
 }

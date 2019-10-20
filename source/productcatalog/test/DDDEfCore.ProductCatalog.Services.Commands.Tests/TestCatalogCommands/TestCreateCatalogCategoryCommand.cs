@@ -1,9 +1,12 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoFixture;
 using DDDEfCore.Core.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-using DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogCategory;
+using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
@@ -11,12 +14,9 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 {
     /// <summary>
     /// https://github.com/MichalJankowskii/Moq.EntityFrameworkCore
@@ -153,7 +153,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             var categoryId = category.CategoryId;
             var catalogId = catalog.CatalogId;
 
-            var command = new CreateCatalogCategoryCommand(Guid.NewGuid(), catalogId.Id, category.DisplayName);
+            var command = new CreateCatalogCategoryCommand(Guid.NewGuid(), categoryId.Id, category.DisplayName);
 
             var result = this._validator.TestValidate(command);
 
