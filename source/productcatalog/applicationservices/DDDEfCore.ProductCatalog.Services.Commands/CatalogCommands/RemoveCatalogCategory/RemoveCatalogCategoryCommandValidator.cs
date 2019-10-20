@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DDDEfCore.Core.Common;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatalogCategory
 {
@@ -17,12 +14,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
             RuleFor(x => x.CatalogId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
-                .Must(x => x.IsNotEmpty);
+                .Must(x => x.IsNotEmpty)
+                .WithMessage($"{nameof(RemoveCatalogCategoryCommand.CatalogId)} is empty or invalid.");
 
             RuleFor(x => x.CatalogCategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
-                .Must(x => x.IsNotEmpty);
+                .Must(x => x.IsNotEmpty)
+                .WithMessage($"{nameof(RemoveCatalogCategoryCommand.CatalogCategoryId)} is empty or invalid.");
 
             When(x => x.CatalogId.IsNotEmpty && x.CatalogCategoryId.IsNotEmpty, () =>
             {
