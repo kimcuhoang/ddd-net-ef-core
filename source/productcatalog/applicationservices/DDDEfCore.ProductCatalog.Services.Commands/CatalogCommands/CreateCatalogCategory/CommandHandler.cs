@@ -30,7 +30,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
         protected override async Task Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this.ValidateCommand(request, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
             
             var catalogId = new CatalogId(request.CatalogId);
             var categoryId = new CategoryId(request.CategoryId);
@@ -52,14 +52,5 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
         }
 
         #endregion
-
-        private async Task ValidateCommand(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
-        {
-            var validateResult = await this._validator.ValidateAsync(request, cancellationToken);
-            if (!validateResult.IsValid)
-            {
-                throw new ValidationException($"Validation Failed For {nameof(CreateCatalogCategoryCommand)}", validateResult.Errors);
-            }
-        }
     }
 }

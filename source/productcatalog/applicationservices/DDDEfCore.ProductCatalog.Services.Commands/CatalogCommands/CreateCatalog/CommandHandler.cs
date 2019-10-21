@@ -26,7 +26,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
         protected override async Task Handle(CreateCatalogCommand request, CancellationToken cancellationToken)
         {
-            await this.ValidateCommand(request, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
             var catalog = Catalog.Create(request.CatalogName);
 
@@ -41,14 +41,5 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
         }
 
         #endregion
-
-        private async Task ValidateCommand(CreateCatalogCommand request, CancellationToken cancellationToken)
-        {
-            var validateResult = await this._validator.ValidateAsync(request, cancellationToken);
-            if (!validateResult.IsValid)
-            {
-                throw new ValidationException($"Validation Failed For {nameof(CreateCatalogCommand)}", validateResult.Errors);
-            }
-        }
     }
 }

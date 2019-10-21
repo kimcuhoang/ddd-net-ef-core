@@ -27,7 +27,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCate
 
         protected override async Task Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this.ValidateCommand(request, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
             var category = Category.Create(request.CategoryName);
 
@@ -35,14 +35,5 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCate
         }
 
         #endregion
-
-        private async Task ValidateCommand(CreateCategoryCommand request, CancellationToken cancellationToken)
-        {
-            var validateResult = await this._validator.ValidateAsync(request, cancellationToken);
-            if (!validateResult.IsValid)
-            {
-                throw new ValidationException($"Validation Failed For {nameof(CreateCategoryCommand)}", validateResult.Errors);
-            }
-        }
     }
 }
