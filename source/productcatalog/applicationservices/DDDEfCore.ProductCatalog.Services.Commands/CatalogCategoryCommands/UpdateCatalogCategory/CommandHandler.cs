@@ -30,16 +30,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Upd
         protected override async Task Handle(UpdateCatalogCategoryCommand request, CancellationToken cancellationToken)
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
-
-            var catalogId = new CatalogId(request.CatalogId);
             
-            var catalogCategoryId = new CatalogCategoryId(request.CatalogCategoryId);
-            
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == catalogId,
+            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == request.CatalogId,
                 x => x.Include(c => c.Categories));
 
-            var catalogCategory = catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == catalogCategoryId);
-            catalogCategory.ChangeDisplayName(request.DisplayName);
+            catalog.Categories
+                .SingleOrDefault(x => x.CatalogCategoryId == request.CatalogCategoryId)
+                .ChangeDisplayName(request.DisplayName);
 
             await this._repository.UpdateAsync(catalog);
         }
