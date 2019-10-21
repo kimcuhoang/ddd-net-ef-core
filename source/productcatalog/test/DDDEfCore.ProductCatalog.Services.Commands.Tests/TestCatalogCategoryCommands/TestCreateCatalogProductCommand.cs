@@ -19,48 +19,49 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands
 {
-    public class TestCreateCatalogProductCommand : UnitTestBase<Catalog>
+    public class TestCreateCatalogProductCommand : UnitTestBase<Catalog>, IAsyncLifetime
     {
-        private readonly Mock<DbContext> _mockDbContext;
-        private readonly IRepository<Catalog> _catalogRepository;
-        private readonly IRepository<Product> _productRepository;
-        private readonly CreateCatalogProductCommandValidator _validator;
-        private readonly IRequestHandler<CreateCatalogProductCommand> _requestHandler;
+        private Mock<DbContext> _mockDbContext;
+        private CreateCatalogProductCommandValidator _validator;
+        private IRequestHandler<CreateCatalogProductCommand> _requestHandler;
 
-        private readonly Catalog _catalog;
-        private readonly Category _category;
-        private readonly Product _product;
-        private readonly CatalogCategory _catalogCategory;
+        private Catalog _catalog;
+        private Category _category;
+        private Product _product;
+        private CatalogCategory _catalogCategory;
 
-        public TestCreateCatalogProductCommand()
+        #region Implementation of IAsyncLifetime
+
+        public Task InitializeAsync()
         {
             this._mockDbContext = new Mock<DbContext>();
-            this._catalogRepository = new DefaultRepositoryAsync<Catalog>(this._mockDbContext.Object);
-            this._productRepository = new DefaultRepositoryAsync<Product>(this._mockDbContext.Object);
-            this._validator = new CreateCatalogProductCommandValidator(this.MockRepositoryFactory.Object);
-            
+            var catalogRepository = new DefaultRepositoryAsync<Catalog>(this._mockDbContext.Object);
+            var productRepository = new DefaultRepositoryAsync<Product>(this._mockDbContext.Object);
 
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Catalog>()).Returns(this._catalogRepository);
+                .Setup(x => x.CreateRepository<Catalog>()).Returns(catalogRepository);
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Product>()).Returns(this._productRepository);
+                .Setup(x => x.CreateRepository<Product>()).Returns(productRepository);
 
             this._catalog = Catalog.Create(this.Fixture.Create<string>());
             this._category = Category.Create(this.Fixture.Create<string>());
             this._product = Product.Create(this.Fixture.Create<string>());
             this._catalogCategory = this._catalog.AddCategory(this._category.CategoryId, this._category.DisplayName);
 
-            var catalogs = new List<Catalog> { this._catalog };
-            var products = new List<Product> { this._product };
-
             this._mockDbContext
-                .Setup(x => x.Set<Catalog>()).ReturnsDbSet(catalogs);
+                .Setup(x => x.Set<Catalog>()).ReturnsDbSet(new List<Catalog> { this._catalog });
             this._mockDbContext
-                .Setup(x => x.Set<Product>()).ReturnsDbSet(products);
-            
+                .Setup(x => x.Set<Product>()).ReturnsDbSet(new List<Product> { this._product });
 
+            this._validator = new CreateCatalogProductCommandValidator(this.MockRepositoryFactory.Object);
             this._requestHandler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
+
+            return Task.CompletedTask;
         }
+
+        public Task DisposeAsync() => Task.CompletedTask;
+
+        #endregion
 
         [Fact(DisplayName = "Create CatalogProduct Successfully")]
         public async Task Create_CatalogProduct_Successfully()
@@ -169,5 +170,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
             result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
         }
+
+        
     }
 }
