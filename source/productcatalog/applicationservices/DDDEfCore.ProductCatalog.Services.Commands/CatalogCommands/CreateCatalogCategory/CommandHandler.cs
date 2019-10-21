@@ -31,22 +31,18 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
         protected override async Task Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
-            
-            var catalogId = new CatalogId(request.CatalogId);
-            var categoryId = new CategoryId(request.CategoryId);
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == catalogId,
+            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == request.CatalogId,
                 x => x.Include(c => c.Categories));
 
             CatalogCategory parent = null;
 
-            if (request.ParentCatalogCategoryId.HasValue)
+            if (request.ParentCatalogCategoryId != null)
             {
-                var parentCatalogCategoryId = new CatalogCategoryId(request.ParentCatalogCategoryId.Value);
-                parent = catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == parentCatalogCategoryId);
+                parent = catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == request.ParentCatalogCategoryId);
             }
 
-            catalog.AddCategory(categoryId, request.DisplayName, parent);
+            catalog.AddCategory(request.CategoryId, request.DisplayName, parent);
 
             await this._repository.UpdateAsync(catalog);
         }
