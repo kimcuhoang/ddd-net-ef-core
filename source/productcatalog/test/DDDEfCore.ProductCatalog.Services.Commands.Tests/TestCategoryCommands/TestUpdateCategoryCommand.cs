@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory;
-using DDDEfCore.ProductCatalog.Services.Commands.Exceptions;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
 using Moq;
 using Shouldly;
+using System;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Xunit;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatagoryCommands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
 {
     public class TestUpdateCategoryCommand : UnitTestBase<Category>
     {
@@ -51,9 +48,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatagoryCommands
         {
             var command = new UpdateCategoryCommand(Guid.NewGuid(), this.Fixture.Create<string>());
 
-            //this.MockRepository
-            //    .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
-            //    .ReturnsAsync(Category.Create(this.Fixture.Create<string>()));
+            this.MockRepository
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
+                .ReturnsAsync((Category)null);
 
             IRequestHandler<UpdateCategoryCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);

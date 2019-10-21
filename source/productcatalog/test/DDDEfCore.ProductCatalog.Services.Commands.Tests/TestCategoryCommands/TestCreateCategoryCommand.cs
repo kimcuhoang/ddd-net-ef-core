@@ -1,15 +1,15 @@
-﻿using AutoFixture;
+﻿using System.Threading.Tasks;
+using AutoFixture;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory;
 using FluentValidation;
+using FluentValidation.TestHelper;
 using MediatR;
 using Moq;
 using Shouldly;
-using System.Threading.Tasks;
-using FluentValidation.TestHelper;
 using Xunit;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatagoryCommands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
 {
     public class TestCreateCategoryCommand : UnitTestBase<Category>
     {
