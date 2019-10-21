@@ -32,8 +32,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
             foreach (var category in request.Categories)
             {
-                var categoryId = new CategoryId(category.CategoryId);
-                catalog.AddCategory(categoryId, category.DisplayName);
+                catalog.AddCategory(category.CategoryId, category.DisplayName);
             }
 
             await this._repository.AddAsync(catalog);

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using MediatR;
+using System;
+using System.Collections.Generic;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog
 {
@@ -25,13 +25,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
         public class CategoryInCatalog
         {
-            public Guid CategoryId { get; }
+            public CategoryId CategoryId { get; }
 
             public string DisplayName { get; }
 
             public CategoryInCatalog(Guid categoryId, string displayName)
             {
-                this.CategoryId = categoryId;
+                this.CategoryId = new CategoryId(categoryId);
                 this.DisplayName = displayName;
             }
         }
