@@ -28,6 +28,8 @@ namespace DDDEfCore.Core.Common.Models
         public override string ToString() => $"{this.GetType().Name}:{this.Id}";
 
         #endregion
+
+        public bool IsNotEmpty => this.Id != Guid.Empty;
     }
 
     public static class IdentityFactory
