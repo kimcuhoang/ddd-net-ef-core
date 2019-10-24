@@ -1,27 +1,19 @@
 
 var target = Argument("target", "Report");
+var configuration = Argument("Configuration", "Release");
 
-#addin nuget:?package=Cake.Coverlet&version=2.1.2
-#tool nuget:?package=ReportGenerator&version=4.0.4
+#addin nuget:?package=Cake.Coverlet&version=2.3.4
+#tool nuget:?package=ReportGenerator&version=4.3.2
 
-
-
-/*  Specify the relative paths to your tests projects here. */
-var testProjectsRelativePaths = new string[]
-{
-    "../tests/CodeCoverageCalculation.Common.Tests/CodeCoverageCalculation.Common.Tests.csproj",
-    "../tests/CodeCoverageCalculation.Domain.Tests/CodeCoverageCalculation.Domain.Tests.csproj"
-};
 
 /*  Change the output artifacts and their configuration here. */
 var parentDirectory = Directory("..");
-var coverageDirectory = parentDirectory + Directory("code_coverage");
-var testProjectDirectory = @$"{parentDirectory}/source/productcatalog/test/";
+var testProjectDirectory = Directory($"{parentDirectory}/source/productcatalog/test");
+var coverageDirectory = Directory($"{parentDirectory}/code_coverage");
 var cuberturaFileName = "results";
 var cuberturaFileExtension = ".cobertura.xml";
 var reportTypes = "HTML;HTMLSummary"; // Use "Html" value locally for performance and files' size.
 var coverageFilePath = coverageDirectory + File(cuberturaFileName + cuberturaFileExtension);
-var jsonFilePath = coverageDirectory + File(cuberturaFileName + ".json");
 
 Task("Clean")
     .Does(() =>
@@ -36,28 +28,31 @@ Task("Test")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    
-
+    var testResultDir = MakeAbsolute(coverageDirectory);
     var testSettings = new DotNetCoreTestSettings
     {
-        // 'trx' files will be used to publish the results of tests' execution in an Azure DevOps pipeline.
-        ArgumentCustomization = args => args.Append($"--logger trx")
+        Configuration = configuration,
+        ArgumentCustomization = args => 
+            args.Append($"--logger trx")
+                .Append($"--results-directory {testResultDir}")
     };
 
     var coverletSettings = new CoverletSettings
     {
         CollectCoverage = true,
-        CoverletOutputDirectory = coverageDirectory,
         CoverletOutputName = cuberturaFileName,
-        CoverletOutputFormat = CoverletOutputFormat.cobertura,
-        MergeWithFile = jsonFilePath
+        CoverletOutputFormat = CoverletOutputFormat.cobertura
     };
 
+    
     var testProjects = GetFiles($@"{testProjectDirectory}/**/*.csproj");
     
     foreach (var testProject in testProjects)
     {
-        Information(testProject);
+        var filename = testProject.GetFilenameWithoutExtension().FullPath;
+        coverletSettings.CoverletOutputName = File($"{filename}.{cuberturaFileName}{cuberturaFileExtension}");
+        coverletSettings.CoverletOutputDirectory = Directory($"{coverageDirectory}"); 
+
         DotNetCoreTest(testProject, testSettings, coverletSettings);
     }
 });
@@ -66,11 +61,12 @@ Task("Report")
     .IsDependentOn("Test")
     .Does(() =>
 {
-    // var reportSettings = new ReportGeneratorSettings
-    // {
-    //     ArgumentCustomization = args => args.Append($"-reportTypes:{reportTypes}")
-    // };
-    // ReportGenerator(coverageFilePath, coverageDirectory, reportSettings);
+    var reportSettings = new ReportGeneratorSettings
+    {
+        ReportTypes = new List<ReportGeneratorReportType> {ReportGeneratorReportType.Html, ReportGeneratorReportType.HtmlSummary},
+        Verbosity = ReportGeneratorVerbosity.Verbose,
+    };
+    ReportGenerator($"{Directory($"{coverageDirectory}")}/*.{cuberturaFileName}{cuberturaFileExtension}", coverageDirectory, reportSettings);
 });
 
 RunTarget(target);
