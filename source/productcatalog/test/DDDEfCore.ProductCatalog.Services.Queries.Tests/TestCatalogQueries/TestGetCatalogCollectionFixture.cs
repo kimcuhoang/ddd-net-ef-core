@@ -18,6 +18,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
         public List<Catalog> Catalogs { get; private set; } = new List<Catalog>();
 
+        public Catalog CatalogWithoutCatalogCategory { get; private set; }
+
         #region Implementation of IAsyncLifetime
 
         public async Task InitializeAsync()
@@ -28,6 +30,9 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 var catalog = this.CreateCatalog(GenFu.GenFu.Random.Next(5));
                 this.Catalogs.Add(catalog);
             });
+            this.CatalogWithoutCatalogCategory = Catalog.Create(this.Fixture.Create<string>());
+            this.Catalogs.Add(this.CatalogWithoutCatalogCategory);
+
             await this.SharedFixture.SeedingData(this.Catalogs.ToArray());
         }
 

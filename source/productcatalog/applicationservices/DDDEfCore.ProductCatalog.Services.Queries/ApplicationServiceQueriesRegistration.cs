@@ -1,4 +1,5 @@
 ﻿using DDDEfCore.ProductCatalog.Services.Queries.Db;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries
                 return new SqlServerDbConnectionFactory(connectionString);
             });
             services.AddMediatR(typeof(SqlServerDbConnectionFactory).Assembly);
+            services.AddValidatorsFromAssembly(typeof(SqlServerDbConnectionFactory).Assembly);
             return services;
         }
     }
