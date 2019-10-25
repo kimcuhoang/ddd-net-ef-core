@@ -31,26 +31,29 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCol
                 if (!string.IsNullOrWhiteSpace(request.SearchTerm))
                 {
                     sqlClauseBuilder = sqlClauseBuilder
-                        .Append($"WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE '%{request.SearchTerm}%'");
+                        .Append($"WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE @SearchTerm ");
                 }
+
                 sqlClauseBuilder = sqlClauseBuilder
-                        .Append($"GROUP BY {nameof(Catalog)}.Id, {nameof(Catalog)}.{nameof(Catalog.DisplayName)} ")
-                        .Append($"ORDER BY {nameof(Catalog)}.{nameof(Catalog.DisplayName)} ")
-                        .Append("OFFSET @Offset ROWS ")
-                        .Append("FETCH NEXT @PageSize ROWS ONLY; ")
+                    .Append($"GROUP BY {nameof(Catalog)}.Id, {nameof(Catalog)}.{nameof(Catalog.DisplayName)} ")
+                    .Append($"ORDER BY {nameof(Catalog)}.{nameof(Catalog.DisplayName)} ")
+                    .Append("OFFSET @Offset ROWS ")
+                    .Append("FETCH NEXT @PageSize ROWS ONLY; ");
+
+                sqlClauseBuilder = sqlClauseBuilder
                         .Append($"SELECT COUNT(*) FROM {nameof(Catalog)} AS {nameof(Catalog)} ");
 
                 if (!string.IsNullOrWhiteSpace(request.SearchTerm))
                 {
                     sqlClauseBuilder = sqlClauseBuilder
-                        .Append($"WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE '%{request.SearchTerm}%'");
+                        .Append($"WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE @SearchTerm ");
                 }
-
 
                 var parameters = new
                 {
                     Offset = Math.Abs((request.PageIndex - 1) * request.PageSize),
-                    PageSize = request.PageSize == 0 ? request.PageSize + 1 : request.PageSize
+                    PageSize = request.PageSize == 0 ? request.PageSize + 1 : request.PageSize,
+                    SearchTerm = $"%{request.SearchTerm}%"
                 };
 
                 var multiQuery = await connection.QueryMultipleAsync(sqlClauseBuilder.ToString(), parameters);

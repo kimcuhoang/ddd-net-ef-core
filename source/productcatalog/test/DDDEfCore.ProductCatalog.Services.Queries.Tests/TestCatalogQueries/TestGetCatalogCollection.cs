@@ -5,6 +5,7 @@ using Shouldly;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GenFu;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
@@ -13,10 +14,12 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
     public class TestGetCatalogCollection : IClassFixture<TestGetCatalogCollectionFixture>
     {
         private readonly TestGetCatalogCollectionFixture _testFixture;
+        private readonly CancellationToken _cancellationToken;
 
         public TestGetCatalogCollection(TestGetCatalogCollectionFixture testFixture)
         {
             this._testFixture = testFixture;
+            this._cancellationToken = new CancellationToken(false);
         }
 
 
@@ -38,7 +41,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
                     new RequestHandler(dbConnection);
 
-                var result = await requestHandler.Handle(request, CancellationToken.None);
+                var result = await requestHandler.Handle(request, this._cancellationToken);
 
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(this._testFixture.Catalogs.Count);
@@ -53,7 +56,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             });
         }
 
-        [Fact(DisplayName = "Should_GetCatalogCollection_With_SearchTerm_Correctly")]
+        [Fact(DisplayName = "Should GetCatalogCollection With SearchTerm Correctly")]
         public async Task Should_GetCatalogCollection_With_SearchTerm_Correctly()
         {
             var randomIndex = GenFu.GenFu.Random.Next(0, this._testFixture.Catalogs.Count);
@@ -72,7 +75,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
                     new RequestHandler(dbConnection);
 
-                var result = await requestHandler.Handle(request, CancellationToken.None);
+                var result = await requestHandler.Handle(request, this._cancellationToken);
 
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(1);
@@ -81,6 +84,24 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 catalog.ShouldNotBeNull();
                 catalog.DisplayName.ShouldBe(catalogAtRandomIndex.DisplayName);
                 catalog.TotalCategories.ShouldBe(catalogAtRandomIndex.Categories.Count());
+            });
+        }
+
+        [Fact(DisplayName = "Return empty if not found any Catalog")]
+        public async Task Return_Empty_If_NotFound_Any_Catalog()
+        {
+            var request = A.New<GetCatalogCollectionRequest>();
+
+            await this._testFixture.ExecuteScopeAsync(async dbConnection =>
+            {
+                IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
+                    new RequestHandler(dbConnection);
+
+                var result = await requestHandler.Handle(request, this._cancellationToken);
+
+                result.ShouldNotBeNull();
+                result.TotalCatalogs.ShouldBe(0);
+                result.CatalogItems.ShouldBeEmpty();
             });
         }
     }
