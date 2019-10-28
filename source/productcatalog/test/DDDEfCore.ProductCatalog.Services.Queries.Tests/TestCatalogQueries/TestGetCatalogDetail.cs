@@ -90,6 +90,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
                     catalogCategory.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogCategory.DisplayName);
+                    c.TotalOfProducts.ShouldBe(catalogCategory.Products.Count());
                 });
             });
         }
@@ -133,6 +134,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
                     catalogCategory.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogCategory.DisplayName);
+                    c.TotalOfProducts.ShouldBe(catalogCategory.Products.Count());
                 });
             });
         }

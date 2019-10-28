@@ -8,6 +8,7 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Xunit;
 using AutoFixture;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 {
@@ -46,10 +47,22 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             Enumerable.Range(0, numberOfCategories).ToList().ForEach(i =>
             {
                 var categoryId = IdentityFactory.Create<CategoryId>();
-                catalog.AddCategory(categoryId, this.Fixture.Create<string>());
+                var catalogCategory = catalog.AddCategory(categoryId, this.Fixture.Create<string>());
+                var numberOfProducts = GenFu.GenFu.Random.Next(0, 5);
+                catalogCategory = this.AddCatalogProducts(catalogCategory, numberOfProducts);
             });
 
             return catalog;
+        }
+
+        private CatalogCategory AddCatalogProducts(CatalogCategory catalogCategory, int numberOfProducts)
+        { 
+            Enumerable.Range(0, numberOfProducts).ToList().ForEach(idx =>
+            {
+                var productId = IdentityFactory.Create<ProductId>();
+                catalogCategory.CreateCatalogProduct(productId, this.Fixture.Create<string>());
+            });
+            return catalogCategory;
         }
     }
 }
