@@ -119,7 +119,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCa
             if (!string.IsNullOrWhiteSpace(searchRequest.SearchTerm))
             {
                 sqlClauseBuilder = sqlClauseBuilder
-                    .Append($" AND {nameof(CatalogProduct)} LIKE @SearchTerm");
+                    .Append($" AND {nameof(CatalogProduct)}.{nameof(CatalogProduct.DisplayName)} LIKE @SearchTerm");
             }
 
             sqlClauseBuilder = sqlClauseBuilder
@@ -140,7 +140,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCa
             if (!string.IsNullOrWhiteSpace(searchRequest.SearchTerm))
             {
                 sqlClauseBuilder = sqlClauseBuilder
-                    .Append($" AND {nameof(CatalogProduct)} LIKE @SearchTerm");
+                    .Append($" AND {nameof(CatalogProduct)}.{nameof(CatalogProduct.DisplayName)} LIKE @SearchTerm");
             }
             
             return sqlClauseBuilder.ToString();

@@ -26,7 +26,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
 
         public CatalogCategory CatalogCategory => this.Catalog.Categories.FirstOrDefault();
 
-        public IEnumerable<CatalogProduct> CatalogProducts => this.CatalogCategory.Products;
+        public List<CatalogProduct> CatalogProducts => this.CatalogCategory.Products.ToList();
 
         public async Task InitializeAsync()
         {
