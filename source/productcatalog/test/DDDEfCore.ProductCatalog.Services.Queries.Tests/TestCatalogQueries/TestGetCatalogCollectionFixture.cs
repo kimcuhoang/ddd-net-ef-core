@@ -17,7 +17,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
     {
         public TestGetCatalogCollectionFixture(SharedFixture sharedFixture) : base(sharedFixture) { }
 
-        public List<Catalog> Catalogs { get; private set; } = new List<Catalog>();
+        public List<Catalog> Catalogs { get; private set; }
 
         public Catalog CatalogWithoutCatalogCategory { get; private set; }
 
@@ -25,6 +25,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
         public async Task InitializeAsync()
         {
+            this.Catalogs = new List<Catalog>();
+
             var numberOfCatalogs = GenFu.GenFu.Random.Next(10);
             Enumerable.Range(0, numberOfCatalogs).ToList().ForEach(i =>
             {

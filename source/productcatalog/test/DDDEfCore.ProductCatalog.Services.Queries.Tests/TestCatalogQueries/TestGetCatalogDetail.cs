@@ -50,6 +50,19 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             }
         }
 
+        private async Task ExecuteTestAndAssert(GetCatalogDetailRequest request, Action<GetCatalogDetailResult> assertFor)
+        {
+            await this._testFixture.ExecuteScopeAsync(async sqlConnection =>
+            {
+                IRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult> requestHandler =
+                    new RequestHandler(sqlConnection, this._validator);
+
+                var result = await requestHandler.Handle(request, this._cancellationToken);
+
+                assertFor(result);
+            });
+        }
+
         [Theory(DisplayName = "Should GetCatalogDetail With Paging CatalogCategory Correctly")]
         [InlineData(0, 0)]
         [InlineData(1, 0)]
@@ -68,20 +81,15 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 }
             };
 
-            await this._testFixture.ExecuteScopeAsync(async sqlConnection =>
+            await this.ExecuteTestAndAssert(request, result =>
             {
-                IRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult> requestHandler =
-                    new RequestHandler(sqlConnection, this._validator);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
                 result.ShouldNotBeNull();
                 result.CatalogDetail.ShouldSatisfyAllConditions(
-                        () => result.CatalogDetail.Id.ShouldBe(catalogId),
-                        () => result.CatalogDetail.DisplayName.ShouldBe(this.Catalog.DisplayName)
-                    );
+                    () => result.CatalogDetail.Id.ShouldBe(catalogId),
+                    () => result.CatalogDetail.DisplayName.ShouldBe(this.Catalog.DisplayName)
+                );
                 result.TotalOfCatalogCategories.ShouldBe(this.Catalog.Categories.Count());
-                
+
                 result.CatalogCategories.ToList().ForEach(c =>
                 {
                     var catalogCategory =
@@ -112,13 +120,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 }
             };
 
-            await this._testFixture.ExecuteScopeAsync(async sqlConnection =>
+            await this.ExecuteTestAndAssert(request, result =>
             {
-                IRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult> requestHandler =
-                    new RequestHandler(sqlConnection, this._validator);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
                 result.ShouldNotBeNull();
                 result.CatalogDetail.ShouldSatisfyAllConditions(
                     () => result.CatalogDetail.Id.ShouldBe(catalogId),
@@ -146,13 +149,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
             var request = new GetCatalogDetailRequest(catalogId);
 
-            await this._testFixture.ExecuteScopeAsync(async dbConnectionFactory =>
+            await this.ExecuteTestAndAssert(request, result =>
             {
-                IRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult> requestHandler =
-                    new RequestHandler(dbConnectionFactory, this._validator);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
                 result.ShouldNotBeNull();
                 result.TotalOfCatalogCategories.ShouldBe(0);
                 result.CatalogCategories.ShouldBeEmpty();
@@ -179,13 +177,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         {
             var request = new GetCatalogDetailRequest(Guid.NewGuid());
 
-            await this._testFixture.ExecuteScopeAsync(async dbConnectionFactory =>
+            await this.ExecuteTestAndAssert(request, result =>
             {
-                IRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult> requestHandler =
-                    new RequestHandler(dbConnectionFactory, this._validator);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
                 result.ShouldNotBeNull();
                 result.TotalOfCatalogCategories.ShouldBe(0);
                 result.CatalogDetail.ShouldNotBeNull();

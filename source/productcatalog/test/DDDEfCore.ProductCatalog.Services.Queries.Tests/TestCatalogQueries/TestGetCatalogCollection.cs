@@ -1,4 +1,5 @@
-﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+﻿using System;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCollections;
 using MediatR;
 using Shouldly;
@@ -22,12 +23,24 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             this._cancellationToken = new CancellationToken(false);
         }
 
+        private async Task ExecuteTestWithAssert(GetCatalogCollectionRequest request, Action<GetCatalogCollectionResult> assertFor)
+        {
+            await this._testFixture.ExecuteScopeAsync(async dbConnection =>
+            {
+                IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
+                    new RequestHandler(dbConnection);
+
+                var result = await requestHandler.Handle(request, this._cancellationToken);
+
+                assertFor(result);
+            });
+        }
 
         [Theory(DisplayName = "Should GetCatalogCollection With Paging Correctly")]
-        [InlineData(1, 1000)]
-        [InlineData(10, 1000)]
-        [InlineData(0, 1)]
         [InlineData(0, 0)]
+        [InlineData(1, 0)]
+        [InlineData(1, int.MaxValue)]
+        [InlineData(int.MaxValue, int.MaxValue)]
         public async Task Should_GetCatalogCollection_WithPaging_Correctly(int pageIndex, int pageSize)
         {
             var request = new GetCatalogCollectionRequest
@@ -36,19 +49,15 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 PageSize = pageSize
             };
 
-            await this._testFixture.ExecuteScopeAsync(async dbConnection =>
+            await this.ExecuteTestWithAssert(request, (result) =>
             {
-                IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
-                    new RequestHandler(dbConnection);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(this._testFixture.Catalogs.Count);
                 foreach (var catalogItem in result.CatalogItems)
                 {
                     var catalog =
-                        this._testFixture.Catalogs.SingleOrDefault(x => x.CatalogId == new CatalogId(catalogItem.CatalogId));
+                        this._testFixture.Catalogs.SingleOrDefault(x =>
+                            x.CatalogId == new CatalogId(catalogItem.CatalogId));
                     catalog.ShouldNotBeNull();
                     catalogItem.DisplayName.ShouldBe(catalog.DisplayName);
                     catalogItem.TotalCategories.ShouldBe(catalog.Categories.Count());
@@ -70,13 +79,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 SearchTerm = searchTerm
             };
 
-            await this._testFixture.ExecuteScopeAsync(async dbConnection =>
+            await this.ExecuteTestWithAssert(request, (result) =>
             {
-                IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
-                    new RequestHandler(dbConnection);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(1);
                 var catalog =
@@ -92,13 +96,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         {
             var request = A.New<GetCatalogCollectionRequest>();
 
-            await this._testFixture.ExecuteScopeAsync(async dbConnection =>
+            await this.ExecuteTestWithAssert(request, (result) =>
             {
-                IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
-                    new RequestHandler(dbConnection);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(0);
                 result.CatalogItems.ShouldBeEmpty();

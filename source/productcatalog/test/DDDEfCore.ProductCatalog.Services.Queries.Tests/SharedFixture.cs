@@ -9,6 +9,7 @@ using System;
 using System.Data;
 using System.IO;
 using System.Threading.Tasks;
+using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using DDDEfCore.ProductCatalog.Services.Queries.Db;
 using Xunit;
 
@@ -88,6 +89,10 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
             using (var serviceScope = this._serviceScopeFactory.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                var databaseMigration = serviceScope.ServiceProvider.GetService<DatabaseMigration>();
+                await databaseMigration.ApplyMigration();
+
                 var dbConnection = dbContext.Database.GetDbConnection();
                 await dbConnection.OpenAsync();
                 await checkPoint.Reset(dbConnection);
