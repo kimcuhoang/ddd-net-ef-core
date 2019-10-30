@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,30 +26,14 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCol
         {
             using (var connection = await this._dbConnection.GetConnection(cancellationToken))
             {
-                var sqlClauseBuilder = 
-                    new StringBuilder($@"SELECT {nameof(GetCatalogCollectionResult.CatalogItem.CatalogId)} = {nameof(Catalog)}.Id, {nameof(Catalog)}.{nameof(Catalog.DisplayName)}, {nameof(GetCatalogCollectionResult.CatalogItem.TotalCategories)} = COUNT({nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)}) ")
-                        .Append($"FROM {nameof(Catalog)} AS {nameof(Catalog)} ")
-                        .Append($"LEFT JOIN {nameof(CatalogCategory)} AS {nameof(CatalogCategory)} ON {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = {nameof(Catalog)}.Id ");
-                if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+
+                var sqlClauses = new List<string>
                 {
-                    sqlClauseBuilder = sqlClauseBuilder
-                        .Append($"WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE @SearchTerm ");
-                }
+                    this.SqlClauseForQueryingCatalogs(request),
+                    this.SqlClauseForCountingCatalogs(request)
+                };
 
-                sqlClauseBuilder = sqlClauseBuilder
-                    .Append($"GROUP BY {nameof(Catalog)}.Id, {nameof(Catalog)}.{nameof(Catalog.DisplayName)} ")
-                    .Append($"ORDER BY {nameof(Catalog)}.{nameof(Catalog.DisplayName)} ")
-                    .Append("OFFSET @Offset ROWS ")
-                    .Append("FETCH NEXT @PageSize ROWS ONLY; ");
-
-                sqlClauseBuilder = sqlClauseBuilder
-                        .Append($"SELECT COUNT(*) FROM {nameof(Catalog)} AS {nameof(Catalog)} ");
-
-                if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-                {
-                    sqlClauseBuilder = sqlClauseBuilder
-                        .Append($"WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE @SearchTerm ");
-                }
+                var combinedSqlClause = string.Join("; ", sqlClauses);
 
                 var parameters = new
                 {
@@ -56,7 +42,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCol
                     SearchTerm = $"%{request.SearchTerm}%"
                 };
 
-                var multiQuery = await connection.QueryMultipleAsync(sqlClauseBuilder.ToString(), parameters);
+                var multiQuery = await connection.QueryMultipleAsync(combinedSqlClause, parameters);
 
                 var catalogs = await multiQuery.ReadAsync<GetCatalogCollectionResult.CatalogItem>();
                 var totalCatalogs = await multiQuery.ReadFirstAsync<int>();
@@ -72,5 +58,52 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCol
         }
 
         #endregion
+
+        private string SqlClauseForQueryingCatalogs(GetCatalogCollectionRequest request)
+        {
+            var fieldsDefinition = new Dictionary<string, string>
+            {
+                {$"{nameof(GetCatalogCollectionResult.CatalogItem.CatalogId)}", $"{nameof(Catalog)}.Id"},
+                {$"{nameof(GetCatalogCollectionResult.CatalogItem.DisplayName)}", $"{nameof(Catalog)}.{nameof(Catalog.DisplayName)}"}
+            };
+            var groupByFields = string.Join(",", fieldsDefinition.Select(x => x.Value));
+
+            fieldsDefinition.Add($"{nameof(GetCatalogCollectionResult.CatalogItem.TotalCategories)}", 
+                 $"COUNT({nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)})");
+            var selectedFields = string.Join(",", fieldsDefinition.Select(x => $"{x.Key}={x.Value}"));
+
+            var sqlClauseBuilder = new StringBuilder($"SELECT {selectedFields}")
+                .Append($" FROM {nameof(Catalog)} AS {nameof(Catalog)}")
+                .Append($" LEFT JOIN {nameof(CatalogCategory)} AS {nameof(CatalogCategory)}")
+                .Append($" ON {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = {nameof(Catalog)}.Id");
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                sqlClauseBuilder = sqlClauseBuilder
+                    .Append($" WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE @SearchTerm");
+            }
+
+            sqlClauseBuilder = sqlClauseBuilder
+                .Append($" GROUP BY {groupByFields}")
+                .Append($" ORDER BY {nameof(Catalog)}.{nameof(Catalog.DisplayName)} ")
+                .Append(" OFFSET @Offset ROWS ")
+                .Append(" FETCH NEXT @PageSize ROWS ONLY; ");
+
+            return sqlClauseBuilder.ToString();
+        }
+
+        private string SqlClauseForCountingCatalogs(GetCatalogCollectionRequest request)
+        {
+            var sqlClauseBuilder = new StringBuilder("SELECT COUNT(*)")
+                .Append($" FROM {nameof(Catalog)} AS {nameof(Catalog)}");
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                sqlClauseBuilder = sqlClauseBuilder
+                    .Append($" WHERE {nameof(Catalog)}.{nameof(Catalog.DisplayName)} LIKE @SearchTerm ");
+            }
+
+            return sqlClauseBuilder.ToString();
+        }
     }
 }

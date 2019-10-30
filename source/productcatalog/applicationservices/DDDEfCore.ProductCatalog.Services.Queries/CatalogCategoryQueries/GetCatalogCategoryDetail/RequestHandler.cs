@@ -99,14 +99,6 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCa
 
         private string SqlClauseForQueryingCatalogProducts(GetCatalogCategoryDetailRequest.CatalogProductSearchRequest searchRequest)
         {
-            //var selectedFields = new List<string>
-            //{
-            //    $"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.CatalogProductId)} = {nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)}",
-            //    $"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.DisplayName)} = {nameof(CatalogProduct)}.{nameof(CatalogProduct.DisplayName)}",
-            //    $"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.ProductId)} = {nameof(CatalogProduct)}.{nameof(CatalogProduct.ProductId)}",
-            //    $"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.ProductName)} = {nameof(Product)}.{nameof(Product.Name)}",
-            //};
-
             var fieldsDefinition = new Dictionary<string, string>
             {
                 {$"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.CatalogProductId)}", $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)}"},
