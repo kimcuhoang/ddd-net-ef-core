@@ -8,36 +8,31 @@ using Xunit;
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQueries
 {
     [Collection(nameof(Tests.SharedFixture))]
-    public class TestCatalogProductFixture : BaseTestFixture<Catalog>, IAsyncLifetime
+    public class TestCatalogProductFixture : SharedFixture
     {
-        public TestCatalogProductFixture(SharedFixture sharedFixture) : base(sharedFixture)
-        {
-        }
         public Product Product { get; private set; }
         public Category Category { get; private set; }
         public Catalog Catalog { get; private set; }
         public CatalogCategory CatalogCategory { get; private set; }
         public CatalogProduct CatalogProduct { get; private set; }
 
-        #region Implementation of IAsyncLifetime
-
-        public async Task InitializeAsync()
+        public override async Task InitializeAsync()
         {
+            await base.InitializeAsync();
+
             this.Category = Category.Create(this.Fixture.Create<string>());
-            await this.SharedFixture.SeedingData(this.Category);
+            await this.SeedingData(this.Category);
 
             this.Product = Product.Create(this.Fixture.Create<string>());
-            await this.SharedFixture.SeedingData(this.Product);
+            await this.SeedingData(this.Product);
 
             this.Catalog = Catalog.Create(this.Fixture.Create<string>());
             this.CatalogCategory = this.Catalog.AddCategory(this.Category.CategoryId, this.Category.DisplayName);
             this.CatalogProduct = this.CatalogCategory.CreateCatalogProduct(this.Product.ProductId, this.Product.Name);
 
-            await this.SharedFixture.SeedingData(this.Catalog);
+            await this.SeedingData(this.Catalog);
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
-
-        #endregion
+        
     }
 }

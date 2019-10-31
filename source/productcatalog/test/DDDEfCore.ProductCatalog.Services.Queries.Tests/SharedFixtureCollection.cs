@@ -1,5 +1,7 @@
 ﻿using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
 {
     [CollectionDefinition(nameof(SharedFixture))]

@@ -14,13 +14,13 @@ using Xunit;
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 {
     [Collection(nameof(SharedFixture))]
-    public class TestGetCatalogDetail : IClassFixture<TestGetCatalogCollectionFixture>
+    public class TestGetCatalogDetail : IClassFixture<TestGetCatalogFixture>
     {
-        private readonly TestGetCatalogCollectionFixture _testFixture;
+        private readonly TestGetCatalogFixture _testFixture;
         private readonly CancellationToken _cancellationToken;
         private readonly GetCatalogDetailRequestValidator _validator;
 
-        public TestGetCatalogDetail(TestGetCatalogCollectionFixture textFixture)
+        public TestGetCatalogDetail(TestGetCatalogFixture textFixture)
         {
             this._testFixture = textFixture ?? throw new ArgumentNullException(nameof(textFixture));
             this._cancellationToken = new CancellationToken(false);

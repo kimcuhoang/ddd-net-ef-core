@@ -14,29 +14,21 @@ using Xunit;
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQueries
 {
     [Collection(nameof(Tests.SharedFixture))]
-    public class TestCatalogCategoryFixture : BaseTestFixture<Catalog>, IAsyncLifetime
+    public class TestCatalogCategoryFixture : SharedFixture
     {
-        public TestCatalogCategoryFixture(SharedFixture sharedFixture) : base(sharedFixture)
-        {
-        }
-
-        #region Implementation of IAsyncLifetime
-
         public Catalog Catalog { get; private set; }
 
         public CatalogCategory CatalogCategory => this.Catalog.Categories.FirstOrDefault();
 
         public List<CatalogProduct> CatalogProducts => this.CatalogCategory.Products.ToList();
 
-        public async Task InitializeAsync()
+        public override async Task InitializeAsync()
         {
+            await base.InitializeAsync();
+
             this.Catalog = this.CreateCatalog();
-            await this.SharedFixture.SeedingData(this.Catalog);
+            await this.SeedingData(this.Catalog);
         }
-
-        public Task DisposeAsync() => Task.CompletedTask;
-
-        #endregion
 
         private Catalog CreateCatalog()
         {

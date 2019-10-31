@@ -12,12 +12,12 @@ using Xunit;
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 {
     [Collection(nameof(SharedFixture))]
-    public class TestGetCatalogCollection : IClassFixture<TestGetCatalogCollectionFixture>
+    public class TestGetCatalogCollection : IClassFixture<TestGetCatalogFixture>
     {
-        private readonly TestGetCatalogCollectionFixture _testFixture;
+        private readonly TestGetCatalogFixture _testFixture;
         private readonly CancellationToken _cancellationToken;
 
-        public TestGetCatalogCollection(TestGetCatalogCollectionFixture testFixture)
+        public TestGetCatalogCollection(TestGetCatalogFixture testFixture)
         {
             this._testFixture = testFixture;
             this._cancellationToken = new CancellationToken(false);
@@ -43,6 +43,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         [InlineData(int.MaxValue, int.MaxValue)]
         public async Task Should_GetCatalogCollection_WithPaging_Correctly(int pageIndex, int pageSize)
         {
+            var catalogs = this._testFixture.Catalogs.ToList();
             var request = new GetCatalogCollectionRequest
             {
                 PageIndex = pageIndex,
@@ -52,13 +53,12 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             await this.ExecuteTestWithAssert(request, (result) =>
             {
                 result.ShouldNotBeNull();
-                result.TotalCatalogs.ShouldBe(this._testFixture.Catalogs.Count);
+                result.TotalCatalogs.ShouldBe(catalogs.Count);
                 foreach (var catalogItem in result.CatalogItems)
                 {
-                    var catalog =
-                        this._testFixture.Catalogs.SingleOrDefault(x =>
-                            x.CatalogId == new CatalogId(catalogItem.CatalogId));
-                    catalog.ShouldNotBeNull();
+                    var catalogId = new CatalogId(catalogItem.CatalogId);
+                    var catalog = catalogs.SingleOrDefault(x => x.CatalogId == catalogId);
+                    catalog.ShouldNotBeNull(() => $"Assert{catalogId} in {string.Join(",", catalogs.Select(x => x.CatalogId.Id.ToString()).ToArray())}");
                     catalogItem.DisplayName.ShouldBe(catalog.DisplayName);
                     catalogItem.TotalCategories.ShouldBe(catalog.Categories.Count());
                 }

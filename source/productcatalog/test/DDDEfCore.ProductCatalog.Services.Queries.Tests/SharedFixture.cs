@@ -7,8 +7,11 @@ using Moq;
 using Respawn;
 using System;
 using System.Data;
+using System.Data.Common;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using DDDEfCore.ProductCatalog.Services.Queries.Db;
 using Xunit;
@@ -21,7 +24,11 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
 
         private static bool _initialized;
 
+        private readonly Checkpoint _checkpoint;
+
         private readonly IServiceScopeFactory _serviceScopeFactory;
+
+        protected readonly IFixture Fixture;
 
         public SharedFixture()
         {
@@ -33,6 +40,12 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
             startup.ConfigureServices(services);
 
             this._serviceScopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
+
+            this.Fixture = new Fixture();
+            this._checkpoint = new Checkpoint
+            {
+                TablesToIgnore = new[] { "__EFMigrationsHistory" }
+            }; ;
         }
 
         #region Implementation of IAsyncLifetime
@@ -64,8 +77,20 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
                 using (var scope = this._serviceScopeFactory.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetService<DbContext>();
-                    await dbContext.Set<T>().AddRangeAsync(entities);
-                    await dbContext.SaveChangesAsync();
+                    using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
+                    {
+                        try
+                        {
+                            await dbContext.Set<T>().AddRangeAsync(entities);
+                            await dbContext.SaveChangesAsync();
+                            transaction.Commit();
+                        }
+                        catch (Exception)
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
                 }
             }
         }
@@ -81,11 +106,6 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
 
         private async Task ResetCheckpoint()
         {
-            var checkPoint = new Checkpoint
-            {
-                TablesToIgnore = new[] { "__EFMigrationsHistory" }
-            };
-
             using (var serviceScope = this._serviceScopeFactory.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
@@ -95,7 +115,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
 
                 var dbConnection = dbContext.Database.GetDbConnection();
                 await dbConnection.OpenAsync();
-                await checkPoint.Reset(dbConnection);
+                await this._checkpoint.Reset(dbConnection);
             }
         }
     }
