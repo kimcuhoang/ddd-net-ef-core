@@ -1,4 +1,5 @@
 ﻿using AutoFixture.Xunit2;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using Shouldly;
 using System;
 using System.Threading.Tasks;
@@ -17,9 +18,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct
         [Fact(DisplayName = "Should Create Product Successfully")]
         public async Task ShouldCreateProductSuccessfully()
         {
-            await this._testFixture.InitData();
-
-            await this._testFixture.DoAssert(product =>
+            await this._testFixture.DoAssert(this._testFixture.Product.ProductId, product =>
             {
                 product.ShouldNotBeNull();
                 product.Equals(this._testFixture.Product).ShouldBeTrue();
@@ -30,9 +29,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct
         [AutoData]
         public async Task ShouldUpdateProductSuccessfully(string newProductName)
         {
-            await this._testFixture.InitData();
-            
-            await this._testFixture.RepositoryExecute(async repository =>
+            await this._testFixture.RepositoryExecute<Product>(async repository =>
             {
                 var product =
                     await repository.FindOneAsync(x => x.ProductId == this._testFixture.Product.ProductId);
@@ -42,7 +39,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct
                 await repository.UpdateAsync(product);
             });
 
-            await this._testFixture.DoAssert(product =>
+            await this._testFixture.DoAssert(this._testFixture.Product.ProductId, product =>
             {
                 product.ShouldNotBeNull();
                 product.Equals(this._testFixture.Product).ShouldBeTrue();
@@ -53,18 +50,18 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct
         [Fact(DisplayName = "Should Remove Product Successfully")]
         public async Task ShouldRemoveProductSuccessfully()
         {
-            await this._testFixture.InitData();
+            var product = this._testFixture.ProductToRemove;
 
-            await this._testFixture.RepositoryExecute(async repository =>
+            await this._testFixture.RepositoryExecute<Product>(async repository =>
             {
-                var product = await repository.FindOneAsync(x => x.ProductId == this._testFixture.Product.ProductId);
-                await repository.RemoveAsync(product);
+                var productToRemove = await repository
+                    .FindOneAsync(x => x.ProductId == product.ProductId);
+
+                await repository.RemoveAsync(productToRemove);
             });
 
-            await this._testFixture.DoAssert(category =>
-            {
-                category.ShouldBeNull();
-            });
+            await this._testFixture.DoAssert(product.ProductId,
+                productAssert => { productAssert.ShouldBeNull(); });
         }
     }
 }

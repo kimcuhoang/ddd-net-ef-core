@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture.Xunit2;
+﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using Shouldly;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCategory
@@ -24,8 +22,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCatego
         [AutoData]
         public async Task CatalogCategory_Change_DisplayName_Successfully(string catalogCategoryDisplayName)
         {
-            await this._testFixture.InitData();
-
             await this._testFixture.DoActionWithCatalogCategory(catalogCategory =>
             {
                 catalogCategory.ChangeDisplayName(catalogCategoryDisplayName);
@@ -45,8 +41,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCatego
         [AutoData]
         public async Task CatalogCategory_Create_CatalogProduct_Successfully(string catalogProductDisplayName)
         {
-            await this._testFixture.InitData();
-
             CatalogProduct catalogProduct = null;
 
             await this._testFixture.DoActionWithCatalogCategory(catalogCategory =>
@@ -66,8 +60,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCatego
         [Fact(DisplayName = "CatalogCategory Remove CatalogProduct Successfully")]
         public async Task CatalogCategory_Remove_CatalogProduct_Successfully()
         {
-            await this._testFixture.InitDataFull();
-
             await this._testFixture.DoActionWithCatalogCategory(catalogCategory =>
             {
                 var catalogProduct =

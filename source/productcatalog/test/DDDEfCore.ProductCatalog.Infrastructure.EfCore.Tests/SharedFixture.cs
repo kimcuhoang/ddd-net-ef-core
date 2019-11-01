@@ -10,6 +10,8 @@ using System;
 using System.Data;
 using System.IO;
 using System.Threading.Tasks;
+using AutoFixture;
+using DDDEfCore.Core.Common;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
@@ -22,6 +24,8 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
+        protected readonly IFixture Fixture;
+
         public SharedFixture()
         {
             var host = new Mock<IHostingEnvironment>();
@@ -32,24 +36,26 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
             startup.ConfigureServices(services);
 
             this._serviceScopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
+
+            this.Fixture = new Fixture();
         }
 
         #region Implementation of IAsyncLifetime
 
         public virtual async Task InitializeAsync()
         {
-            if (_initialized)
-                return;
+            //if (_initialized)
+            //    return;
 
-            using (await Mutex.LockAsync())
-            {
-                if (_initialized)
-                    return;
+            //using (await Mutex.LockAsync())
+            //{
+            //    if (_initialized)
+            //        return;
 
-                await this.ResetCheckpoint();
+            await this.ResetCheckpoint();
 
-                _initialized = true;
-            }
+            //    _initialized = true;
+            //}
         }
 
         public virtual Task DisposeAsync() => Task.CompletedTask;
@@ -78,6 +84,18 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
             }
         }
 
+        public async Task RepositoryExecute<TAggregate>(Func<IRepository<TAggregate>, Task> action) where TAggregate : AggregateRoot
+        {
+            using (var scope = this._serviceScopeFactory.CreateScope())
+            {
+                var repositoryFactory = scope.ServiceProvider.GetService<IRepositoryFactory>();
+                using (var repository = repositoryFactory.CreateRepository<TAggregate>())
+                {
+                    await action(repository);
+                }
+            }
+        }
+
         public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
         {
             if (entities != null && entities.Any())
@@ -86,7 +104,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
                 {
                     var dbContext = services.GetService<DbContext>();
                     await dbContext.Set<T>().AddRangeAsync(entities);
-                    await dbContext.SaveChangesAsync();
                 });
             }
         }
