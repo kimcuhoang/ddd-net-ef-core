@@ -13,7 +13,6 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQueries
 {
-    [Collection(nameof(Tests.SharedFixture))]
     public class TestCatalogCategoryFixture : SharedFixture
     {
         public Catalog Catalog { get; private set; }

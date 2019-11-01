@@ -7,7 +7,6 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQueries
 {
-    [Collection(nameof(Tests.SharedFixture))]
     public class TestCatalogProductFixture : SharedFixture
     {
         public Product Product { get; private set; }

@@ -10,7 +10,6 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 {
-    //[Collection(nameof(SharedFixture))]
     public class TestGetCatalogFixture : SharedFixture
     {
         public List<Catalog> Catalogs { get; private set; }
@@ -19,9 +18,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
         public override async Task InitializeAsync()
         {
-            //await base.InitializeAsync();
-
-            base.InitializeAsync().GetAwaiter().GetResult();
+            await base.InitializeAsync();
 
             this.Catalogs = new List<Catalog>();
 

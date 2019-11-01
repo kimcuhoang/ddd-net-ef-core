@@ -52,18 +52,18 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
 
         public virtual async Task InitializeAsync()
         {
-            if (_initialized)
-                return;
+            //if (_initialized)
+            //    return;
 
-            using (await Mutex.LockAsync())
-            {
-                if (_initialized)
-                    return;
+            //using (await Mutex.LockAsync())
+            //{
+            //    if (_initialized)
+            //        return;
 
-                await this.ResetCheckpoint();
+            await this.ResetCheckpoint();
 
-                _initialized = true;
-            }
+            //    _initialized = true;
+            //}
         }
 
         public virtual Task DisposeAsync() => Task.CompletedTask;
