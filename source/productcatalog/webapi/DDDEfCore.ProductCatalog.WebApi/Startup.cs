@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
+using DDDEfCore.ProductCatalog.Services.Commands;
+using DDDEfCore.ProductCatalog.Services.Queries;
 using DDDEfCore.ProductCatalog.WebApi.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,8 +31,9 @@ namespace DDDEfCore.ProductCatalog.WebApi
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddEfCoreSqlServerDb();
             services.AddSingleton<IConfiguration>(sp => this.Configuration);
+            services.AddApplicationCommands();
+            services.AddApplicationQueries();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
