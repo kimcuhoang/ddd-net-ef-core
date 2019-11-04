@@ -8,8 +8,8 @@ using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MockQueryable.Moq;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -52,7 +52,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             {
                 categories.Add(Category.Create(this.Fixture.Create<string>()));
             });
-            mockDbContext.Setup(x => x.Set<Category>()).ReturnsDbSet(categories);
+
+            mockDbContext.Setup(x => x.Set<Category>())
+                        .Returns(categories.AsQueryable().BuildMockDbSet().Object);
+
             var categoryRepository = new DefaultRepositoryAsync<Category>(mockDbContext.Object);
             this.MockRepositoryFactory
                 .Setup(x => x.CreateRepository<Category>())

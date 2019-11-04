@@ -18,17 +18,13 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 {
     public class SharedFixture : IAsyncLifetime
     {
-        private static readonly AsyncLock Mutex = new AsyncLock();
-
-        private static bool _initialized;
-
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         protected readonly IFixture Fixture;
 
         public SharedFixture()
         {
-            var host = new Mock<IHostingEnvironment>();
+            var host = new Mock<IWebHostEnvironment>();
             host.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
 
             var services = new ServiceCollection();
@@ -44,18 +40,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         public virtual async Task InitializeAsync()
         {
-            //if (_initialized)
-            //    return;
-
-            //using (await Mutex.LockAsync())
-            //{
-            //    if (_initialized)
-            //        return;
-
             await this.ResetCheckpoint();
-
-            //    _initialized = true;
-            //}
         }
 
         public virtual Task DisposeAsync() => Task.CompletedTask;

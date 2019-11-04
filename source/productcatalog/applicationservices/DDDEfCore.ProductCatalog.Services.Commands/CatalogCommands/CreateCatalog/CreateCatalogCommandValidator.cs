@@ -2,6 +2,7 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog
 {
@@ -37,7 +38,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
         private bool CategoryMustExist(IRepositoryFactory repositoryFactory, CategoryId categoryId)
         {
             var repository = repositoryFactory.CreateRepository<Category>();
-            var category = repository.FindOneAsync(x => x.CategoryId == categoryId).GetAwaiter().GetResult();
+            var category = repository.FindOneAsync(x => x.CategoryId == categoryId).Result;
             return category != null;
         }
     }

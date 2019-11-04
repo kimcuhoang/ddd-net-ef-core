@@ -9,11 +9,12 @@ using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MockQueryable.Moq;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Shouldly;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -40,7 +41,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var catalog = Catalog.Create(this.Fixture.Create<string>());
             var catalogs = new List<Catalog> {catalog};
-            this._mockDbContext.Setup(x => x.Set<Catalog>()).ReturnsDbSet(catalogs);
+
+            this._mockDbContext
+                .Setup(x => x.Set<Catalog>())
+                .Returns(catalogs.AsQueryable().BuildMockDbSet().Object);
 
             var categoryId = IdentityFactory.Create<CategoryId>();
             var catalogCategory = catalog.AddCategory(categoryId, this.Fixture.Create<string>());
@@ -94,7 +98,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var catalog = Catalog.Create(this.Fixture.Create<string>());
             var catalogs = new List<Catalog> { catalog };
-            this._mockDbContext.Setup(x => x.Set<Catalog>()).ReturnsDbSet(catalogs);
+            this._mockDbContext.Setup(x => x.Set<Catalog>())
+                .Returns(catalogs.AsQueryable().BuildMockDbSet().Object);
 
             var command = new RemoveCatalogCategoryCommand(catalog.CatalogId.Id, Guid.Empty);
 

@@ -7,18 +7,19 @@ using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MockQueryable.Moq;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Shouldly;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 {
     /// <summary>
-    /// https://github.com/MichalJankowskii/Moq.EntityFrameworkCore
+    /// https://github.com/romantitov/MockQueryable
     /// </summary>
     public class TestCreateCatalogCategoryCommand : UnitTestBase<Catalog>, IAsyncLifetime
     {
@@ -45,12 +46,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 
             this._catalog = Catalog.Create(this.Fixture.Create<string>());
             this._category = Category.Create(this.Fixture.Create<string>());
-            
 
+            var mockCatalogs = (new List<Catalog> {this._catalog}).AsQueryable().BuildMockDbSet();
+            var mockCategories = (new List<Category> {this._category}).AsQueryable().BuildMockDbSet();
             this._mockDbContext.Setup(x => x.Set<Catalog>())
-                .ReturnsDbSet(new List<Catalog> {this._catalog});
+                .Returns(mockCatalogs.Object);
             this._mockDbContext.Setup(x => x.Set<Category>())
-                .ReturnsDbSet(new List<Category> {this._category});
+                .Returns(mockCategories.Object);
 
             this._validator = new CreateCatalogCategoryCommandValidator(this.MockRepositoryFactory.Object);
             this._requestHandler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -80,9 +82,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var catalogCategory = this._catalog.AddCategory(this._category.CategoryId, this._category.DisplayName);
             var childCategory = Category.Create(this.Fixture.Create<string>());
-            var categories = new List<Category> {this._category, childCategory};
-            this._mockDbContext.Setup(x => x.Set<Category>())
-                .ReturnsDbSet(categories);
+
+            var mockCategories = (new List<Category> { this._category, childCategory }).AsQueryable().BuildMockDbSet();
+            
+            this._mockDbContext
+                .Setup(x => x.Set<Category>())
+                .Returns(mockCategories.Object);
 
             var command = new CreateCatalogCategoryCommand(this._catalog.CatalogId.Id,
                                                             childCategory.CategoryId.Id,
@@ -162,7 +167,5 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
             result.ShouldHaveValidationErrorFor(x => x.ParentCatalogCategoryId);
         }
-
-        
     }
 }

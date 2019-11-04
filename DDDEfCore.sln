@@ -5,6 +5,7 @@ VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "__", "__", "{9452B9A4-F1FD-4573-AC10-4A3A83F60EF6}"
 	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -40,9 +41,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Services.Commands.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Services.Commands.Tests\DDDEfCore.ProductCatalog.Services.Commands.Tests.csproj", "{F0DB4186-1FAA-49A3-B9FB-DE9D94049998}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.ProductCatalog.Services.Queries", "source\productcatalog\applicationservices\DDDEfCore.ProductCatalog.Services.Queries\DDDEfCore.ProductCatalog.Services.Queries.csproj", "{3DE8DF9E-3DA5-4D8F-ADDA-56F3031A7B75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Services.Queries", "source\productcatalog\applicationservices\DDDEfCore.ProductCatalog.Services.Queries\DDDEfCore.ProductCatalog.Services.Queries.csproj", "{3DE8DF9E-3DA5-4D8F-ADDA-56F3031A7B75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.ProductCatalog.Services.Queries.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Services.Queries.Tests\DDDEfCore.ProductCatalog.Services.Queries.Tests.csproj", "{2E5F9471-BC1A-45BB-8C02-603999E73E64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Services.Queries.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Services.Queries.Tests\DDDEfCore.ProductCatalog.Services.Queries.Tests.csproj", "{2E5F9471-BC1A-45BB-8C02-603999E73E64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
