@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using DDDEfCore.Core.Common;
 using DDDEfCore.Core.Common.Models;
 using Moq;
+using System.Threading;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests
 {
     public abstract class UnitTestBase<TAggregateRoot> where TAggregateRoot : AggregateRoot
     {
         protected readonly IFixture Fixture;
-        protected CancellationToken CancellationToken = default(CancellationToken);
+        protected readonly CancellationToken CancellationToken;
         protected readonly Mock<IRepositoryFactory> MockRepositoryFactory;
         protected readonly Mock<IRepository<TAggregateRoot>> MockRepository;
 
@@ -28,6 +25,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests
             this.MockRepositoryFactory
                 .Setup(x => x.CreateRepository<TAggregateRoot>())
                 .Returns(this.MockRepository.Object);
+            this.CancellationToken = new CancellationToken(false);
         }
     }
 }

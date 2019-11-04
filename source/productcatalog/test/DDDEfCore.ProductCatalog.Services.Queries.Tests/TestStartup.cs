@@ -9,7 +9,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
     {
         public IConfiguration Configuration { get; }
 
-        public TestStartup(IHostingEnvironment env)
+        public TestStartup(IWebHostEnvironment env)
         {
             this.Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)

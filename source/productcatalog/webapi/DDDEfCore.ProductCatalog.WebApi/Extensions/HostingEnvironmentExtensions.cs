@@ -5,7 +5,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Extensions
 {
     public static class HostingEnvironmentExtensions
     {
-        public static IConfigurationRoot GetConfiguration(this IHostingEnvironment hostingEnvironment)
+        public static IConfigurationRoot GetConfiguration(this IWebHostEnvironment hostingEnvironment)
         {
             var basePath = hostingEnvironment.ContentRootPath;
             var builder = new ConfigurationBuilder()
