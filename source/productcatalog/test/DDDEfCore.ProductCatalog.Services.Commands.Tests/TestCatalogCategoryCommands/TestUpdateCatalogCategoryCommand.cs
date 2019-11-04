@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using DDDEfCore.Core.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -8,11 +7,12 @@ using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MockQueryable.Moq;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Shouldly;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -47,8 +47,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             this._category = Category.Create(this.Fixture.Create<string>());
             this._catalogCategory = this._catalog.AddCategory(this._category.CategoryId, this._category.DisplayName);
 
-            this._mockDbContext.Setup(x => x.Set<Catalog>()).ReturnsDbSet(new List<Catalog> { this._catalog });
-            this._mockDbContext.Setup(x => x.Set<Category>()).ReturnsDbSet(new List<Category> { this._category });
+            this._mockDbContext.Setup(x => x.Set<Catalog>())
+                .Returns((new List<Catalog> { this._catalog }).AsQueryable().BuildMockDbSet().Object);
+            this._mockDbContext.Setup(x => x.Set<Category>())
+                .Returns((new List<Category> { this._category }).AsQueryable().BuildMockDbSet().Object);
 
             this._validator = new UpdateCatalogCategoryCommandValidator(this.MockRepositoryFactory.Object);
             this._requestHandler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);

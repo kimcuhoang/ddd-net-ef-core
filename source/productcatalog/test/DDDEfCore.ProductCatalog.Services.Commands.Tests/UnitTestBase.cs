@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using AutoFixture.AutoMoq;
 using DDDEfCore.Core.Common;
 using DDDEfCore.Core.Common.Models;
 using Moq;
@@ -16,15 +15,16 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests
 
         protected UnitTestBase()
         {
-            this.Fixture = new Fixture().Customize(new AutoMoqCustomization());
+            this.Fixture = new Fixture();
             
-            this.MockRepositoryFactory = this.Fixture.Freeze<Mock<IRepositoryFactory>>();
+            this.MockRepositoryFactory = new Mock<IRepositoryFactory>();
             
-            this.MockRepository = this.Fixture.Freeze<Mock<IRepository<TAggregateRoot>>>();
+            this.MockRepository = new Mock<IRepository<TAggregateRoot>>();
 
             this.MockRepositoryFactory
                 .Setup(x => x.CreateRepository<TAggregateRoot>())
                 .Returns(this.MockRepository.Object);
+
             this.CancellationToken = new CancellationToken(false);
         }
     }

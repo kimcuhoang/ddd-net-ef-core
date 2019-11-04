@@ -8,11 +8,12 @@ using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MockQueryable.Moq;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Shouldly;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -48,7 +49,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             this._catalogProduct =
                 this._catalogCategory.CreateCatalogProduct(this._product.ProductId, this._product.Name);
 
-            this._mockDbContext.Setup(x => x.Set<Catalog>()).ReturnsDbSet(new List<Catalog> {this._catalog});
+            this._mockDbContext
+                .Setup(x => x.Set<Catalog>())
+                .Returns((new List<Catalog> {this._catalog}).AsQueryable().BuildMockDbSet().Object);
 
             this._validator = new RemoveCatalogProductCommandValidator(this.MockRepositoryFactory.Object);
             this._requestHandler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
