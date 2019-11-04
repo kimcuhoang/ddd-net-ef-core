@@ -1,5 +1,4 @@
 ﻿using DDDEfCore.Core.Common.Models;
-using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -8,19 +7,24 @@ using Moq;
 using Respawn;
 using System;
 using System.Data;
+using System.Data.Common;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using DDDEfCore.Core.Common;
+using DDDEfCore.Infrastructures.EfCore.Common.Migration;
+using DDDEfCore.ProductCatalog.Services.Queries.Db;
 using Xunit;
 
-namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
+namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
 {
     public class SharedFixture : IAsyncLifetime
     {
         private static readonly AsyncLock Mutex = new AsyncLock();
 
         private static bool _initialized;
+
+        private readonly Checkpoint _checkpoint;
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
@@ -38,6 +42,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
             this._serviceScopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
 
             this.Fixture = new Fixture();
+            this._checkpoint = new Checkpoint
+            {
+                TablesToIgnore = new[] { "__EFMigrationsHistory" }
+            }; ;
         }
 
         #region Implementation of IAsyncLifetime
@@ -62,69 +70,52 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         #endregion
 
-        public async Task ExecuteScopeAsync(Func<IServiceProvider, Task> action)
-        {
-            using (var scope = this._serviceScopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetService<DbContext>();
-                using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
-                {
-                    try
-                    {
-                        await action(scope.ServiceProvider);
-                        await dbContext.SaveChangesAsync();
-                        transaction.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-            }
-        }
-
-        public async Task RepositoryExecute<TAggregate>(Func<IRepository<TAggregate>, Task> action) where TAggregate : AggregateRoot
-        {
-            using (var scope = this._serviceScopeFactory.CreateScope())
-            {
-                var repositoryFactory = scope.ServiceProvider.GetService<IRepositoryFactory>();
-                using (var repository = repositoryFactory.CreateRepository<TAggregate>())
-                {
-                    await action(repository);
-                }
-            }
-        }
-
         public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
         {
             if (entities != null && entities.Any())
             {
-                await this.ExecuteScopeAsync(async services =>
+                using (var scope = this._serviceScopeFactory.CreateScope())
                 {
-                    var dbContext = services.GetService<DbContext>();
-                    await dbContext.Set<T>().AddRangeAsync(entities);
-                });
+                    var dbContext = scope.ServiceProvider.GetService<DbContext>();
+                    using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
+                    {
+                        try
+                        {
+                            await dbContext.Set<T>().AddRangeAsync(entities);
+                            await dbContext.SaveChangesAsync();
+                            transaction.Commit();
+                        }
+                        catch (Exception)
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                }
+            }
+        }
+
+        public async Task ExecuteScopeAsync(Func<SqlServerDbConnectionFactory, Task> action)
+        {
+            using (var scope = this._serviceScopeFactory.CreateScope())
+            {
+                var sqlServerDbConnection = scope.ServiceProvider.GetService<SqlServerDbConnectionFactory>();
+                await action(sqlServerDbConnection);
             }
         }
 
         private async Task ResetCheckpoint()
         {
-            var checkPoint = new Checkpoint
-            {
-                TablesToIgnore = new[] { "__EFMigrationsHistory" }
-            };
-
             using (var serviceScope = this._serviceScopeFactory.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
+
                 var databaseMigration = serviceScope.ServiceProvider.GetService<DatabaseMigration>();
                 await databaseMigration.ApplyMigration();
 
-                
                 var dbConnection = dbContext.Database.GetDbConnection();
                 await dbConnection.OpenAsync();
-                await checkPoint.Reset(dbConnection);
+                await this._checkpoint.Reset(dbConnection);
             }
         }
     }

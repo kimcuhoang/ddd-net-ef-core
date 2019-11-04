@@ -1,4 +1,5 @@
 ﻿using AutoFixture.Xunit2;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Shouldly;
 using System;
 using System.Threading.Tasks;
@@ -17,8 +18,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
         [Fact(DisplayName = "Should Create Category Successfully")]
         public async Task ShouldCreateCategorySuccessfully()
         {
-            await this._testFixture.InitData();
-
             await this._testFixture.DoAssert(category =>
             {
                 category.ShouldNotBeNull();
@@ -30,9 +29,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
         [AutoData]
         public async Task ShouldUpdateCategorySuccessfully(string newCategoryName)
         {
-            await this._testFixture.InitData();
-            
-            await this._testFixture.RepositoryExecute(async repository =>
+            await this._testFixture.RepositoryExecute<Category>(async repository =>
             {
                 var category =
                     await repository.FindOneAsync(x => x.CategoryId == this._testFixture.Category.CategoryId);
@@ -53,9 +50,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
         [Fact(DisplayName = "Should Remove Category Successfully")]
         public async Task ShouldRemoveCategorySuccessfully()
         {
-            await this._testFixture.InitData();
-
-            await this._testFixture.RepositoryExecute(async repository =>
+            await this._testFixture.RepositoryExecute<Category>(async repository =>
             {
                 var category = await repository.FindOneAsync(x => x.CategoryId == this._testFixture.Category.CategoryId);
                 await repository.RemoveAsync(category);

@@ -7,16 +7,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture.AutoMoq" Version="4.11.0" />
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoFixture.Xunit2" Version="4.11.0" />
     <PackageReference Include="coverlet.msbuild" Version="2.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FluentValidation" Version="8.5.0" />
+    <PackageReference Include="GenFu" Version="1.5.6" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
-    <PackageReference Include="Moq.EntityFrameworkCore" Version="2.2.1" />
+    <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="Respawn" Version="3.2.0" />
     <PackageReference Include="Shouldly" Version="3.0.2" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
@@ -26,9 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\common\DDDEfCore.Core.Common\DDDEfCore.Core.Common.csproj" />
     <ProjectReference Include="..\..\applicationcore\DDDEfCore.ProductCatalog.Core.DomainModels\DDDEfCore.ProductCatalog.Core.DomainModels.csproj" />
-    <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Commands\DDDEfCore.ProductCatalog.Services.Commands.csproj" />
+    <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Queries\DDDEfCore.ProductCatalog.Services.Queries.csproj" />
+    <ProjectReference Include="..\..\infrastructures\DDDEfCore.ProductCatalog.Infrastructure.EfCore\DDDEfCore.ProductCatalog.Infrastructure.EfCore.csproj" />
   </ItemGroup>
 
 </Project>

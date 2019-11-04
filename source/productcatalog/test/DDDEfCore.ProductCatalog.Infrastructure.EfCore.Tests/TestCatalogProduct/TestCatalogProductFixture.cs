@@ -1,34 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Xunit;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct
 {
-    [Collection(nameof(Tests.SharedFixture))]
-    public class TestCatalogProductFixture : BaseTestFixture<Catalog>, IAsyncLifetime
+    public class TestCatalogProductFixture : SharedFixture
     {
-        public TestCatalogProductFixture(SharedFixture sharedFixture) : base(sharedFixture) { }
-
         public Catalog Catalog { get; private set; }
         public Category Category { get; private set; }
         public Product Product { get; private set; }
         public CatalogCategory CatalogCategory { get; private set; }
         public CatalogProduct CatalogProduct { get; private set; }
 
-        #region Overrides of BaseTestFixture<Catalog>
 
-        public override async Task InitData()
+        public override async Task InitializeAsync()
         {
+            await base.InitializeAsync();
+
+            this.Category = Category.Create(this.Fixture.Create<string>());
+            await this.SeedingData(this.Category);
+
+            this.Product = Product.Create(this.Fixture.Create<string>());
+            await this.SeedingData(this.Product);
+
             this.Catalog = Catalog.Create(this.Fixture.Create<string>());
 
             this.CatalogCategory =
@@ -37,31 +37,12 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduc
             this.CatalogProduct =
                 this.CatalogCategory.CreateCatalogProduct(this.Product.ProductId, this.Fixture.Create<string>());
 
-            await this.RepositoryExecute(async repository => { await repository.AddAsync(this.Catalog); });
+            await this.RepositoryExecute<Catalog>(async repository => { await repository.AddAsync(this.Catalog); });
         }
-
-        public override Task DoAssert(Action<Catalog> assertFor) => Task.CompletedTask;
-
-        #endregion
-
-        #region Implementation of IAsyncLifetime
-
-        public async Task InitializeAsync()
-        {
-            this.Category = Category.Create(this.Fixture.Create<string>());
-            await this.SharedFixture.SeedingData(this.Category);
-
-            this.Product = Product.Create(this.Fixture.Create<string>());
-            await this.SharedFixture.SeedingData(this.Product);
-        }
-
-        public Task DisposeAsync() => Task.CompletedTask;
-
-        #endregion
 
         public async Task DoActionWithCatalogProduct(Action<CatalogProduct> action)
         {
-            await this.RepositoryExecute(async repository =>
+            await this.RepositoryExecute<Catalog>(async repository =>
             {
                 var catalog = await repository
                     .FindOneWithIncludeAsync(x => x.CatalogId == this.Catalog.CatalogId,
@@ -80,7 +61,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduc
 
         public async Task DoAssertForCatalogProduct(Action<CatalogProduct> action)
         {
-            await this.RepositoryExecute(async repository =>
+            await this.RepositoryExecute<Catalog>(async repository =>
             {
                 var catalog = await repository
                     .FindOneWithIncludeAsync(x => x.CatalogId == this.Catalog.CatalogId,

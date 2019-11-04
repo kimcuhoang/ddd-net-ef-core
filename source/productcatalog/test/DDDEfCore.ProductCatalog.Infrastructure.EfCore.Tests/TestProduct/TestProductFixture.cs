@@ -2,37 +2,37 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using System;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestProductFixture : BaseTestFixture<Product>
+    public class TestProductFixture : SharedFixture
     {
-        public TestProductFixture(SharedFixture sharedFixture) : base(sharedFixture) { }
-        
         public Product Product { get; private set; }
+        public Product ProductToRemove { get; private set; }
 
-
-        #region Overrides of BaseTestFixture<Category>
-
-        public override async Task InitData()
+        public override async Task InitializeAsync()
         {
+            await base.InitializeAsync();
+
+            this.ProductToRemove = Product.Create(this.Fixture.Create<string>());
+            await this.SeedingData(this.ProductToRemove);
+
             this.Product = Product.Create(this.Fixture.Create<string>());
-
-            await this.RepositoryExecute(async repository => { await repository.AddAsync(this.Product); });
-        }
-
-        public override async Task DoAssert(Action<Product> assertFor)
-        {
-            await this.RepositoryExecute(async repository =>
+            await this.RepositoryExecute<Product>(async repository =>
             {
-                var product = await repository.FindOneAsync(x => x.ProductId == this.Product.ProductId);
+                await repository.AddAsync(this.Product);
+                
+            });
+        }
+        public async Task DoAssert(ProductId productId, Action<Product> assertFor)
+        {
+            await this.RepositoryExecute<Product>(async repository =>
+            {
+                var product = await repository
+                    .FindOneAsync(x => x.ProductId == productId);
 
                 assertFor(product);
             });
         }
-
-        #endregion
     }
 }

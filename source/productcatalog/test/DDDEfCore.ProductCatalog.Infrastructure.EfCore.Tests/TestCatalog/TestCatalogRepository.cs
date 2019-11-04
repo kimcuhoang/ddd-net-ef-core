@@ -65,18 +65,12 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         {
             await this._testFixture.InitData();
 
-            await this._testFixture.RepositoryExecute(async repository =>
+            await this._testFixture.DoActionWithCatalog(catalog =>
             {
-                var catalog = await repository
-                    .FindOneWithIncludeAsync(x => x.CatalogId == this._testFixture.Catalog.CatalogId,
-                        x => x.Include(y => y.Categories));
-
                 var catalogCategoryLv1 = catalog.FindCatalogCategoryRoots().FirstOrDefault();
                 catalogCategoryLv1.ShouldBe(this._testFixture.CatalogCategoryLv1);
 
                 catalog.RemoveCatalogCategoryWithDescendants(catalogCategoryLv1);
-
-                await repository.UpdateAsync(catalog);
             });
 
             await this._testFixture.DoAssert(catalog =>
@@ -91,7 +85,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         {
             await this._testFixture.InitData();
 
-            await this._testFixture.RepositoryExecute(async repository =>
+            await this._testFixture.RepositoryExecute<Catalog>(async repository =>
             {
                 var catalog = await repository
                     .FindOneWithIncludeAsync(x => x.CatalogId == this._testFixture.Catalog.CatalogId,
