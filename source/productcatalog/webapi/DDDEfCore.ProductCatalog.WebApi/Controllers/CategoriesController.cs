@@ -3,6 +3,7 @@ using DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCatalo
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Controllers
 {
@@ -26,7 +27,14 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
             return await this._mediator.Send(request);
         }
 
+        /// <summary>
+        /// Create Category
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task Create([FromBody] CreateCategoryCommand command)
         {
             await this._mediator.Send(command);
