@@ -15,6 +15,11 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         public CategoriesController(IMediator mediator)
             => this._mediator = mediator;
 
+        /// <summary>
+        /// Get Specific CatalogCategory
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<GetCatalogCategoryDetailResult> Get(GetCatalogCategoryDetailRequest request)
         {

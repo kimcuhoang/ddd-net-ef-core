@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public class CommonController : ControllerBase
     {
