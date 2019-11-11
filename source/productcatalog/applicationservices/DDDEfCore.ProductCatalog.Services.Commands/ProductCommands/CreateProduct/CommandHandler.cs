@@ -12,9 +12,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProdu
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Product> _repository;
-        private readonly AbstractValidator<CreateProductCommand> _validator;
+        private readonly IValidator<CreateProductCommand> _validator;
 
-        public CommandHandler(IRepositoryFactory repositoryFactory, AbstractValidator<CreateProductCommand> validator)
+        public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<CreateProductCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this._repository = this._repositoryFactory.CreateRepository<Product>();

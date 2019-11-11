@@ -15,9 +15,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogProductCommands.Upda
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog> _repository;
-        private readonly AbstractValidator<UpdateCatalogProductCommand> _validator;
+        private readonly IValidator<UpdateCatalogProductCommand> _validator;
 
-        public CommandHandler(IRepositoryFactory repositoryFactory, AbstractValidator<UpdateCatalogProductCommand> validator)
+        public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<UpdateCatalogProductCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this._repository = this._repositoryFactory.CreateRepository<Catalog>();
