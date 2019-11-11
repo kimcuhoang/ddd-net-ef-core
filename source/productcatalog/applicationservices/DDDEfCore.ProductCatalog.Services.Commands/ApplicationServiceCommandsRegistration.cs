@@ -1,9 +1,8 @@
-﻿using System.Reflection;
-using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
+﻿using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using ServiceCollectionExtensions = FluentValidation.ServiceCollectionExtensions;
+using System.Reflection;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands
 {
@@ -15,6 +14,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands
             services.AddEfCoreSqlServerDb();
             services.AddMediatR(assembly);
             services.AddValidatorsFromAssembly(assembly);
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(EndRequestPipelineBehavior<,>));
             return services;
         }
     }

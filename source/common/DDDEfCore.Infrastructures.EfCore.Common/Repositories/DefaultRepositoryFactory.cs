@@ -28,5 +28,15 @@ namespace DDDEfCore.Infrastructures.EfCore.Common.Repositories
         }
 
         #endregion
+
+
+        #region Implementation of IDisposable
+
+        public void Dispose()
+        {
+            this._dbContext?.SaveChanges();
+        }
+
+        #endregion
     }
 }

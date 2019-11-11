@@ -71,14 +71,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         public async Task RepositoryExecute<TAggregate>(Func<IRepository<TAggregate>, Task> action) where TAggregate : AggregateRoot
         {
-            using (var scope = this._serviceScopeFactory.CreateScope())
-            {
-                var repositoryFactory = scope.ServiceProvider.GetService<IRepositoryFactory>();
-                using (var repository = repositoryFactory.CreateRepository<TAggregate>())
-                {
-                    await action(repository);
-                }
-            }
+            using var scope = this._serviceScopeFactory.CreateScope();
+            using var repositoryFactory = scope.ServiceProvider.GetService<IRepositoryFactory>();
+            var repository = repositoryFactory.CreateRepository<TAggregate>();
+            await action(repository);
         }
 
         public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot

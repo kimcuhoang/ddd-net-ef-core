@@ -15,15 +15,6 @@ namespace DDDEfCore.Infrastructures.EfCore.Common.Repositories
         public DefaultRepositoryAsync(DbContext dbContext)
             => this._dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
-        #region Implementation of IDisposable
-
-        public void Dispose()
-        {
-            this._dbContext?.SaveChanges();
-        }
-
-        #endregion
-
         #region Implementation of IRepository<TAggregate>
 
         public IQueryable<TAggregate> AsQueryable()
