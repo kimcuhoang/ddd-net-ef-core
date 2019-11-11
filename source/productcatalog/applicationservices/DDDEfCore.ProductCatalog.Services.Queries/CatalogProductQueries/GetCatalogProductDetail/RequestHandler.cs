@@ -15,10 +15,10 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
     public class RequestHandler : IRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>
     {
         private readonly SqlServerDbConnectionFactory _dbConnectionFactory;
-        private readonly AbstractValidator<GetCatalogProductDetailRequest> _validator;
+        private readonly IValidator<GetCatalogProductDetailRequest> _validator;
 
         public RequestHandler(SqlServerDbConnectionFactory dbConnectionFactory,
-            AbstractValidator<GetCatalogProductDetailRequest> validator)
+            IValidator<GetCatalogProductDetailRequest> validator)
         {
             this._dbConnectionFactory =
                 dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));

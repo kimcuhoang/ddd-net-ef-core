@@ -15,9 +15,9 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
     public class RequestHandler : IRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>
     {
         private readonly SqlServerDbConnectionFactory _dbConnectionFactory;
-        public readonly AbstractValidator<GetCatalogDetailRequest> _validator;
+        public readonly IValidator<GetCatalogDetailRequest> _validator;
 
-        public RequestHandler(SqlServerDbConnectionFactory dbConnectionFactory, AbstractValidator<GetCatalogDetailRequest> validator)
+        public RequestHandler(SqlServerDbConnectionFactory dbConnectionFactory, IValidator<GetCatalogDetailRequest> validator)
         {
             this._dbConnectionFactory =
                 dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
