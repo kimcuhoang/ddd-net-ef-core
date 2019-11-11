@@ -16,12 +16,16 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         public CommonController(IMediator mediator)
             => this._mediator = mediator;
 
+        [HttpGet]
+        public IActionResult Default() => Ok("Hello");
+
+        [HttpGet("migrate")]
         public async Task<IActionResult> Migrate()
         {
             try
             {
                 await this._mediator.Send(new MigrateDatabaseCommand());
-                return Ok();
+                return Ok("Database has been migrated.");
             }
             catch (Exception e)
             {
