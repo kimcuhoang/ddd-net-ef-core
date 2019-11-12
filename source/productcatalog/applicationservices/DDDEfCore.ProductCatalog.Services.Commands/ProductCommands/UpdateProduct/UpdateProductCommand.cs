@@ -6,10 +6,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProdu
 {
     public class UpdateProductCommand : IRequest
     {
-        public ProductId ProductId { get; }
-        public string ProductName { get; }
+        public ProductId ProductId { get; set; }
+        public string ProductName { get; set; }
 
-        public UpdateProductCommand(Guid productId, string productName)
+        public UpdateProductCommand() { }
+
+        public UpdateProductCommand(Guid productId, string productName) : this()
         {
             this.ProductId = new ProductId(productId);
             this.ProductName = productName;
