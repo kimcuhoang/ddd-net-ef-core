@@ -7,11 +7,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 {
     public sealed class CreateCatalogCommand : IRequest
     {
-        public string CatalogName { get; }
+        public string CatalogName { get; set; }
 
         public List<CategoryInCatalog> Categories { get; set; } = new List<CategoryInCatalog>();
 
-        public CreateCatalogCommand(string catalogName)
+        public CreateCatalogCommand() { }
+
+        public CreateCatalogCommand(string catalogName) : this()
         {
             this.CatalogName = catalogName;
         }
@@ -25,11 +27,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
         public class CategoryInCatalog
         {
-            public CategoryId CategoryId { get; }
+            public CategoryId CategoryId { get; set; }
 
-            public string DisplayName { get; }
+            public string DisplayName { get; set; }
 
-            public CategoryInCatalog(Guid categoryId, string displayName)
+            public CategoryInCatalog() { }
+
+            public CategoryInCatalog(Guid categoryId, string displayName) : this()
             {
                 this.CategoryId = new CategoryId(categoryId);
                 this.DisplayName = displayName;

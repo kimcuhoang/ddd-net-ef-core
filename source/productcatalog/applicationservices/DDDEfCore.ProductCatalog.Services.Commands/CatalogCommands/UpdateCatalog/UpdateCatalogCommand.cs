@@ -6,10 +6,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatal
 {
     public class UpdateCatalogCommand : IRequest
     {
-        public CatalogId CatalogId { get; }
-        public string CatalogName { get; }
+        public CatalogId CatalogId { get; set; }
+        public string CatalogName { get; set; }
 
-        public UpdateCatalogCommand(Guid catalogId, string catalogName)
+        public UpdateCatalogCommand() { }
+
+        public UpdateCatalogCommand(Guid catalogId, string catalogName) : this()
         {
             this.CatalogId = new CatalogId(catalogId);
             this.CatalogName = catalogName;
