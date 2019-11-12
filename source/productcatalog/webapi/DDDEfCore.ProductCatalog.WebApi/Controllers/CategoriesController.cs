@@ -33,11 +33,12 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         /// <param name="command"></param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task Create([FromBody] CreateCategoryCommand command)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
         {
             await this._mediator.Send(command);
+            return NoContent();
         }
     }
 }

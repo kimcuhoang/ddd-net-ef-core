@@ -1,10 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Reflection;
 using DDDEfCore.ProductCatalog.Services.Commands;
 using DDDEfCore.ProductCatalog.Services.Queries;
+using DDDEfCore.ProductCatalog.WebApi.Infrastructures;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,7 +28,23 @@ namespace DDDEfCore.ProductCatalog.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers()
+                .ConfigureApiBehaviorOptions(options =>
+                {
+                    options.InvalidModelStateResponseFactory = context =>
+                    {
+                        var errors = context.ModelState.Values
+                                .SelectMany(x => x.Errors.Select(p => p.ErrorMessage))
+                                .ToList();
+                        var result = new
+                        {
+                            Code = HttpStatusCode.BadRequest,
+                            Message = "Validation errors",
+                            Errors = errors
+                        };
+                        return new BadRequestObjectResult(result);
+                    };
+                });
             services.AddSingleton<IConfiguration>(sp => this.Configuration);
             services.AddApplicationCommands();
             services.AddApplicationQueries();
@@ -63,13 +83,12 @@ namespace DDDEfCore.ProductCatalog.WebApi
                 c.SwaggerEndpoint("/swagger/V1/swagger.json", "ProductCatalog API");
                 c.RoutePrefix = string.Empty;
             });
-
+            app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-            
         }
     }
 }
@@ -82,5 +101,6 @@ namespace DDDEfCore.ProductCatalog.WebApi
  *      c.SwaggerDoc("V1", new OpenApiInfo
  *      => c.SwaggerEndpoint("/swagger/V1/swagger.json", "ProductCatalog API");
  *      => V1 must be matched
- * 
+ *  3. GlobalExceptionMiddleware
+ *      https://code-maze.com/global-error-handling-aspnetcore/
  */
