@@ -6,10 +6,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
 {
     public sealed class UpdateCategoryCommand : IRequest
     {
-        public CategoryId CategoryId { get; }
-        public string CategoryName { get; }
+        public CategoryId CategoryId { get; set; }
+        public string CategoryName { get; set; }
 
-        public UpdateCategoryCommand(Guid categoryId, string categoryName)
+        public UpdateCategoryCommand() { }
+
+        public UpdateCategoryCommand(Guid categoryId, string categoryName) : this()
         {
             this.CategoryId = new CategoryId(categoryId);
             this.CategoryName = categoryName;

@@ -1,9 +1,9 @@
 ﻿using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory;
-using DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCatalogCategoryDetail;
+using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Controllers
 {
@@ -17,17 +17,6 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
             => this._mediator = mediator;
 
         /// <summary>
-        /// Get Specific CatalogCategory
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<GetCatalogCategoryDetailResult> Get(GetCatalogCategoryDetailRequest request)
-        {
-            return await this._mediator.Send(request);
-        }
-
-        /// <summary>
         /// Create Category
         /// </summary>
         /// <param name="command"></param>
@@ -36,6 +25,20 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
+        {
+            await this._mediator.Send(command);
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Update Specific Category
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Update([FromBody] UpdateCategoryCommand command)
         {
             await this._mediator.Send(command);
             return NoContent();
