@@ -1,9 +1,9 @@
-﻿using DDDEfCore.Core.Common;
-using MediatR;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using DDDEfCore.Core.Common;
+using MediatR;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure.PipelineBehaviors
 {
     public sealed class EndRequestPipelineBehavior<TRequest,TResponse> : IPipelineBehavior<TRequest,TResponse>
     {

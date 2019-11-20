@@ -1,10 +1,12 @@
-﻿using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
+﻿using System.Reflection;
+using DDDEfCore.ProductCatalog.Core.DomainModels;
+using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
+using DDDEfCore.ProductCatalog.Services.Commands.Infrastructure.PipelineBehaviors;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure
 {
     public static class ApplicationServiceCommandsRegistration
     {
@@ -15,6 +17,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands
             services.AddMediatR(assembly);
             services.AddValidatorsFromAssembly(assembly);
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(EndRequestPipelineBehavior<,>));
+
+            StronglyTypedIdTypeDescriptor.AddStronglyTypedIdConverter();
+
             return services;
         }
     }
