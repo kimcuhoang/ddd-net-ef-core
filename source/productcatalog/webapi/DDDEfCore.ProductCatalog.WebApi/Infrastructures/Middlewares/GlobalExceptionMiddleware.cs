@@ -55,7 +55,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares
             return context.Response.WriteAsync(jsonContent);
         }
 
-        private class ExceptionResponse
+        public class ExceptionResponse
         {
             public int Status { get; set; }
             public List<string> ErrorMessages { get; set; } = new List<string>();
