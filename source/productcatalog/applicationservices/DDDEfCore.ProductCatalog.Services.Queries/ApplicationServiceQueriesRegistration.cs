@@ -1,4 +1,7 @@
-﻿using DDDEfCore.ProductCatalog.Services.Queries.Db;
+﻿using System;
+using Dapper;
+using DDDEfCore.ProductCatalog.Core.DomainModels;
+using DDDEfCore.ProductCatalog.Services.Queries.Db;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +21,17 @@ namespace DDDEfCore.ProductCatalog.Services.Queries
             });
             services.AddMediatR(typeof(SqlServerDbConnectionFactory).Assembly);
             services.AddValidatorsFromAssembly(typeof(SqlServerDbConnectionFactory).Assembly);
+
+            StronglyTypedIdTypeDescriptor.AddStronglyTypedIdConverter((idType) =>
+            {
+                var idTypeHandler = typeof(StronglyTypedIdMapper<>).MakeGenericType(idType);
+                var idTypeHandlerInstance = (SqlMapper.ITypeHandler)Activator.CreateInstance(idTypeHandler);
+                SqlMapper.AddTypeHandler(idType, idTypeHandlerInstance);
+            });
+
             return services;
         }
+
+        
     }
 }

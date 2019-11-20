@@ -18,7 +18,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
             public Guid Id { get; set; }
             public string DisplayName { get; set; }
 
-            public bool IsNull => this.Id == Guid.Empty && string.IsNullOrWhiteSpace(this.DisplayName);
+            internal bool IsNull => this.Id == Guid.Empty && string.IsNullOrWhiteSpace(this.DisplayName);
         }
 
         public class CatalogCategorySearchResult

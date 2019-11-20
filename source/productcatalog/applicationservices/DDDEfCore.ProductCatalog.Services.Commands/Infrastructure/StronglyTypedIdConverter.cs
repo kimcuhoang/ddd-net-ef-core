@@ -1,9 +1,9 @@
-﻿using DDDEfCore.Core.Common.Models;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using DDDEfCore.Core.Common.Models;
 
-namespace DDDEfCore.ProductCatalog.Core.DomainModels
+namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure
 {
     public class StronglyTypedIdConverter<TIdentity> : TypeConverter where TIdentity : IdentityBase
     {

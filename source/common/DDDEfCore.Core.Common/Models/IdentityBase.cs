@@ -30,6 +30,8 @@ namespace DDDEfCore.Core.Common.Models
         #endregion
 
         public bool IsNotEmpty => this.Id != Guid.Empty;
+
+        public static implicit operator Guid(IdentityBase id) => id.Id;
     }
 
     public static class IdentityFactory

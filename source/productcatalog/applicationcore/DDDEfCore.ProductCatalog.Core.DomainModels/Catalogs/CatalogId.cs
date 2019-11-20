@@ -13,5 +13,6 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 
         #endregion
 
+        public static explicit operator CatalogId(Guid id) => new CatalogId(id);
     }
 }

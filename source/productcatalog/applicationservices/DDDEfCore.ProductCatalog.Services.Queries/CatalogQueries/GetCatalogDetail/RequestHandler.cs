@@ -38,7 +38,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
                 var multiSqlClauses = new List<string>
                 {
                     this.SelectCatalogSqlClause(),
-                    this.SelectCatalogCategoriesOfCatalog(),
+                    this.SelectCatalogCategoriesOfCatalog(request.SearchCatalogCategoryRequest),
                     this.SqlForCountOfCatalogCategoriesInCatalog()
                 };
 
@@ -85,7 +85,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
             return sqlStringBuilder.ToString();
         }
 
-        private string SelectCatalogCategoriesOfCatalog()
+        private string SelectCatalogCategoriesOfCatalog(GetCatalogDetailRequest.CatalogCategorySearchRequest request)
         {
             var catalogCategoryFields = new List<string>
             {
@@ -100,7 +100,15 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
                 .Append($" FROM {nameof(CatalogCategory)} AS {nameof(CatalogCategory)}")
                 .Append($" LEFT JOIN {nameof(CatalogProduct)} AS {nameof(CatalogProduct)}")
                 .Append($" ON {nameof(CatalogProduct)}.{nameof(CatalogCategory.CatalogCategoryId)} = {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)}")
-                .Append($" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = @catalogId")
+                .Append($" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = @catalogId");
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                sqlStringBuilder = sqlStringBuilder
+                    .Append($" AND {nameof(CatalogCategory)}.{nameof(CatalogCategory.DisplayName)} LIKE @SearchTerm");
+            }
+
+            sqlStringBuilder = sqlStringBuilder
                 .Append($" GROUP BY {selectedFieldsForCatalog}")
                 .Append($" ORDER BY {nameof(CatalogCategory)}.{nameof(CatalogCategory.DisplayName)}")
                 .Append(" OFFSET @Offset ROWS ")

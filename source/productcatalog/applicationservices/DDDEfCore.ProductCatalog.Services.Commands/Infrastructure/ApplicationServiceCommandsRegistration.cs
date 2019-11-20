@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
 using DDDEfCore.ProductCatalog.Core.DomainModels;
 using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
 using DDDEfCore.ProductCatalog.Services.Commands.Infrastructure.PipelineBehaviors;
@@ -18,7 +19,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure
             services.AddValidatorsFromAssembly(assembly);
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(EndRequestPipelineBehavior<,>));
 
-            StronglyTypedIdTypeDescriptor.AddStronglyTypedIdConverter();
+            StronglyTypedIdTypeDescriptor.AddStronglyTypedIdConverter((idType) =>
+            {
+                var typeOfIdentity = typeof(StronglyTypedIdConverter<>).MakeGenericType(idType);
+                TypeDescriptor.AddAttributes(idType, new TypeConverterAttribute(typeOfIdentity));
+            });
 
             return services;
         }
