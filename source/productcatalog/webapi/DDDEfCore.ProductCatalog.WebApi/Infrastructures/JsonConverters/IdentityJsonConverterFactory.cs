@@ -1,9 +1,9 @@
-﻿using DDDEfCore.Core.Common.Models;
-using System;
+﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DDDEfCore.Core.Common.Models;
 
-namespace DDDEfCore.ProductCatalog.WebApi.JsonConverters
+namespace DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters
 {
     public class IdentityJsonConverterFactory : JsonConverterFactory
     {

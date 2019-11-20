@@ -1,9 +1,9 @@
-﻿using DDDEfCore.Core.Common.Models;
-using System;
+﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DDDEfCore.Core.Common.Models;
 
-namespace DDDEfCore.ProductCatalog.WebApi.JsonConverters
+namespace DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters
 {
     /// <summary>
     /// https://weblogs.thinktecture.com/pawel/2019/10/aspnet-core-3-0-custom-jsonconverter-for-the-new-system_text_json.html
