@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail
 {
@@ -15,16 +17,16 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
 
         public class CatalogDetailResult
         {
-            public Guid Id { get; set; }
+            public CatalogId Id { get; set; }
             public string DisplayName { get; set; }
 
-            internal bool IsNull => this.Id == Guid.Empty && string.IsNullOrWhiteSpace(this.DisplayName);
+            internal bool IsNull => this.Id == null && string.IsNullOrWhiteSpace(this.DisplayName);
         }
 
         public class CatalogCategorySearchResult
         {
-            public Guid CatalogCategoryId { get; set; }
-            public Guid CategoryId { get; set; }
+            public CatalogCategoryId CatalogCategoryId { get; set; }
+            public CategoryId CategoryId { get; set; }
             public string DisplayName { get; set; }
             public int TotalOfProducts { get; set; }
         }

@@ -90,7 +90,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
             var catalogCategoryFields = new List<string>
             {
                 nameof(CatalogCategory.CatalogCategoryId),
-                nameof(CatalogCategory.DisplayName)
+                nameof(CatalogCategory.DisplayName),
+                nameof(CatalogCategory.CategoryId)
             }.Select(field => $"{nameof(CatalogCategory)}.{field}").ToList();
 
             var selectedFieldsForCatalog = string.Join(",", catalogCategoryFields);

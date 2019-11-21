@@ -70,7 +70,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         [InlineData(int.MaxValue, int.MaxValue)]
         public async Task Should_GetCatalogDetail_With_Paging_CatalogCategory_Correctly(int pageIndex, int pageSize)
         {
-            var catalogId = this.Catalog.CatalogId.Id;
+            var catalogId = this.Catalog.CatalogId;
 
             var request = new GetCatalogDetailRequest(catalogId)
             {
@@ -106,7 +106,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         [Fact(DisplayName = "Should GetCatalogDetail With Search CatalogCategory Correctly")]
         public async Task Should_GetCatalogDetail_With_Search_CatalogCategory_Correctly()
         {
-            var catalogId = this.Catalog.CatalogId.Id;
+            var catalogId = this.Catalog.CatalogId;
             var catalogCategories = this.Catalog.Categories.ToList();
 
             var randomIndex = A.Random.Next(0, catalogCategories.Count);
@@ -182,7 +182,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 result.ShouldNotBeNull();
                 result.TotalOfCatalogCategories.ShouldBe(0);
                 result.CatalogDetail.ShouldNotBeNull();
-                result.CatalogDetail.Id.ShouldBe(Guid.Empty);
+                result.CatalogDetail.Id.ShouldBeNull();
                 result.CatalogDetail.DisplayName.ShouldBeNull();
                 result.CatalogCategories.ShouldBeNull();
             });
