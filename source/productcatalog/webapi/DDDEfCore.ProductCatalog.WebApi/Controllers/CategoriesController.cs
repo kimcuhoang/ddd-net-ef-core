@@ -4,7 +4,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryCollection;
+using DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryDetail;
+using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Controllers
 {
@@ -18,7 +21,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
             => this._mediator = mediator;
 
         /// <summary>
-        /// Create Category
+        /// Create CategoryDetail
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
@@ -32,7 +35,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         }
 
         /// <summary>
-        /// Update Specific Category
+        /// Update Specific CategoryDetail
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
@@ -63,6 +66,22 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
                 PageSize = pageSize,
                 PageIndex = pageIndex
             };
+            var result = await this._mediator.Send(request);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get specific CategoryDetail
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <returns></returns>
+        [HttpGet("{categoryId}")]
+        [ProducesResponseType(typeof(GetCategoryDetailResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GlobalExceptionHandlerMiddleware.ExceptionResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(GlobalExceptionHandlerMiddleware.ExceptionResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSpecificCategory(CategoryId categoryId)
+        {
+            var request = new GetCategoryDetailRequest {CategoryId = categoryId};
             var result = await this._mediator.Send(request);
             return Ok(result);
         }

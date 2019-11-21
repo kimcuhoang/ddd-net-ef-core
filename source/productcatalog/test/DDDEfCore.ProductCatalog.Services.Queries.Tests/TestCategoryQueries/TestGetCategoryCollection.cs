@@ -88,7 +88,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
             });
         }
 
-        [Fact(DisplayName = "Return empty if not found any Category")]
+        [Fact(DisplayName = "Return empty if not found any CategoryDetail")]
         public async Task Return_Empty_If_NotFound_Any_Category()
         {
             var request = A.New<GetCategoryCollectionRequest>();

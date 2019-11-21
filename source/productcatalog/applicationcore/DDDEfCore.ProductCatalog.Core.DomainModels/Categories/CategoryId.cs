@@ -12,5 +12,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Categories
         public CategoryId() : base() { }
 
         #endregion
+
+        public static explicit operator CategoryId(Guid id) => new CategoryId(id);
     }
 }
