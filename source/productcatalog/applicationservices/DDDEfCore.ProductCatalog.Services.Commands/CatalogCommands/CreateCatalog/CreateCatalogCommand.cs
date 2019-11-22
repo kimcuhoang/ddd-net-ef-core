@@ -1,6 +1,5 @@
 ﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using MediatR;
-using System;
 using System.Collections.Generic;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog
@@ -18,9 +17,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
             this.CatalogName = catalogName;
         }
 
-        public CreateCatalogCommand AddCategory(Guid categoryId, string displayName)
+        public CreateCatalogCommand AddCategory(CategoryId categoryId, string displayName)
         {
-            var category = new CategoryInCatalog(categoryId, displayName);
+            var category = new CategoryInCatalog
+            {
+                CategoryId = categoryId,
+                DisplayName = displayName
+            };
             this.Categories.Add(category);
             return this;
         }
@@ -30,14 +33,6 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
             public CategoryId CategoryId { get; set; }
 
             public string DisplayName { get; set; }
-
-            public CategoryInCatalog() { }
-
-            public CategoryInCatalog(Guid categoryId, string displayName) : this()
-            {
-                this.CategoryId = new CategoryId(categoryId);
-                this.DisplayName = displayName;
-            }
         }
     }
 }

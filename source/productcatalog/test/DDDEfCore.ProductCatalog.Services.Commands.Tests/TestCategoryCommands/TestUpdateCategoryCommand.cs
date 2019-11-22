@@ -9,6 +9,7 @@ using Shouldly;
 using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using DDDEfCore.Core.Common.Models;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
@@ -32,7 +33,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
                 .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
                 .ReturnsAsync(category);
 
-            var command = new UpdateCategoryCommand(category.CategoryId.Id, this.Fixture.Create<string>());
+            var command = new UpdateCategoryCommand
+            {
+                CategoryId = category.CategoryId,
+                CategoryName = this.Fixture.Create<string>()
+            };
 
             IRequestHandler<UpdateCategoryCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -46,7 +51,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         [Fact(DisplayName = "Update Not Found Category Should Throw Exception")]
         public async Task Update_NotFound_Category_ShouldThrowException()
         {
-            var command = new UpdateCategoryCommand(Guid.NewGuid(), this.Fixture.Create<string>());
+            var command = new UpdateCategoryCommand
+            {
+                CategoryId = IdentityFactory.Create<CategoryId>(),
+                CategoryName = this.Fixture.Create<string>()
+            };
 
             this.MockRepository
                 .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
@@ -61,7 +70,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         [Fact(DisplayName = "Update Category With Invalid Command Should Throw Exception")]
         public async Task Update_Category_With_InvalidCommand_ShouldThrowException()
         {
-            var command = new UpdateCategoryCommand(Guid.Empty, string.Empty);
+            var command = new UpdateCategoryCommand
+            {
+                CategoryId = new CategoryId(Guid.Empty),
+                CategoryName = string.Empty
+            };
 
             IRequestHandler<UpdateCategoryCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -73,8 +86,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         [Fact(DisplayName = "UpdateCategoryCommand With Empty Values (Id, Name) Should Be Invalid")]
         public void UpdateCategoryCommand_With_Empty_Values_ShouldBeInvalid()
         {
-            var command = new UpdateCategoryCommand(Guid.Empty, string.Empty);
-
+            var command = new UpdateCategoryCommand
+            {
+                CategoryId = new CategoryId(Guid.Empty),
+                CategoryName = string.Empty
+            };
 
             var validationResult = this._validator.TestValidate(command);
             validationResult.ShouldHaveValidationErrorFor(x => x.CategoryId);

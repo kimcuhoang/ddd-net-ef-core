@@ -1,20 +1,12 @@
-﻿using MediatR;
-using System;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using MediatR;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.UpdateCatalogCategory
 {
     public class UpdateCatalogCategoryCommand : IRequest
     {
         public CatalogId CatalogId { get; set; }
-        public CatalogCategoryId CatalogCategoryId { get; }
-        public string DisplayName { get; }
-
-        public UpdateCatalogCategoryCommand(Guid catalogId, Guid catalogCategoryId, string displayName)
-        {
-            this.CatalogId = new CatalogId(catalogId);
-            this.CatalogCategoryId = new CatalogCategoryId(catalogCategoryId);
-            this.DisplayName = displayName;
-        }
+        public CatalogCategoryId CatalogCategoryId { get; set; }
+        public string DisplayName { get; set; }
     }
 }

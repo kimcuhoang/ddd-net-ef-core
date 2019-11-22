@@ -18,7 +18,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         {
             var command = this.Fixture.Create<CreateCategoryCommand>();
 
-            IRequestHandler<CreateCategoryCommand> handler 
+            IRequestHandler<CreateCategoryCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, new CreateCategoryCommandValidator());
 
             await handler.Handle(command, this.CancellationToken);
@@ -29,7 +29,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         [Fact(DisplayName = "Create Category With Empty Name Should Throw Exception")]
         public async Task Create_Category_With_Empty_Name_ShouldThrowException()
         {
-            var command = new CreateCategoryCommand(string.Empty);
+            var command = new CreateCategoryCommand { CategoryName = string.Empty };
             IRequestHandler<CreateCategoryCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, new CreateCategoryCommandValidator());
 
@@ -40,8 +40,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         [Fact(DisplayName = "CreateCategoryCommand Has Empty CategoryName Should Be Invalid")]
         public void CreateCategoryCommand_Has_Empty_CategoryName_ShouldBeInvalid()
         {
-            var command = new CreateCategoryCommand(string.Empty);
-            
+            var command = new CreateCategoryCommand { CategoryName = string.Empty };
+
             var validator = new CreateCategoryCommandValidator();
             var result = validator.TestValidate(command);
             result.ShouldHaveValidationErrorFor(x => x.CategoryName);

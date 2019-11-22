@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -65,9 +66,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Update CatalogCategory Successfully")]
         public async Task Update_CatalogCategory_Successfully()
         {
-            var command = new UpdateCatalogCategoryCommand(this._catalog.CatalogId.Id, 
-                this._catalogCategory.CatalogCategoryId.Id, 
-                this.Fixture.Create<string>());
+            var command = new UpdateCatalogCategoryCommand
+            {
+                CatalogId = this._catalog.CatalogId,
+                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                DisplayName = this.Fixture.Create<string>()
+            };
 
             await this._requestHandler.Handle(command, this.CancellationToken);
 
@@ -77,9 +81,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Validate Fail Should Throw Exception")]
         public async Task Validation_Fail_ShouldThrowException()
         {
-            var command = new UpdateCatalogCategoryCommand(Guid.Empty, 
-                Guid.Empty, 
-                this.Fixture.Create<string>());
+            var command = new UpdateCatalogCategoryCommand
+            {
+                CatalogId = (CatalogId)Guid.Empty,
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
+                DisplayName = this.Fixture.Create<string>()
+            };
 
             await Should.ThrowAsync<ValidationException>(async () =>
                 await this._requestHandler.Handle(command, this.CancellationToken));
@@ -88,7 +95,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Not Found Catalog Should Be Invalid")]
         public void Not_Found_Catalog_ShouldBeInvalid()
         {
-            var command = new UpdateCatalogCategoryCommand(Guid.NewGuid(), Guid.NewGuid(), this.Fixture.Create<string>());
+            var command = new UpdateCatalogCategoryCommand
+            {
+                CatalogId = IdentityFactory.Create<CatalogId>(),
+                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                DisplayName = this.Fixture.Create<string>()
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -100,9 +112,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Not Found CatalogCategory Should Be Invalid")]
         public void Not_Found_CatalogCategory_ShouldBeInvalid()
         {
-            var command = new UpdateCatalogCategoryCommand(this._catalog.CatalogId.Id, 
-                Guid.NewGuid(), 
-                this.Fixture.Create<string>());
+            var command = new UpdateCatalogCategoryCommand
+            {
+                CatalogId = this._catalog.CatalogId,
+                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                DisplayName = this.Fixture.Create<string>()
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -114,9 +129,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Empty DisplayName Should Be Invalid")]
         public void Empty_DisplayName_ShouldBeInvalid()
         {
-            var command = new UpdateCatalogCategoryCommand(this._catalog.CatalogId.Id, 
-                                                        this._catalogCategory.CatalogCategoryId.Id, 
-                                                        string.Empty);
+            var command = new UpdateCatalogCategoryCommand
+            {
+                CatalogId = this._catalog.CatalogId,
+                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                DisplayName = string.Empty
+            };
 
             var result = this._validator.TestValidate(command);
 

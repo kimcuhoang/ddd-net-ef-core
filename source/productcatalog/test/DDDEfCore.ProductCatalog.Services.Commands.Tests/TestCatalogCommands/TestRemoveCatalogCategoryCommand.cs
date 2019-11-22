@@ -49,8 +49,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             var categoryId = IdentityFactory.Create<CategoryId>();
             var catalogCategory = catalog.AddCategory(categoryId, this.Fixture.Create<string>());
 
-            var command = new RemoveCatalogCategoryCommand(catalog.CatalogId.Id, catalogCategory.CatalogCategoryId.Id);
-
+            var command = new RemoveCatalogCategoryCommand
+            {
+                CatalogId = catalog.CatalogId,
+                CatalogCategoryId = catalogCategory.CatalogCategoryId
+            };
+                
             IRequestHandler<RemoveCatalogCategoryCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
 
@@ -62,7 +66,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [Fact(DisplayName = "Invalid Command Should Throw Exception")]
         public async Task Invalid_Command_ShouldThrowException()
         {
-            var command = new RemoveCatalogCategoryCommand(Guid.Empty, Guid.Empty);
+            var command = new RemoveCatalogCategoryCommand
+            {
+                CatalogId = new CatalogId(Guid.Empty),
+                CatalogCategoryId = new CatalogCategoryId(Guid.Empty)
+            };
 
             IRequestHandler<RemoveCatalogCategoryCommand> handler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
 
@@ -74,7 +82,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [Fact(DisplayName = "Validate: Guid.Empty Ids Should Be Invalid")]
         public void GuidEmpty_For_Ids_ShouldBeInvalid()
         {
-            var command = new RemoveCatalogCategoryCommand(Guid.Empty, Guid.Empty);
+            var command = new RemoveCatalogCategoryCommand
+            {
+                CatalogId = new CatalogId(Guid.Empty),
+                CatalogCategoryId = new CatalogCategoryId(Guid.Empty)
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -85,7 +97,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [Fact(DisplayName = "Validate: Catalog Not Found Should Be Invalid")]
         public void Catalog_NotFound_ShouldBeInvalid()
         {
-            var command = new RemoveCatalogCategoryCommand(Guid.Empty, Guid.NewGuid());
+            var command = new RemoveCatalogCategoryCommand
+            {
+                CatalogId = new CatalogId(Guid.Empty),
+                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>()
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -101,7 +117,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             this._mockDbContext.Setup(x => x.Set<Catalog>())
                 .Returns(catalogs.AsQueryable().BuildMockDbSet().Object);
 
-            var command = new RemoveCatalogCategoryCommand(catalog.CatalogId.Id, Guid.Empty);
+            var command = new RemoveCatalogCategoryCommand
+            {
+                CatalogId = catalog.CatalogId,
+                CatalogCategoryId = new CatalogCategoryId(Guid.Empty)
+            };
 
             var result = this._validator.TestValidate(command);
             result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
