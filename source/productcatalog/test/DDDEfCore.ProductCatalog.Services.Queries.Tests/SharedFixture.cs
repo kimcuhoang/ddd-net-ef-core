@@ -89,6 +89,12 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
             }
         }
 
+        public async Task ExecuteTest(Func<IServiceProvider, Task> testFunc)
+        {
+            using var scope = this._serviceScopeFactory.CreateScope();
+            await testFunc(scope.ServiceProvider);
+        }
+
         private async Task ResetCheckpoint()
         {
             using (var serviceScope = this._serviceScopeFactory.CreateScope())

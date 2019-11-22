@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DDDEfCore.Core.Common.Models;
+﻿using DDDEfCore.Core.Common.Models;
+using System;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products
 {
@@ -14,5 +12,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products
         public ProductId() : base() { }
 
         #endregion
+
+        public static explicit operator ProductId(Guid id) => new ProductId(id);
     }
 }
