@@ -13,6 +13,6 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 
         #endregion
 
-        public static explicit operator CatalogId(Guid id) => new CatalogId(id);
+        public static explicit operator CatalogId(Guid id) => id == Guid.Empty ? null : new CatalogId(id);
     }
 }

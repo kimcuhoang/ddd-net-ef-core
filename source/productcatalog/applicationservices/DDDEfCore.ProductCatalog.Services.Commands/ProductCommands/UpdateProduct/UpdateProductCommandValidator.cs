@@ -11,8 +11,6 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProdu
             RuleFor(x => x.ProductId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.ProductId)} is empty or invalid.")
                 .Must(x => this.ProductMustExist(repositoryFactory, x))
                 .WithMessage(x => $"Product#{x.ProductId} could not be found.");
 

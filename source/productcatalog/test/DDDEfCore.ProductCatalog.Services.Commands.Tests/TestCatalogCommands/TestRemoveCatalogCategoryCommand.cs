@@ -68,8 +68,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = new CatalogId(Guid.Empty),
-                CatalogCategoryId = new CatalogCategoryId(Guid.Empty)
+                CatalogId = (CatalogId)Guid.Empty,
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
             };
 
             IRequestHandler<RemoveCatalogCategoryCommand> handler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -84,8 +84,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = new CatalogId(Guid.Empty),
-                CatalogCategoryId = new CatalogCategoryId(Guid.Empty)
+                CatalogId = (CatalogId)Guid.Empty,
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
             };
 
             var result = this._validator.TestValidate(command);
@@ -99,7 +99,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = new CatalogId(Guid.Empty),
+                CatalogId = (CatalogId)Guid.Empty,
                 CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>()
             };
 
@@ -120,7 +120,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             var command = new RemoveCatalogCategoryCommand
             {
                 CatalogId = catalog.CatalogId,
-                CatalogCategoryId = new CatalogCategoryId(Guid.Empty)
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
             };
 
             var result = this._validator.TestValidate(command);

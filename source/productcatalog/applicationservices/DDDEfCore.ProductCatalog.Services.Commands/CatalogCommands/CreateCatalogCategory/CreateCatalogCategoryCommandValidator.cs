@@ -15,16 +15,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
             RuleFor(x => x.CatalogId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CatalogId)} is empty or invalid.")
                 .Must(x => this.CatalogIsExisting(repositoryFactory, x))
                 .WithMessage(x => $"Catalog#{x.CatalogId} could not be found.");
 
             RuleFor(x => x.CategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CategoryId)} is empty or invalid.")
                 .Must(x => this.CategoryIsExisting(repositoryFactory, x))
                 .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
 
@@ -37,11 +33,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
             {
                 RuleFor(x => x.ParentCatalogCategoryId)
                     .Cascade(CascadeMode.StopOnFirstFailure)
-                    .NotNull()
-                    .Must(x => x.IsNotEmpty)
-                    .WithMessage(x => $"{nameof(x.ParentCatalogCategoryId)} is empty or invalid.");
+                    .NotNull();
 
-                When(x => x.ParentCatalogCategoryId.IsNotEmpty, () =>
+                When(x => x.ParentCatalogCategoryId != null, () =>
                 {
                     RuleFor(x => x).Custom((x, context) =>
                     {
