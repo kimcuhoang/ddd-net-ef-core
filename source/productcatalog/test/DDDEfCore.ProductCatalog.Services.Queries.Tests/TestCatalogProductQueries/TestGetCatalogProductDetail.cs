@@ -6,6 +6,8 @@ using Shouldly;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using DDDEfCore.Core.Common.Models;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQueries
@@ -14,42 +16,27 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQuer
     public class TestGetCatalogProductDetail : IClassFixture<TestCatalogProductFixture>
     {
         private readonly TestCatalogProductFixture _testFixture;
-        private readonly GetCatalogProductDetailRequestValidator _validator;
-        private readonly CancellationToken _cancellationToken;
 
         public TestGetCatalogProductDetail(TestCatalogProductFixture testFixture)
         {
-            this._testFixture = testFixture ?? throw new ArgumentNullException(nameof(testFixture));
-            this._validator = new GetCatalogProductDetailRequestValidator();
-            this._cancellationToken = new CancellationToken(false);
-        }
-
-        private async Task ExecuteTestAndAssert(GetCatalogProductDetailRequest request, Action<GetCatalogProductDetailResult> assertFor)
-        {
-            await this._testFixture.ExecuteScopeAsync(async dbConnectionFactory =>
-            {
-                IRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult> requestHandler =
-                    new RequestHandler(dbConnectionFactory, this._validator);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
-                assertFor(result);
-            });
+            this._testFixture = testFixture;
         }
 
         [Fact(DisplayName = "GetCatalogProductDetail Correctly")]
         public async Task GetCatalogProductDetail_Correctly()
         {
             var catalogProduct = this._testFixture.CatalogProduct;
-            var catalogProductId = catalogProduct.CatalogProductId.Id;
+            var catalogProductId = catalogProduct.CatalogProductId;
             var catalogCategory = this._testFixture.CatalogCategory;
-            var catalogCategoryId = catalogCategory.CatalogCategoryId.Id;
+            var catalogCategoryId = catalogCategory.CatalogCategoryId;
             var catalog = this._testFixture.Catalog;
-            var catalogId = catalog.CatalogId.Id;
+            var catalogId = catalog.CatalogId;
 
-            var request = new GetCatalogProductDetailRequest(catalogProductId);
-
-            await this.ExecuteTestAndAssert(request, result =>
+            var request = new GetCatalogProductDetailRequest
+            {
+                CatalogProductId = catalogProductId
+            };
+            await this._testFixture.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>
             {
                 result.ShouldNotBeNull();
                 
@@ -70,17 +57,20 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQuer
         [Fact(DisplayName = "GetCatalogProductDetail Not Found CatalogProduct Still Work Correctly")]
         public async Task GetCatalogProductDetail_NotFound_CatalogProduct_Still_Work_Correctly()
         {
-            var request = new GetCatalogProductDetailRequest(Guid.NewGuid());
-            await this.ExecuteTestAndAssert(request, result =>
+            var request = new GetCatalogProductDetailRequest
+            {
+                CatalogProductId = IdentityFactory.Create<CatalogProductId>()
+            };
+            await this._testFixture.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>
             {
                 result.ShouldNotBeNull();
                 result.IsNull.ShouldBe(true);
                 result.CatalogCategory.ShouldNotBeNull();
-                result.CatalogCategory.CatalogCategoryId.ShouldBe(Guid.Empty);
+                result.CatalogCategory.CatalogCategoryId.ShouldBeNull();
                 string.IsNullOrWhiteSpace(result.CatalogCategory.DisplayName).ShouldBeTrue();
 
                 result.Catalog.ShouldNotBeNull();
-                result.Catalog.CatalogId.ShouldBe(Guid.Empty);
+                result.Catalog.CatalogId.ShouldBeNull();
                 string.IsNullOrWhiteSpace(result.Catalog.CatalogName).ShouldBeTrue();
             });
         }
@@ -88,24 +78,25 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQuer
         [Fact(DisplayName = "Invalid Request Should Throw Validation Exception")]
         public async Task Invalid_Request_Should_Throw_ValidationException()
         {
-            var request = new GetCatalogProductDetailRequest(Guid.Empty);
-
-            await this._testFixture.ExecuteScopeAsync(async dbConnectionFactory =>
+            var request = new GetCatalogProductDetailRequest
             {
-                IRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult> requestHandler =
-                    new RequestHandler(dbConnectionFactory, this._validator);
+                CatalogProductId = (CatalogProductId)Guid.Empty
+            };
 
-                await Should.ThrowAsync<ValidationException>(async () =>
-                    await requestHandler.Handle(request, this._cancellationToken));
-            });
+            await Should.ThrowAsync<ValidationException>(async () =>
+                await this._testFixture.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>{}));
         }
 
         [Fact(DisplayName = "Should Validate Request Correctly")]
-        public void Should_Validate_Request_Correctly()
+        public async Task Should_Validate_Request_Correctly()
         {
-            var request = new GetCatalogProductDetailRequest(Guid.Empty);
-            var result = this._validator.TestValidate(request);
-            result.ShouldHaveValidationErrorFor(x => x.CatalogProductId);
+            var request = new GetCatalogProductDetailRequest
+            {
+                CatalogProductId = (CatalogProductId)Guid.Empty
+            };
+
+            await this._testFixture.ExecuteValidationTest(request,
+                result => { result.ShouldHaveValidationErrorFor(x => x.CatalogProductId); });
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCatalogProductDetail
 {
@@ -11,21 +12,21 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
 
         public class CatalogInfo
         {
-            public Guid CatalogId { get; set; }
+            public CatalogId CatalogId { get; set; }
             public string CatalogName { get; set; }
         }
 
         public class CatalogCategoryInfo
         {
-            public Guid CatalogCategoryId { get; set; }
+            public CatalogCategoryId CatalogCategoryId { get; set; }
             public string DisplayName { get; set; }
         }
 
         public class CatalogProductInfo
         {
-            public Guid CatalogProductId { get; set; }
+            public CatalogProductId CatalogProductId { get; set; }
             public string DisplayName { get; set; }
-            public bool IsNull => this.CatalogProductId == Guid.Empty && string.IsNullOrWhiteSpace(this.DisplayName);
+            public bool IsNull => this.CatalogProductId == null && string.IsNullOrWhiteSpace(this.DisplayName);
         }
     }
 }

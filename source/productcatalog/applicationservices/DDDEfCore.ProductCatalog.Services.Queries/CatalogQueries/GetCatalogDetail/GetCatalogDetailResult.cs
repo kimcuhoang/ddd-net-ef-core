@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+using System.Collections.Generic;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail
 {

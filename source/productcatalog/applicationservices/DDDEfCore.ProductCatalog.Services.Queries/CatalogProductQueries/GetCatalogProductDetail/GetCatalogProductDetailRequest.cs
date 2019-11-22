@@ -1,15 +1,10 @@
-﻿using MediatR;
-using System;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using MediatR;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCatalogProductDetail
 {
     public class GetCatalogProductDetailRequest : IRequest<GetCatalogProductDetailResult>
     {
-        public Guid CatalogProductId { get; }
-
-        public GetCatalogProductDetailRequest(Guid catalogProductId)
-        {
-            this.CatalogProductId = catalogProductId;
-        }
+        public CatalogProductId CatalogProductId { get; set; }
     }
 }
