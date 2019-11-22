@@ -7,9 +7,12 @@ using Xunit;
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
 {
     [Collection(nameof(SharedFixture))]
-    public class TestGetProductCollection : TestProductQueriesBase, IClassFixture<TestProductsFixture>
+    public class TestGetProductCollection : IClassFixture<TestProductsFixture>
     {
-        public TestGetProductCollection(TestProductsFixture testProductsFixture) : base(testProductsFixture) { }
+        private readonly TestProductsFixture _testProductsFixture;
+
+        public TestGetProductCollection(TestProductsFixture testProductsFixture)
+            => this._testProductsFixture = testProductsFixture;
 
         [Theory(DisplayName = "Should GetProductCollection With Paging Correctly")]
         [InlineData(0, 0)]
@@ -23,7 +26,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
                 PageSize = pageSize
             };
 
-            await this.ExecuteTest<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
+            await this._testProductsFixture.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
             {
                 result.ShouldNotBeNull();
                 result.TotalProducts.ShouldBe(1);
@@ -49,7 +52,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
                 PageSize = int.MaxValue
             };
 
-            await this.ExecuteTest<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
+            await this._testProductsFixture.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
             {
                 result.ShouldNotBeNull();
                 result.TotalProducts.ShouldBe(1);
@@ -68,7 +71,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
         {
             var request = GenFu.A.New<GetProductCollectionRequest>();
 
-            await this.ExecuteTest<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
+            await this._testProductsFixture.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
             {
                 result.ShouldNotBeNull();
                 result.TotalProducts.ShouldBe(0);

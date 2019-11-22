@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 using AutoFixture;
 using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using DDDEfCore.ProductCatalog.Services.Queries.Db;
+using FluentValidation;
+using FluentValidation.TestHelper;
+using MediatR;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
@@ -89,10 +92,35 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
             }
         }
 
-        public async Task ExecuteTest(Func<IServiceProvider, Task> testFunc)
+        private async Task ExecuteTest(Func<IServiceProvider, Task> testFunc)
         {
             using var scope = this._serviceScopeFactory.CreateScope();
             await testFunc(scope.ServiceProvider);
+        }
+
+        public async Task ExecuteTestRequestHandler<TRequest, TResult>(TRequest request, Action<TResult> assert)
+            where TRequest : IRequest<TResult>
+        {
+            var cancellationToken = new CancellationToken(false);
+            await this.ExecuteTest(async serviceProvider =>
+            {
+                var handler = serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResult>>();
+
+                var result = await handler.Handle(request, cancellationToken);
+
+                assert(result);
+            });
+        }
+
+        public async Task ExecuteValidationTest<TRequest>(TRequest request, Action<TestValidationResult<TRequest, TRequest>> assert) where TRequest : class
+        {
+            await this.ExecuteTest(serviceProvider =>
+            {
+                var validator = serviceProvider.GetRequiredService<IValidator<TRequest>>();
+                var result = validator.TestValidate(request);
+                assert(result);
+                return Task.CompletedTask;
+            });
         }
 
         private async Task ResetCheckpoint()

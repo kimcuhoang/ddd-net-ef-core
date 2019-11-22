@@ -4,7 +4,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductCollection;
+using DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductDetail;
+using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Controllers
 {
@@ -64,6 +67,22 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
                 PageSize = pageSize
             };
 
+            var result = await this._mediator.Send(request);
+            return Ok(result);
+        }
+        
+        /// <summary>
+        /// Get detail of specific Product
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        [HttpGet("{productId}")]
+        [ProducesResponseType(typeof(GetProductDetailResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GlobalExceptionHandlerMiddleware.ExceptionResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(GlobalExceptionHandlerMiddleware.ExceptionResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetProductDetail(ProductId productId)
+        {
+            var request = new GetProductDetailRequest { ProductId = productId};
             var result = await this._mediator.Send(request);
             return Ok(result);
         }
