@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
+using System;
 using System.Collections.Generic;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCatalogCategoryDetail
@@ -13,20 +15,20 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCa
 
         public class CatalogCategoryDetailResult
         {
-            public Guid CatalogCategoryId { get; set; }
+            public CatalogCategoryId CatalogCategoryId { get; set; }
             public string CatalogCategoryName { get; set; }
-            public Guid CatalogId { get; set; }
+            public CatalogId CatalogId { get; set; }
             public string CatalogName { get; set; }
 
-            public bool IsNull => this.CatalogCategoryId == Guid.Empty &&
+            public bool IsNull => this.CatalogCategoryId == null &&
                                   string.IsNullOrWhiteSpace(this.CatalogCategoryName);
         }
 
         public class CatalogProductResult
         {
-            public Guid CatalogProductId { get; set; }
+            public CatalogProductId CatalogProductId { get; set; }
             public string DisplayName { get; set; }
-            public Guid ProductId { get; set; }
+            public ProductId ProductId { get; set; }
             public string ProductName { get; set; }
         }
     }

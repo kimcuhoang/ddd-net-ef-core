@@ -1,48 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture;
-using DDDEfCore.Core.Common.Models;
+﻿using AutoFixture;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
-using GenFu;
-using Xunit;
+using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQueries
 {
     public class TestCatalogCategoryFixture : SharedFixture
     {
         public Catalog Catalog { get; private set; }
-
-        public CatalogCategory CatalogCategory => this.Catalog.Categories.FirstOrDefault();
-
-        public List<CatalogProduct> CatalogProducts => this.CatalogCategory.Products.ToList();
+        public Category Category { get; private set; }
+        public Product Product { get; private set; }
+        public CatalogCategory CatalogCategory { get; private set; }
+        public CatalogProduct CatalogProduct { get; private set; }
 
         public override async Task InitializeAsync()
         {
             await base.InitializeAsync();
 
-            this.Catalog = this.CreateCatalog();
+            this.Category = Category.Create(this.Fixture.Create<string>());
+            await this.SeedingData(this.Category);
+
+            this.Product = Product.Create(this.Fixture.Create<string>());
+            await this.SeedingData(this.Product);
+
+            this.Catalog = Catalog.Create(this.Fixture.Create<string>());
+            this.CatalogCategory = this.Catalog.AddCategory(this.Category.CategoryId, this.Category.DisplayName);
+            this.CatalogProduct = this.CatalogCategory.CreateCatalogProduct(this.Product.ProductId, this.Product.Name);
             await this.SeedingData(this.Catalog);
-        }
-
-        private Catalog CreateCatalog()
-        {
-            var catalog = Catalog.Create(this.Fixture.Create<string>());
-            var categoryId = IdentityFactory.Create<CategoryId>();
-            var catalogCategory = catalog.AddCategory(categoryId, this.Fixture.Create<string>());
-            
-            var totalCatalogProducts = A.Random.Next(1, 5);
-            Enumerable.Range(0, totalCatalogProducts).ToList().ForEach(idx =>
-            {
-                var productId = IdentityFactory.Create<ProductId>();
-                catalogCategory.CreateCatalogProduct(productId, this.Fixture.Create<string>());
-            });
-
-            return catalog;
         }
     }
 }
