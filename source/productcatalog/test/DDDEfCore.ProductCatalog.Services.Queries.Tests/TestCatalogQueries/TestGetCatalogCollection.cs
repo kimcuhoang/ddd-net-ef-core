@@ -1,12 +1,9 @@
-﻿using System;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCollections;
-using MediatR;
+using GenFu;
 using Shouldly;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using GenFu;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
@@ -15,25 +12,9 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
     public class TestGetCatalogCollection : IClassFixture<TestGetCatalogFixture>
     {
         private readonly TestGetCatalogFixture _testFixture;
-        private readonly CancellationToken _cancellationToken;
-
         public TestGetCatalogCollection(TestGetCatalogFixture testFixture)
         {
             this._testFixture = testFixture;
-            this._cancellationToken = new CancellationToken(false);
-        }
-
-        private async Task ExecuteTestWithAssert(GetCatalogCollectionRequest request, Action<GetCatalogCollectionResult> assertFor)
-        {
-            await this._testFixture.ExecuteScopeAsync(async dbConnection =>
-            {
-                IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult> requestHandler =
-                    new RequestHandler(dbConnection);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
-                assertFor(result);
-            });
         }
 
         [Theory(DisplayName = "Should GetCatalogCollection With Paging Correctly")]
@@ -50,7 +31,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 PageSize = pageSize
             };
 
-            await this.ExecuteTestWithAssert(request, (result) =>
+            await this._testFixture.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
             {
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(catalogs.Count);
@@ -79,7 +60,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 SearchTerm = searchTerm
             };
 
-            await this.ExecuteTestWithAssert(request, (result) =>
+            await this._testFixture.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
             {
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(1);
@@ -96,7 +77,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         {
             var request = A.New<GetCatalogCollectionRequest>();
 
-            await this.ExecuteTestWithAssert(request, (result) =>
+            await this._testFixture.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
             {
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(0);
