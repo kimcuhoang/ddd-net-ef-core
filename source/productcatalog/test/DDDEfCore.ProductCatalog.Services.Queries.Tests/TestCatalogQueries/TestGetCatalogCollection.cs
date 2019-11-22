@@ -37,7 +37,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 result.TotalCatalogs.ShouldBe(catalogs.Count);
                 foreach (var catalogItem in result.CatalogItems)
                 {
-                    var catalogId = new CatalogId(catalogItem.CatalogId);
+                    var catalogId = catalogItem.CatalogId;
                     var catalog = catalogs.SingleOrDefault(x => x.CatalogId == catalogId);
                     catalog.ShouldNotBeNull(() => $"Assert{catalogId} in {string.Join(",", catalogs.Select(x => x.CatalogId.Id.ToString()).ToArray())}");
                     catalogItem.DisplayName.ShouldBe(catalog.DisplayName);

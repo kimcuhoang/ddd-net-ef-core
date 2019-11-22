@@ -5,6 +5,7 @@ using Shouldly;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NuGet.Frameworks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQueries
@@ -49,8 +50,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
 
                 result.CatalogProducts.ToList().ForEach(c =>
                 {
-                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x =>
-                        x.CatalogProductId == new CatalogProductId(c.CatalogProductId));
+                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == c.CatalogProductId);
 
                     catalogProduct.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogProduct.DisplayName);
@@ -87,8 +87,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
 
                 result.CatalogProducts.ToList().ForEach(c =>
                 {
-                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x =>
-                        x.CatalogProductId == new CatalogProductId(c.CatalogProductId));
+                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == c.CatalogProductId);
 
                     catalogProduct.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogProduct.DisplayName);

@@ -20,12 +20,12 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
                 .Property(x => x.CatalogProductId)
                 .HasField("Id")
                 .UsePropertyAccessMode(PropertyAccessMode.Field)
-                .HasConversion(x => x.Id, x => new CatalogProductId(x));
+                .HasConversion(x => x.Id, id => (CatalogProductId)id);
 
             builder
                 .Property(x => x.ProductId)
                 .IsRequired()
-                .HasConversion(x => x.Id, x => new ProductId(x));
+                .HasConversion(x => x.Id, id => (ProductId)id);
 
             builder
                 .HasOne(x => x.CatalogCategory)

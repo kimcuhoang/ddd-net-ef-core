@@ -1,13 +1,10 @@
-﻿using DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCatalogProductDetail;
+﻿using DDDEfCore.Core.Common.Models;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCatalogProductDetail;
 using FluentValidation;
-using FluentValidation.TestHelper;
-using MediatR;
 using Shouldly;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-using DDDEfCore.Core.Common.Models;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQueries

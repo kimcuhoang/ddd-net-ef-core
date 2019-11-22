@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using DDDEfCore.Core.Common.Models;
+using DDDEfCore.ProductCatalog.Core.DomainModels;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
@@ -52,7 +53,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 result.CatalogCategories.ToList().ForEach(c =>
                 {
                     var catalogCategory =
-                        catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == new CatalogCategoryId(c.CatalogCategoryId));
+                        catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == c.CatalogCategoryId);
                     catalogCategory.ShouldNotBeNull();
                     c.CategoryId.ShouldBe(this._testFixture.Category.CategoryId);
                     c.DisplayName.ShouldBe(catalogCategory.DisplayName);
@@ -92,7 +93,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 result.CatalogCategories.ToList().ForEach(c =>
                 {
                     var catalogCategory =
-                        catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == new CatalogCategoryId(c.CatalogCategoryId));
+                        catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == c.CatalogCategoryId);
 
                     catalogCategory.ShouldNotBeNull();
                     c.CategoryId.ShouldBe(this._testFixture.Category.CategoryId);
