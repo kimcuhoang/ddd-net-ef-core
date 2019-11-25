@@ -1,6 +1,5 @@
-﻿using System;
-using DDDEfCore.Core.Common.Models;
-using System.ComponentModel;
+﻿using DDDEfCore.Core.Common.Models;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -15,7 +14,6 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels
                 .Where(x => !x.IsGenericTypeDefinition && !x.IsAbstract && x.BaseType == typeof(IdentityBase))
                 .ToList().ForEach(idType =>
                 {
-                    
                     additionalAction?.Invoke(idType);
                 });
         }

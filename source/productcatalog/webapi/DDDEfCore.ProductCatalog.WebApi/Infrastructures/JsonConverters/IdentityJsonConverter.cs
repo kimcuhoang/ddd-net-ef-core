@@ -17,7 +17,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters
 
         public override TIdentity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return (TIdentity)Activator.CreateInstance(typeof(TIdentity), args: reader.GetGuid());
+            return IdentityFactory.Create<TIdentity>(reader.GetGuid());
         }
 
         public override void Write(Utf8JsonWriter writer, TIdentity value, JsonSerializerOptions options)

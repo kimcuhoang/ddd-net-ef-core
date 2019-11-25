@@ -19,7 +19,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure
             var stringValue = value as string;
             if (!string.IsNullOrEmpty(stringValue) && Guid.TryParse(stringValue, out var guid))
             {
-                return Activator.CreateInstance(typeof(TIdentity), args: guid);
+                return IdentityFactory.Create<TIdentity>(guid);
             }
 
             return base.ConvertFrom(context, culture, value);

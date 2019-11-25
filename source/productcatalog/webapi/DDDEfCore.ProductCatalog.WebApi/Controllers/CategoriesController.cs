@@ -37,13 +37,19 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         /// <summary>
         /// Update Specific CategoryDetail
         /// </summary>
-        /// <param name="command"></param>
+        /// <param name="categoryId"></param>
+        /// <param name="categoryName"></param>
         /// <returns></returns>
-        [HttpPut("update")]
+        [HttpPut("{categoryId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromBody] UpdateCategoryCommand command)
+        public async Task<IActionResult> Update(CategoryId categoryId, [FromBody] string categoryName)
         {
+            UpdateCategoryCommand command = new UpdateCategoryCommand
+            {
+                CategoryId = categoryId,
+                CategoryName = categoryName
+            };
             await this._mediator.Send(command);
             return NoContent();
         }

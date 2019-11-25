@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using DDDEfCore.Core.Common.Models;
-using System;
 using System.Data;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries
@@ -16,7 +15,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries
 
         public override TIdenity Parse(object value)
         {
-            return (TIdenity)Activator.CreateInstance(typeof(TIdenity), args: value);
+            return IdentityFactory.Create<TIdenity>(value);
         }
 
         #endregion

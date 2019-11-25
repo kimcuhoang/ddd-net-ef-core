@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace DDDEfCore.Core.Common.Models
 {
@@ -10,7 +12,6 @@ namespace DDDEfCore.Core.Common.Models
         #region Constructors
 
         protected IdentityBase(Guid id) => this.Id = id;
-        protected IdentityBase() : this(Guid.NewGuid()) { }
 
         #endregion
 
@@ -36,7 +37,18 @@ namespace DDDEfCore.Core.Common.Models
     {
         public static TIdentity Create<TIdentity>() where TIdentity : IdentityBase
         {
-            return Activator.CreateInstance<TIdentity>();
+            return Create<TIdentity>(Guid.NewGuid());
+        }
+
+        public static TIdentity Create<TIdentity>(object id) where TIdentity : IdentityBase
+        {
+            var identityConstructor = typeof(TIdentity)
+                    .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .FirstOrDefault(x => x.GetParameters().Length > 0);
+
+            var instance = identityConstructor?.Invoke(new object[] { id }) ?? default(TIdentity);
+
+            return (TIdentity)instance;
         }
     }
 }

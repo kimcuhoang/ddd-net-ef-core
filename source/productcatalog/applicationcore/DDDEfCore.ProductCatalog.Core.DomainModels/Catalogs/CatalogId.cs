@@ -7,9 +7,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
     {
         #region Constructors
 
-        public CatalogId(Guid id) : base(id) { }
-
-        public CatalogId() : base() { }
+        private CatalogId(Guid id) : base(id) { }
 
         #endregion
 

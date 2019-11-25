@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
@@ -37,14 +38,20 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         /// <summary>
         /// Update specific Catalog
         /// </summary>
-        /// <param name="command"></param>
+        /// <param name="catalogId"></param>
+        /// <param name="catalogName"></param>
         /// <returns></returns>
-        [HttpPut("update")]
+        [HttpPut("{catalogId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromBody] UpdateCatalogCommand command)
+        public async Task<IActionResult> Update(CatalogId catalogId, [FromBody] string catalogName)
         {
+            UpdateCatalogCommand command = new UpdateCatalogCommand
+            {
+                CatalogId = catalogId,
+                CatalogName = catalogName
+            };
             await this._mediator.Send(command);
             return NoContent();
         }
@@ -72,7 +79,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         }
 
         /// <summary>
-        /// Get specific Catalogs and also search its Categories
+        /// Search Catalog by CatalogId and also its CatalogCategory
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -80,7 +87,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers
         [ProducesResponseType(typeof(GetCatalogDetailResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GlobalExceptionHandlerMiddleware.ExceptionResponse),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(GlobalExceptionHandlerMiddleware.ExceptionResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCatalog(GetCatalogDetailRequest request)
+        public async Task<IActionResult> SearchSpecificCatalogByCatalogId(GetCatalogDetailRequest request)
         {
             var result = await this._mediator.Send(request);
             return Ok(result);
