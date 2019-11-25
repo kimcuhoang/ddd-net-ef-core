@@ -46,7 +46,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares
             }
 
             exceptionResponse.Status = context.Response.StatusCode;
-            var jsonContent = JsonSerializer.Serialize(new { response = exceptionResponse },
+            var jsonContent = JsonSerializer.Serialize(exceptionResponse,
                 new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true

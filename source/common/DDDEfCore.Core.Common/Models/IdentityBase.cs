@@ -42,11 +42,13 @@ namespace DDDEfCore.Core.Common.Models
 
         public static TIdentity Create<TIdentity>(object id) where TIdentity : IdentityBase
         {
+            if (id == null || (Guid) id == Guid.Empty) return null;
+
             var identityConstructor = typeof(TIdentity)
                     .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                     .FirstOrDefault(x => x.GetParameters().Length > 0);
 
-            var instance = identityConstructor?.Invoke(new object[] { id }) ?? default(TIdentity);
+            var instance = identityConstructor?.Invoke(new object[] { id });
 
             return (TIdentity)instance;
         }
