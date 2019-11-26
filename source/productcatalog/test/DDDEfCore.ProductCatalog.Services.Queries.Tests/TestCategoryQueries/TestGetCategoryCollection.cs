@@ -3,6 +3,7 @@ using GenFu;
 using Shouldly;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
@@ -18,9 +19,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
         }
 
         [Theory(DisplayName = "Should GetCategoryCollection With Paging Correctly")]
-        [InlineData(0, 0)]
-        [InlineData(1, 0)]
-        [InlineData(1, int.MaxValue)]
+        [InlineData(1, 1)]
+        [InlineData(1, 2)]
         public async Task Should_GetCategoryCollection_WithPaging_Correctly(int pageIndex, int pageSize)
         {
             var request = new GetCategoryCollectionRequest
@@ -48,8 +48,6 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
             var category = this._testFixture.Category;
             var request = new GetCategoryCollectionRequest
             {
-                PageIndex = 1,
-                PageSize = int.MaxValue,
                 SearchTerm = category.DisplayName
             };
 
@@ -63,6 +61,51 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
                 categoryResult.DisplayName.ShouldBe(category.DisplayName);
             });
         }
+
+        [Theory(DisplayName = "Invalid Search Request Should Throw ValidationException")]
+        [InlineData(0, 1)]
+        [InlineData(0, 0)]
+        [InlineData(int.MinValue, int.MinValue)]
+        [InlineData(int.MaxValue, int.MaxValue)]
+        public async Task Invalid_Search_Request_Should_Throw_ValidationException(int pageIndex, int pageSize)
+        {
+            var request = new GetCategoryCollectionRequest
+            {
+                PageSize = pageSize,
+                PageIndex = pageIndex
+            };
+
+            await Should.ThrowAsync<ValidationException>(async () =>
+                await this._testFixture.ExecuteTestRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>(request, result => { }));
+        }
+
+        [Theory(DisplayName = "Should Validate Search Request Correctly")]
+        [InlineData(0, 1)]
+        [InlineData(0, 0)]
+        [InlineData(int.MinValue, int.MinValue)]
+        [InlineData(int.MaxValue, int.MaxValue)]
+        public async Task Should_Validate_Search_Request_Correctly(int pageIndex, int pageSize)
+        {
+            var request = new GetCategoryCollectionRequest
+            {
+                PageSize = pageSize,
+                PageIndex = pageIndex
+            };
+
+            await this._testFixture.ExecuteValidationTest(request, result =>
+            {
+                if (pageIndex < 0 || pageIndex == int.MaxValue)
+                {
+                    result.ShouldHaveValidationErrorFor(x => x.PageIndex);
+                }
+
+                if (pageSize < 0 || pageSize == int.MaxValue)
+                {
+                    result.ShouldHaveValidationErrorFor(x => x.PageSize);
+                }
+            });
+        }
+
 
         [Fact(DisplayName = "Return empty if not found any CategoryDetail")]
         public async Task Return_Empty_If_NotFound_Any_Category()

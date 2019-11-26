@@ -8,24 +8,31 @@ using DDDEfCore.ProductCatalog.Services.Queries.Db;
 using MediatR;
 using Dapper;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+using FluentValidation;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryCollection
 {
     public class RequestHandler : IRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>
     {
         private readonly SqlServerDbConnectionFactory _connectionFactory;
+        private readonly IValidator<GetCategoryCollectionRequest> _validator;
 
-        public RequestHandler(SqlServerDbConnectionFactory connectionFactory)
-            => this._connectionFactory = connectionFactory;
+        public RequestHandler(SqlServerDbConnectionFactory connectionFactory, IValidator<GetCategoryCollectionRequest> validator)
+        {
+            this._connectionFactory = connectionFactory;
+            this._validator = validator;
+        }
 
         #region Implementation of IRequestHandler<in GetCategoryCollectionRequest,GetCategoryCollectionResult>
 
         public async Task<GetCategoryCollectionResult> Handle(GetCategoryCollectionRequest request, CancellationToken cancellationToken)
         {
+            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+
             var parameters = new
             {
-                Offset = Math.Abs((request.PageIndex - 1) * request.PageSize),
-                PageSize = request.PageSize == 0 ? request.PageSize + 1 : request.PageSize,
+                Offset = (request.PageIndex - 1) * request.PageSize,
+                PageSize = request.PageSize,
                 SearchTerm = $"%{request.SearchTerm}%"
             };
 
