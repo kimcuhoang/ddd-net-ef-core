@@ -10,13 +10,6 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
         public List<CategoryInCatalog> Categories { get; set; } = new List<CategoryInCatalog>();
 
-        public CreateCatalogCommand() { }
-
-        public CreateCatalogCommand(string catalogName) : this()
-        {
-            this.CatalogName = catalogName;
-        }
-
         public CreateCatalogCommand AddCategory(CategoryId categoryId, string displayName)
         {
             var category = new CategoryInCatalog
