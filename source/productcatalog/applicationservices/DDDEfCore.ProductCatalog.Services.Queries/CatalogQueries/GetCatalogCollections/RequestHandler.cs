@@ -1,60 +1,61 @@
-﻿using System;
+﻿using Dapper;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using DDDEfCore.ProductCatalog.Services.Queries.Db;
+using FluentValidation;
+using MediatR;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
-using DDDEfCore.ProductCatalog.Services.Queries.Db;
-using MediatR;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCollections
 {
     public sealed class RequestHandler : IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>
     {
         private readonly SqlServerDbConnectionFactory _dbConnection;
+        private readonly IValidator<GetCatalogCollectionRequest> _validator;
 
-        public RequestHandler(SqlServerDbConnectionFactory dbConnection)
+        public RequestHandler(SqlServerDbConnectionFactory dbConnection, IValidator<GetCatalogCollectionRequest> validator)
         {
-            this._dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
+            this._dbConnection = dbConnection;
+            this._validator = validator;
         }
 
         #region Implementation of IRequestHandler<in GetCatalogCollectionsRequest,GetCatalogCollectionsResult>
 
         public async Task<GetCatalogCollectionResult> Handle(GetCatalogCollectionRequest request, CancellationToken cancellationToken)
         {
-            using (var connection = await this._dbConnection.GetConnection(cancellationToken))
+            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+
+            using var connection = await this._dbConnection.GetConnection(cancellationToken);
+            var sqlClauses = new List<string>
             {
+                this.SqlClauseForQueryingCatalogs(request),
+                this.SqlClauseForCountingCatalogs(request)
+            };
 
-                var sqlClauses = new List<string>
-                {
-                    this.SqlClauseForQueryingCatalogs(request),
-                    this.SqlClauseForCountingCatalogs(request)
-                };
+            var combinedSqlClause = string.Join("; ", sqlClauses);
 
-                var combinedSqlClause = string.Join("; ", sqlClauses);
+            var parameters = new
+            {
+                Offset = (request.PageIndex - 1) * request.PageSize,
+                PageSize = request.PageSize,
+                SearchTerm = $"%{request.SearchTerm}%"
+            };
 
-                var parameters = new
-                {
-                    Offset = Math.Abs((request.PageIndex - 1) * request.PageSize),
-                    PageSize = request.PageSize == 0 ? request.PageSize + 1 : request.PageSize,
-                    SearchTerm = $"%{request.SearchTerm}%"
-                };
+            var multiQuery = await connection.QueryMultipleAsync(combinedSqlClause, parameters);
 
-                var multiQuery = await connection.QueryMultipleAsync(combinedSqlClause, parameters);
+            var catalogs = await multiQuery.ReadAsync<GetCatalogCollectionResult.CatalogItem>();
+            var totalCatalogs = await multiQuery.ReadFirstAsync<int>();
 
-                var catalogs = await multiQuery.ReadAsync<GetCatalogCollectionResult.CatalogItem>();
-                var totalCatalogs = await multiQuery.ReadFirstAsync<int>();
+            var result = new GetCatalogCollectionResult
+            {
+                CatalogItems = catalogs,
+                TotalCatalogs = totalCatalogs
+            };
 
-                var result = new GetCatalogCollectionResult
-                {
-                    CatalogItems = catalogs,
-                    TotalCatalogs = totalCatalogs
-                };
-
-                return result;
-            }
+            return result;
         }
 
         #endregion

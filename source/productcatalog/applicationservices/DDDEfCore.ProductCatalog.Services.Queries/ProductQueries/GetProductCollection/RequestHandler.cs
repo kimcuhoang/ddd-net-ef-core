@@ -1,14 +1,13 @@
 ﻿using Dapper;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using DDDEfCore.ProductCatalog.Services.Queries.Db;
+using FluentValidation;
 using MediatR;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentValidation;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductCollection
 {
@@ -39,8 +38,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductCol
             var combinedSqlClauses = string.Join("; ", sqlClauses);
             var parameters = new
             {
-                Offset = Math.Abs((request.PageIndex - 1) * request.PageSize),
-                PageSize = request.PageSize == 0 ? request.PageSize + 1 : request.PageSize,
+                Offset = (request.PageIndex - 1) * request.PageSize,
+                PageSize = request.PageSize,
                 SearchTerm = $"%{request.SearchTerm}%"
             };
 
