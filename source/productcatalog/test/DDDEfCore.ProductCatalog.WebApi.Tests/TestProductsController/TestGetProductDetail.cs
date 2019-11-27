@@ -83,7 +83,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
 
         [Theory(DisplayName = "Not Found Product Should Return Empty Result With HttpStatusCode200")]
         [AutoData]
-        public async Task NotFound_Product_Should_Return_Emtpy_Result_With_HttpStatusCode200(Guid randomProductId)
+        public async Task NotFound_Product_Should_Return_Empty_Result_With_HttpStatusCode200(Guid randomProductId)
         {
             await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
