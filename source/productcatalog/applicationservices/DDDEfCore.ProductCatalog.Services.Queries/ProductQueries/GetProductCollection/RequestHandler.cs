@@ -8,20 +8,28 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductCollection
 {
     public class RequestHandler : IRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>
     {
         private readonly SqlServerDbConnectionFactory _connectionFactory;
+        private readonly IValidator<GetProductCollectionRequest> _validator;
 
-        public RequestHandler(SqlServerDbConnectionFactory connectionFactory)
-            => this._connectionFactory = connectionFactory;
+        public RequestHandler(SqlServerDbConnectionFactory connectionFactory,
+            IValidator<GetProductCollectionRequest> validator)
+        {
+            this._connectionFactory = connectionFactory;
+            this._validator = validator;
+        }
 
         #region Implementation of IRequestHandler<in GetProductCollectionRequest,GetProductCollectionResult>
 
         public async Task<GetProductCollectionResult> Handle(GetProductCollectionRequest request, CancellationToken cancellationToken)
         {
+            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+
             var sqlClauses = new List<string>
             {
                 this.SqlClauseForQueryingProducts(request),
