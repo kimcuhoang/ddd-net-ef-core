@@ -23,10 +23,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         }
 
         [Theory(DisplayName = "Should GetCatalogDetail With Paging CatalogCategory Correctly")]
-        [InlineData(0, 0)]
-        [InlineData(1, 0)]
-        [InlineData(1, int.MaxValue)]
-        [InlineData(int.MaxValue, int.MaxValue)]
+        [InlineData(1, 1)]
+        [InlineData(1, 2)]
         public async Task Should_GetCatalogDetail_With_Paging_CatalogCategory_Correctly(int pageIndex, int pageSize)
         {
             var catalog = this._testFixture.CatalogHasCatalogCategory;
@@ -118,10 +116,22 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             });
         }
 
-        [Fact(DisplayName = "Should Throw Exception When Request Is Invalid")]
-        public async Task Should_Throw_ValidationException_When_Request_Is_Invalid()
+        [Theory(DisplayName = "Should Throw Exception When Request Is Invalid")]
+        [InlineData(0, 1)]
+        [InlineData(0, 0)]
+        [InlineData(int.MinValue, int.MinValue)]
+        [InlineData(int.MaxValue, int.MaxValue)]
+        public async Task Should_Throw_ValidationException_When_Request_Is_Invalid(int pageIndex, int pageSize)
         {
-            var request = new GetCatalogDetailRequest { CatalogId = (CatalogId)Guid.Empty };
+            var request = new GetCatalogDetailRequest
+            {
+                CatalogId = IdentityFactory.Create<CatalogId>(Guid.Empty),
+                SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                }
+            };
 
             await Should.ThrowAsync<ValidationException>(async () =>
                 await this._testFixture.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>{}));
@@ -143,15 +153,36 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             });
         }
 
-        [Fact(DisplayName = "Validation: GetCatalogDetail With Empty CatalogId Should Be Invalid")]
-        public async Task GetCatalogDetail_With_Empty_CatalogId_ShouldBe_Invalid()
+        [Theory(DisplayName = "Validation: GetCatalogDetail With Empty CatalogId Should Be Invalid")]
+        [InlineData(0, 1)]
+        [InlineData(0, 0)]
+        [InlineData(int.MinValue, int.MinValue)]
+        [InlineData(int.MaxValue, int.MaxValue)]
+        public async Task GetCatalogDetail_With_Empty_CatalogId_ShouldBe_Invalid(int pageIndex, int pageSize)
         {
-            var request = new GetCatalogDetailRequest { CatalogId = (CatalogId)Guid.Empty };
+            var request = new GetCatalogDetailRequest
+            {
+                CatalogId = IdentityFactory.Create<CatalogId>(Guid.Empty),
+                SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                }
+            };
 
             await this._testFixture.ExecuteValidationTest(request, result =>
+            {
+                result.ShouldHaveValidationErrorFor(x => x.CatalogId);
+                if (pageIndex < 0 || pageIndex == int.MaxValue)
                 {
-                    result.ShouldHaveValidationErrorFor(x => x.CatalogId);
-                });
+                    result.ShouldHaveValidationErrorFor(x => x.SearchCatalogCategoryRequest.PageIndex);
+                }
+
+                if (pageSize < 0 || pageSize == int.MaxValue)
+                {
+                    result.ShouldHaveValidationErrorFor(x => x.SearchCatalogCategoryRequest.PageSize);
+                }
+            });
         }
     }
 }

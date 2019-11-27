@@ -31,40 +31,38 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            using (var connection = await this._dbConnectionFactory.GetConnection(cancellationToken))
+            using var connection = await this._dbConnectionFactory.GetConnection(cancellationToken);
+
+            var result = new GetCatalogDetailResult();
+
+            var multiSqlClauses = new List<string>
             {
-                var result = new GetCatalogDetailResult();
+                this.SelectCatalogSqlClause(),
+                this.SelectCatalogCategoriesOfCatalog(request.SearchCatalogCategoryRequest),
+                this.SqlForCountOfCatalogCategoriesInCatalog()
+            };
 
-                var multiSqlClauses = new List<string>
-                {
-                    this.SelectCatalogSqlClause(),
-                    this.SelectCatalogCategoriesOfCatalog(request.SearchCatalogCategoryRequest),
-                    this.SqlForCountOfCatalogCategoriesInCatalog()
-                };
+            var sqlClause = string.Join(";", multiSqlClauses);
+            var searchCategoryRequest = request.SearchCatalogCategoryRequest;
 
-                var sqlClause = string.Join(";", multiSqlClauses);
-                var parameters = new
-                {
-                    Offset = Math.Abs((request.SearchCatalogCategoryRequest.PageIndex - 1) *
-                                      request.SearchCatalogCategoryRequest.PageSize),
-                    PageSize = request.SearchCatalogCategoryRequest.PageSize == 0
-                        ? request.SearchCatalogCategoryRequest.PageSize + 1
-                        : request.SearchCatalogCategoryRequest.PageSize,
-                    SearchTerm = $"%{request.SearchCatalogCategoryRequest.SearchTerm}%",
-                    CatalogId = request.CatalogId
-                };
+            var parameters = new
+            {
+                Offset = (searchCategoryRequest.PageIndex - 1) * searchCategoryRequest.PageSize,
+                PageSize = searchCategoryRequest.PageSize,
+                SearchTerm = $"%{searchCategoryRequest.SearchTerm}%",
+                CatalogId = request.CatalogId
+            };
 
-                var multiQueries = await connection.QueryMultipleAsync(sqlClause, parameters);
-                result.CatalogDetail = await multiQueries.ReadFirstOrDefaultAsync<GetCatalogDetailResult.CatalogDetailResult>() ?? new GetCatalogDetailResult.CatalogDetailResult();
+            var multiQueries = await connection.QueryMultipleAsync(sqlClause, parameters);
+            result.CatalogDetail = await multiQueries.ReadFirstOrDefaultAsync<GetCatalogDetailResult.CatalogDetailResult>() ?? new GetCatalogDetailResult.CatalogDetailResult();
                 
-                if (!result.IsNull)
-                {
-                    result.CatalogCategories = await multiQueries.ReadAsync<GetCatalogDetailResult.CatalogCategorySearchResult>();
-                    result.TotalOfCatalogCategories = await multiQueries.ReadFirstAsync<int>();
-                }
-
-                return result;
+            if (!result.IsNull)
+            {
+                result.CatalogCategories = await multiQueries.ReadAsync<GetCatalogDetailResult.CatalogCategorySearchResult>();
+                result.TotalOfCatalogCategories = await multiQueries.ReadFirstAsync<int>();
             }
+
+            return result;
         }
 
         #endregion

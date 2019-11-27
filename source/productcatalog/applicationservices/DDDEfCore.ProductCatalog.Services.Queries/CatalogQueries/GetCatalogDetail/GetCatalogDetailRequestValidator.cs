@@ -1,7 +1,6 @@
-﻿using FluentValidation;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using FluentValidation;
 using System;
-using DDDEfCore.Core.Common.Models;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail
 {
@@ -13,6 +12,16 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
                 .NotEqual((CatalogId) Guid.Empty);
+
+            RuleFor(x => x.SearchCatalogCategoryRequest.PageIndex)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .GreaterThan(0)
+                .LessThan(int.MaxValue);
+
+            RuleFor(x => x.SearchCatalogCategoryRequest.PageSize)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .GreaterThan(0)
+                .LessThan(int.MaxValue);
         }
     }
 }
