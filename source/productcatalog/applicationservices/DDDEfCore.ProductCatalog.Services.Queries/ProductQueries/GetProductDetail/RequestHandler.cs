@@ -81,7 +81,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductDet
                 { nameof(GetProductDetailResult.CatalogCategoryResult.CatalogCategoryName), $"{nameof(CatalogCategory)}.{nameof(CatalogCategory.DisplayName)}" },
                 { nameof(GetProductDetailResult.CatalogCategoryResult.CatalogId), $"{nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)}" },
                 { nameof(GetProductDetailResult.CatalogCategoryResult.CatalogName), $"{nameof(Catalog)}.{nameof(Catalog.DisplayName)}" },
-                { nameof(GetProductDetailResult.CatalogCategoryResult.ProductDisplayName), $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.DisplayName)}" }
+                { nameof(GetProductDetailResult.CatalogCategoryResult.ProductDisplayName), $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.DisplayName)}" },
+                { nameof(GetProductDetailResult.CatalogCategoryResult.CatalogProductId), $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)}" }
             };
 
             var selectedFields = string.Join(", ", fields.Select(x => $"{x.Key}={x.Value}"));

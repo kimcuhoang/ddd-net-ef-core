@@ -21,8 +21,9 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductDet
         {
             public CatalogCategoryId CatalogCategoryId { get; set; }
             public string CatalogCategoryName { get; set; }
-            public string CatalogName { get; set; }
             public CatalogId CatalogId { get; set; }
+            public string CatalogName { get; set; }
+            public CatalogProductId CatalogProductId { get; set; }
             public string ProductDisplayName { get; set; }
         }
     }
