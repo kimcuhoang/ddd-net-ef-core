@@ -1,4 +1,5 @@
-﻿using DDDEfCore.Core.Common;
+﻿using System;
+using DDDEfCore.Core.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
@@ -14,21 +15,15 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
         {
             RuleFor(x => x.CatalogId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CatalogId)} is empty or invalid.");
+                .NotNull();
 
             RuleFor(x => x.CatalogCategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CatalogCategoryId)} is empty or invalid.");
+                .NotNull();
 
             RuleFor(x => x.ProductId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.ProductId)} is empty or invalid.")
                 .Must(x => this.ProductMustExist(repositoryFactory, x))
                 .WithMessage(x => $"Product#{x.ProductId} could not be found.");
 
@@ -75,9 +70,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
 
         private bool CommandIsValid(CreateCatalogProductCommand command)
         {
-            return command.CatalogId != null && command.CatalogId.IsNotEmpty 
-                   && command.CatalogCategoryId != null && command.CatalogCategoryId.IsNotEmpty
-                   && command.ProductId != null && command.ProductId.IsNotEmpty;
+            return command.CatalogId != null && command.CatalogCategoryId != null && command.ProductId != null;
         }
 
         private bool ProductMustExist(IRepositoryFactory repositoryFactory, ProductId productId)

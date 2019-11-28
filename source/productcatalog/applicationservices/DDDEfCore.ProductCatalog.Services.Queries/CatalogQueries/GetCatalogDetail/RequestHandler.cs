@@ -15,9 +15,9 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
     public class RequestHandler : IRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>
     {
         private readonly SqlServerDbConnectionFactory _dbConnectionFactory;
-        public readonly AbstractValidator<GetCatalogDetailRequest> _validator;
+        private readonly IValidator<GetCatalogDetailRequest> _validator;
 
-        public RequestHandler(SqlServerDbConnectionFactory dbConnectionFactory, AbstractValidator<GetCatalogDetailRequest> validator)
+        public RequestHandler(SqlServerDbConnectionFactory dbConnectionFactory, IValidator<GetCatalogDetailRequest> validator)
         {
             this._dbConnectionFactory =
                 dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
@@ -31,40 +31,38 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            using (var connection = await this._dbConnectionFactory.GetConnection(cancellationToken))
+            using var connection = await this._dbConnectionFactory.GetConnection(cancellationToken);
+
+            var result = new GetCatalogDetailResult();
+
+            var multiSqlClauses = new List<string>
             {
-                var result = new GetCatalogDetailResult();
+                this.SelectCatalogSqlClause(),
+                this.SelectCatalogCategoriesOfCatalog(request.SearchCatalogCategoryRequest),
+                this.SqlForCountOfCatalogCategoriesInCatalog()
+            };
 
-                var multiSqlClauses = new List<string>
-                {
-                    this.SelectCatalogSqlClause(),
-                    this.SelectCatalogCategoriesOfCatalog(),
-                    this.SqlForCountOfCatalogCategoriesInCatalog()
-                };
+            var sqlClause = string.Join(";", multiSqlClauses);
+            var searchCategoryRequest = request.SearchCatalogCategoryRequest;
 
-                var sqlClause = string.Join(";", multiSqlClauses);
-                var parameters = new
-                {
-                    Offset = Math.Abs((request.SearchCatalogCategoryRequest.PageIndex - 1) *
-                                      request.SearchCatalogCategoryRequest.PageSize),
-                    PageSize = request.SearchCatalogCategoryRequest.PageSize == 0
-                        ? request.SearchCatalogCategoryRequest.PageSize + 1
-                        : request.SearchCatalogCategoryRequest.PageSize,
-                    SearchTerm = $"%{request.SearchCatalogCategoryRequest.SearchTerm}%",
-                    CatalogId = request.CatalogId
-                };
+            var parameters = new
+            {
+                Offset = (searchCategoryRequest.PageIndex - 1) * searchCategoryRequest.PageSize,
+                PageSize = searchCategoryRequest.PageSize,
+                SearchTerm = $"%{searchCategoryRequest.SearchTerm}%",
+                CatalogId = request.CatalogId
+            };
 
-                var multiQueries = await connection.QueryMultipleAsync(sqlClause, parameters);
-                result.CatalogDetail = await multiQueries.ReadFirstOrDefaultAsync<GetCatalogDetailResult.CatalogDetailResult>() ?? new GetCatalogDetailResult.CatalogDetailResult();
+            var multiQueries = await connection.QueryMultipleAsync(sqlClause, parameters);
+            result.CatalogDetail = await multiQueries.ReadFirstOrDefaultAsync<GetCatalogDetailResult.CatalogDetailResult>() ?? new GetCatalogDetailResult.CatalogDetailResult();
                 
-                if (!result.IsNull)
-                {
-                    result.CatalogCategories = await multiQueries.ReadAsync<GetCatalogDetailResult.CatalogCategorySearchResult>();
-                    result.TotalOfCatalogCategories = await multiQueries.ReadFirstAsync<int>();
-                }
-
-                return result;
+            if (!result.IsNull)
+            {
+                result.CatalogCategories = await multiQueries.ReadAsync<GetCatalogDetailResult.CatalogCategorySearchResult>();
+                result.TotalOfCatalogCategories = await multiQueries.ReadFirstAsync<int>();
             }
+
+            return result;
         }
 
         #endregion
@@ -85,12 +83,13 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
             return sqlStringBuilder.ToString();
         }
 
-        private string SelectCatalogCategoriesOfCatalog()
+        private string SelectCatalogCategoriesOfCatalog(GetCatalogDetailRequest.CatalogCategorySearchRequest request)
         {
             var catalogCategoryFields = new List<string>
             {
                 nameof(CatalogCategory.CatalogCategoryId),
-                nameof(CatalogCategory.DisplayName)
+                nameof(CatalogCategory.DisplayName),
+                nameof(CatalogCategory.CategoryId)
             }.Select(field => $"{nameof(CatalogCategory)}.{field}").ToList();
 
             var selectedFieldsForCatalog = string.Join(",", catalogCategoryFields);
@@ -100,7 +99,15 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
                 .Append($" FROM {nameof(CatalogCategory)} AS {nameof(CatalogCategory)}")
                 .Append($" LEFT JOIN {nameof(CatalogProduct)} AS {nameof(CatalogProduct)}")
                 .Append($" ON {nameof(CatalogProduct)}.{nameof(CatalogCategory.CatalogCategoryId)} = {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)}")
-                .Append($" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = @catalogId")
+                .Append($" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = @catalogId");
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                sqlStringBuilder = sqlStringBuilder
+                    .Append($" AND {nameof(CatalogCategory)}.{nameof(CatalogCategory.DisplayName)} LIKE @SearchTerm");
+            }
+
+            sqlStringBuilder = sqlStringBuilder
                 .Append($" GROUP BY {selectedFieldsForCatalog}")
                 .Append($" ORDER BY {nameof(CatalogCategory)}.{nameof(CatalogCategory.DisplayName)}")
                 .Append(" OFFSET @Offset ROWS ")

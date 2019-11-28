@@ -13,17 +13,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Upd
         {
             RuleFor(x => x.CatalogId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage($"{nameof(UpdateCatalogCategoryCommand.CatalogId)} is empty or invalid");
+                .NotNull();
 
             RuleFor(x => x.CatalogCategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage($"{nameof(UpdateCatalogCategoryCommand.CatalogCategoryId)} is empty or invalid");
+                .NotNull();
 
-            When(x => x.CatalogId.IsNotEmpty && x.CatalogCategoryId.IsNotEmpty, () =>
+            When(x => x.CatalogId != null && x.CatalogCategoryId != null, () =>
             {
                 RuleFor(x => x).Custom((x, context) =>
                 {

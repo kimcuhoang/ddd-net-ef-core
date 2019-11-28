@@ -45,6 +45,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Services.Queries.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Services.Queries.Tests\DDDEfCore.ProductCatalog.Services.Queries.Tests.csproj", "{2E5F9471-BC1A-45BB-8C02-603999E73E64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.ProductCatalog.WebApi.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.WebApi.Tests\DDDEfCore.ProductCatalog.WebApi.Tests.csproj", "{5548C388-56BA-4D82-9AC5-14B493D73003}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{2E5F9471-BC1A-45BB-8C02-603999E73E64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E5F9471-BC1A-45BB-8C02-603999E73E64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E5F9471-BC1A-45BB-8C02-603999E73E64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5548C388-56BA-4D82-9AC5-14B493D73003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5548C388-56BA-4D82-9AC5-14B493D73003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5548C388-56BA-4D82-9AC5-14B493D73003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5548C388-56BA-4D82-9AC5-14B493D73003}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +122,7 @@ Global
 		{F0DB4186-1FAA-49A3-B9FB-DE9D94049998} = {EFB7DF8C-0D8E-4518-8E92-DD075C8C371E}
 		{3DE8DF9E-3DA5-4D8F-ADDA-56F3031A7B75} = {1B677212-3E8C-4A76-BD77-B52C436AFD2A}
 		{2E5F9471-BC1A-45BB-8C02-603999E73E64} = {EFB7DF8C-0D8E-4518-8E92-DD075C8C371E}
+		{5548C388-56BA-4D82-9AC5-14B493D73003} = {EFB7DF8C-0D8E-4518-8E92-DD075C8C371E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A5BBA926-AD8E-4C99-9CA1-631F45530EDA}

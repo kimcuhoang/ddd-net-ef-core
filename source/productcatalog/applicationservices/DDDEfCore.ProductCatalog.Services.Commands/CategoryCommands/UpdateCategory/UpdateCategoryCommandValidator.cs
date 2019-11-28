@@ -1,5 +1,4 @@
-﻿using System;
-using DDDEfCore.Core.Common;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
 
@@ -11,11 +10,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
         {
             RuleFor(x => x.CategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage($"{nameof(UpdateCategoryCommand.CategoryId)} is empty or invalid.");
+                .NotNull();
 
-            When(x => x.CategoryId.IsNotEmpty, () =>
+            When(x => x.CategoryId != null, () =>
             {
                 RuleFor(x => x.CategoryId).Custom((categoryId, context) =>
                 {

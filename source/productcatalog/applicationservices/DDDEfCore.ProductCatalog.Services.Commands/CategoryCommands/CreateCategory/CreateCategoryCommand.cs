@@ -4,11 +4,6 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCate
 {
     public sealed class CreateCategoryCommand : IRequest
     {
-        public string CategoryName { get; }
-
-        public CreateCategoryCommand(string categoryName)
-        {
-            this.CategoryName = categoryName;
-        }
+        public string CategoryName { get; set; }
     }
 }

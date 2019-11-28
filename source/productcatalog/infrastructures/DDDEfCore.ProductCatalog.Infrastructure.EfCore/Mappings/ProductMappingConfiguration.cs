@@ -17,7 +17,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
                 .HasField("Id")
                 .HasColumnName("Id")
                 .UsePropertyAccessMode(PropertyAccessMode.Field)
-                .HasConversion(x => x.Id, id => new ProductId(id));
+                .HasConversion(x => x.Id, id => (ProductId)id);
         }
 
         #endregion

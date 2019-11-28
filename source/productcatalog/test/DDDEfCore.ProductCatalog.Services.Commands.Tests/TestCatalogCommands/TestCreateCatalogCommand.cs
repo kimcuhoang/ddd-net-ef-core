@@ -32,7 +32,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [AutoData]
         public async Task Create_Catalog_Without_CatalogCategory_Successfully(string catalogName)
         {
-            var command = new CreateCatalogCommand(catalogName);
+            var command = new CreateCatalogCommand
+            {
+                CatalogName = catalogName
+            };
 
             IRequestHandler<CreateCatalogCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -61,10 +64,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
                 .Setup(x => x.CreateRepository<Category>())
                 .Returns(categoryRepository);
 
-            var command = new CreateCatalogCommand(catalogName);
+            var command = new CreateCatalogCommand
+            {
+                CatalogName = catalogName
+            };
             foreach (var category in categories)
             {
-                command.AddCategory(category.CategoryId.Id, this.Fixture.Create<string>());
+                command.AddCategory(category.CategoryId, this.Fixture.Create<string>());
             }
 
             IRequestHandler<CreateCatalogCommand> handler
@@ -78,8 +84,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [Fact(DisplayName = "Create Catalog With Invalid Command Should Throw Exception")]
         public async Task Create_Catalog_With_Invalid_Command_ShouldThrowException()
         {
-            var command = new CreateCatalogCommand(string.Empty);
-            command.AddCategory(Guid.Empty, string.Empty);
+            var command = new CreateCatalogCommand();
+            command.AddCategory((CategoryId)Guid.Empty, string.Empty);
 
             IRequestHandler<CreateCatalogCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -91,7 +97,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [Fact(DisplayName = "CreateCatalogCommand With Empty CatalogName Should Be Invalid")]
         public void CreateCatalogCommand_With_Empty_CatalogName_ShouldBeInvalid()
         {
-            var command = new CreateCatalogCommand(string.Empty);
+            var command = new CreateCatalogCommand();
 
             var result = this._validator.TestValidate(command);
             result.ShouldHaveValidationErrorFor(x => x.CatalogName);
@@ -104,8 +110,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [Fact(DisplayName = "CreateCatalogCommand has Categories Without Id and DisplayName Should Be Invalid")]
         public void CreateCatalogCommand_Has_Categories_With_Empty_Id_And_DisplayName_ShouldBeInvalid()
         {
-            var command = new CreateCatalogCommand(this.Fixture.Create<string>());
-            command.AddCategory(Guid.Empty, string.Empty);
+            var command = new CreateCatalogCommand
+            {
+                CatalogName = this.Fixture.Create<string>()
+            };
+            command.AddCategory((CategoryId)Guid.Empty, string.Empty);
 
             var result = this._validator.TestValidate(command);
 

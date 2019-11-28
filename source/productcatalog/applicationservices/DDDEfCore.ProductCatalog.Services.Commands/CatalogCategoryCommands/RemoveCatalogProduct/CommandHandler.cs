@@ -15,10 +15,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog> _repository;
-        private readonly AbstractValidator<RemoveCatalogProductCommand> _validator;
+        private readonly IValidator<RemoveCatalogProductCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory,
-            AbstractValidator<RemoveCatalogProductCommand> validator)
+            IValidator<RemoveCatalogProductCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this._repository = repositoryFactory.CreateRepository<Catalog>();

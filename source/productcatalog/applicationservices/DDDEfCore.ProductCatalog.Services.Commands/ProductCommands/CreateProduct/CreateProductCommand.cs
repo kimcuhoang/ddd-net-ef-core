@@ -4,11 +4,6 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProdu
 {
     public class CreateProductCommand : IRequest
     {
-        public string ProductName { get; }
-
-        public CreateProductCommand(string productName)
-        {
-            this.ProductName = productName;
-        }
+        public string ProductName { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using System.Collections.Generic;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCollections
@@ -11,7 +11,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCol
 
         public class CatalogItem
         {
-            public Guid CatalogId { get; set; }
+            public CatalogId CatalogId { get; set; }
             public string DisplayName { get; set; }
             public int TotalCategories { get; set; }
         }

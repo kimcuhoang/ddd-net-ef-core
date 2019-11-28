@@ -1,18 +1,13 @@
-﻿using MediatR;
-using System;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using MediatR;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail
 {
     public class GetCatalogDetailRequest : IRequest<GetCatalogDetailResult>
     {
-        public Guid CatalogId { get; }
+        public CatalogId CatalogId { get; set; }
 
         public CatalogCategorySearchRequest SearchCatalogCategoryRequest { get; set; } = new CatalogCategorySearchRequest();
-
-        public GetCatalogDetailRequest(Guid catalogId)
-        {
-            this.CatalogId = catalogId;
-        }
 
         public class CatalogCategorySearchRequest
         {

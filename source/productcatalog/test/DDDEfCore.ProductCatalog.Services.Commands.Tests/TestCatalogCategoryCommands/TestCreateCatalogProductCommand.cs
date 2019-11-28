@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -68,10 +69,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Create CatalogProduct Successfully")]
         public async Task Create_CatalogProduct_Successfully()
         {
-            var command = new CreateCatalogProductCommand(this._catalog.CatalogId.Id,
-                this._catalogCategory.CatalogCategoryId.Id,
-                this._product.ProductId.Id,
-                this._product.Name);
+            var command = new CreateCatalogProductCommand
+            {
+                CatalogId = this._catalog.CatalogId,
+                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                ProductId = this._product.ProductId,
+                DisplayName = this._product.Name
+            };
 
             await this._requestHandler.Handle(command, this.CancellationToken);
 
@@ -81,10 +85,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Invalid Command Should Throw ValidationException")]
         public async Task Invalid_Command_ShouldThrow_ValidationException()
         {
-            var command = new CreateCatalogProductCommand(Guid.Empty,
-                Guid.Empty, 
-                Guid.Empty,
-                string.Empty);
+            var command = new CreateCatalogProductCommand
+            {
+                CatalogId = (CatalogId)Guid.Empty,
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
+                ProductId = (ProductId)Guid.Empty,
+                DisplayName = string.Empty
+            };
 
             await Should.ThrowAsync<ValidationException>(async () =>
                 await this._requestHandler.Handle(command, this.CancellationToken));
@@ -93,10 +100,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Empty Command Should Be Invalid")]
         public void Empty_Command_ShouldBe_Invalid()
         {
-            var command = new CreateCatalogProductCommand(Guid.Empty,
-                Guid.Empty,
-                Guid.Empty,
-                string.Empty);
+            var command = new CreateCatalogProductCommand
+            {
+                CatalogId = (CatalogId)Guid.Empty,
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
+                ProductId = (ProductId)Guid.Empty,
+                DisplayName = string.Empty
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -109,10 +119,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Catalog Not Found Should Be Invalid")]
         public void Catalog_NotFound_ShouldBe_Invalid()
         {
-            var command = new CreateCatalogProductCommand(Guid.NewGuid(),
-                Guid.NewGuid(),
-                this._product.ProductId.Id,
-                this._product.Name);
+            var command = new CreateCatalogProductCommand
+            {
+                CatalogId = IdentityFactory.Create<CatalogId>(),
+                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                ProductId = this._product.ProductId,
+                DisplayName = this._product.Name
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -125,10 +138,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "CatalogCategory Not Found Should Be Invalid")]
         public void CatalogCategory_NotFound_ShouldBe_Invalid()
         {
-            var command = new CreateCatalogProductCommand(this._catalog.CatalogId.Id,
-                Guid.NewGuid(),
-                this._product.ProductId.Id,
-                this._product.Name);
+            var command = new CreateCatalogProductCommand
+            {
+                CatalogId = this._catalog.CatalogId,
+                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                ProductId = this._product.ProductId,
+                DisplayName = this._product.Name
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -141,10 +157,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         [Fact(DisplayName = "Product Not Found Should Be Invalid")]
         public void Product_NotFound_ShouldBe_Invalid()
         {
-            var command = new CreateCatalogProductCommand(this._catalog.CatalogId.Id,
-                this._catalogCategory.CatalogCategoryId.Id,
-                Guid.NewGuid(),
-                this._product.Name);
+            var command = new CreateCatalogProductCommand
+            {
+                CatalogId = this._catalog.CatalogId,
+                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                ProductId = IdentityFactory.Create<ProductId>(),
+                DisplayName = this._product.Name
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -160,10 +179,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             var catalogProduct =
                 this._catalogCategory.CreateCatalogProduct(this._product.ProductId, this._product.Name);
 
-            var command = new CreateCatalogProductCommand(this._catalog.CatalogId.Id,
-                this._catalogCategory.CatalogCategoryId.Id,
-                this._product.ProductId.Id,
-                this._product.Name);
+            var command = new CreateCatalogProductCommand
+            {
+                CatalogId = this._catalog.CatalogId,
+                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                ProductId = this._product.ProductId,
+                DisplayName = this._product.Name
+            };
 
             var result = this._validator.TestValidate(command);
 
@@ -172,7 +194,5 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
             result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
         }
-
-        
     }
 }

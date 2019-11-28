@@ -13,21 +13,15 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
         {
             RuleFor(x => x.CatalogId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CatalogId)} is empty or invalid.");
+                .NotNull();
 
             RuleFor(x => x.CatalogCategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CatalogCategoryId)} is empty or invalid.");
+                .NotNull();
 
             RuleFor(x => x.CatalogProductId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CatalogProductId)} is empty or invalid.");
+                .NotNull();
 
             When(CommandIsValid, () =>
             {
@@ -66,9 +60,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
 
         private bool CommandIsValid(RemoveCatalogProductCommand command)
         {
-            return command.CatalogId != null && command.CatalogId.IsNotEmpty
-                   && command.CatalogCategoryId != null && command.CatalogCategoryId.IsNotEmpty
-                   && command.CatalogProductId != null && command.CatalogProductId.IsNotEmpty;
+            return command.CatalogId != null && command.CatalogCategoryId != null && command.CatalogProductId != null;
         }
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DDDEfCore.Core.Common.Models;
+﻿using DDDEfCore.Core.Common.Models;
+using System;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products
 {
@@ -9,10 +7,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products
     {
         #region Constructors
 
-        public ProductId(Guid id) : base(id) { }
-
-        public ProductId() : base() { }
+        private ProductId(Guid id) : base(id) { }
 
         #endregion
+
+        public static explicit operator ProductId(Guid id) => id == Guid.Empty ? null : new ProductId(id);
     }
 }

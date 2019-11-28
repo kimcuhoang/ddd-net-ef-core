@@ -11,11 +11,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatal
         {
             RuleFor(x => x.CatalogId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => x.IsNotEmpty)
-                .WithMessage(x => $"{nameof(x.CatalogId)} is empty or invalid");
+                .NotNull();
 
-            When(x => x.CatalogId != null && x.CatalogId.IsNotEmpty, () =>
+            When(x => x.CatalogId != null, () =>
             {
                 RuleFor(command => command).Custom((command, context) =>
                 {

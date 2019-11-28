@@ -11,14 +11,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogProductCommands.Upda
     {
         public UpdateCatalogProductCommandValidator(IRepositoryFactory repositoryFactory)
         {
-            RuleFor(x => x.CatalogId).Cascade(CascadeMode.StopOnFirstFailure).NotNull()
-                .Must(x => x.IsNotEmpty).WithMessage(x => $"{nameof(x.CatalogId)} is empty or invalid.");
+            RuleFor(x => x.CatalogId).Cascade(CascadeMode.StopOnFirstFailure).NotNull();
 
-            RuleFor(x => x.CatalogCategoryId).Cascade(CascadeMode.StopOnFirstFailure).NotNull()
-                .Must(x => x.IsNotEmpty).WithMessage(x => $"{nameof(x.CatalogCategoryId)} is empty or invalid.");
+            RuleFor(x => x.CatalogCategoryId).Cascade(CascadeMode.StopOnFirstFailure).NotNull();
 
-            RuleFor(x => x.CatalogProductId).Cascade(CascadeMode.StopOnFirstFailure).NotNull()
-                .Must(x => x.IsNotEmpty).WithMessage(x => $"{nameof(x.CatalogProductId)} is empty or invalid.");
+            RuleFor(x => x.CatalogProductId).Cascade(CascadeMode.StopOnFirstFailure).NotNull();
 
             When(CommandIsValid, () =>
             {
@@ -60,9 +57,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogProductCommands.Upda
 
         private bool CommandIsValid(UpdateCatalogProductCommand command)
         {
-            return command.CatalogId != null && command.CatalogId.IsNotEmpty &&
-                   command.CatalogCategoryId != null && command.CatalogCategoryId.IsNotEmpty &&
-                   command.CatalogProductId != null && command.CatalogProductId.IsNotEmpty;
+            return command.CatalogId != null && command.CatalogCategoryId != null && command.CatalogProductId != null ;
         }
     }
 }

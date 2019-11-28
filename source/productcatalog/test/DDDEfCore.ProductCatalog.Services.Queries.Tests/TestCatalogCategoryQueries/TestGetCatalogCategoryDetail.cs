@@ -1,14 +1,11 @@
 ﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCatalogCategoryDetail;
 using FluentValidation;
-using FluentValidation.TestHelper;
-using GenFu;
-using MediatR;
 using Shouldly;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using NuGet.Frameworks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQueries
@@ -17,28 +14,9 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
     public class TestGetCatalogCategoryDetail : IClassFixture<TestCatalogCategoryFixture>
     {
         private readonly TestCatalogCategoryFixture _testFixture;
-        private readonly GetCatalogCategoryDetailRequestValidator _validator;
-        private readonly CancellationToken _cancellationToken;
 
         public TestGetCatalogCategoryDetail(TestCatalogCategoryFixture testFixture)
-        {
-            this._testFixture = testFixture ?? throw new ArgumentNullException(nameof(testFixture));
-            this._validator = new GetCatalogCategoryDetailRequestValidator();
-            this._cancellationToken = new CancellationToken(false);
-        }
-
-        private async Task ExecuteTestAndAssert(GetCatalogCategoryDetailRequest request, Action<GetCatalogCategoryDetailResult> assertAction)
-        {
-            await this._testFixture.ExecuteScopeAsync(async dbConnectionFactory =>
-            {
-                IRequestHandler<GetCatalogCategoryDetailRequest, GetCatalogCategoryDetailResult> requestHandler =
-                    new RequestHandler(dbConnectionFactory, this._validator);
-
-                var result = await requestHandler.Handle(request, this._cancellationToken);
-
-                assertAction(result);
-            });
-        }
+            => this._testFixture = testFixture;
 
         [Theory(DisplayName = "Should GetCatalogCategoryDetail With Paging CatalogProduct Correctly")]
         [InlineData(0, 0)]
@@ -48,9 +26,10 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
         public async Task Should_GetCatalogCategoryDetail_With_Paging_CatalogProduct_Correctly(int pageIndex, int pageSize)
         {
             var catalogCategory = this._testFixture.CatalogCategory;
-            var catalogCategoryId = catalogCategory.CatalogCategoryId.Id;
-            var request = new GetCatalogCategoryDetailRequest(catalogCategoryId)
+            var catalogCategoryId = catalogCategory.CatalogCategoryId;
+            var request = new GetCatalogCategoryDetailRequest
             {
+                CatalogCategoryId = catalogCategoryId,
                 CatalogProductCriteria = new GetCatalogCategoryDetailRequest.CatalogProductSearchRequest
                 {
                     PageIndex = pageIndex,
@@ -58,11 +37,11 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
                 }
             };
 
-            await this.ExecuteTestAndAssert(request, result =>
+            await this._testFixture.ExecuteTestRequestHandler<GetCatalogCategoryDetailRequest, GetCatalogCategoryDetailResult>(request, result =>
             {
                 result.ShouldNotBeNull();
                 result.CatalogCategoryDetail.ShouldNotBeNull();
-                result.CatalogCategoryDetail.CatalogId.ShouldBe(this._testFixture.Catalog.CatalogId.Id);
+                result.CatalogCategoryDetail.CatalogId.ShouldBe(this._testFixture.Catalog.CatalogId);
                 result.CatalogCategoryDetail.CatalogCategoryId.ShouldBe(catalogCategoryId);
                 result.CatalogCategoryDetail.CatalogCategoryName.ShouldBe(this._testFixture.CatalogCategory.DisplayName);
                 result.CatalogCategoryDetail.CatalogName.ShouldBe(this._testFixture.Catalog.DisplayName);
@@ -71,12 +50,11 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
 
                 result.CatalogProducts.ToList().ForEach(c =>
                 {
-                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x =>
-                        x.CatalogProductId == new CatalogProductId(c.CatalogProductId));
+                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == c.CatalogProductId);
 
                     catalogProduct.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogProduct.DisplayName);
-                    c.ProductId.ShouldBe(catalogProduct.CatalogProductId.Id);
+                    c.ProductId.ShouldBe(catalogProduct.ProductId);
                 });
             });
         }
@@ -85,24 +63,22 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
         public async Task Should_GetCatalogCategoryDetail_With_Search_CatalogProduct_Correctly()
         {
             var catalogCategory = this._testFixture.CatalogCategory;
-            var catalogCategoryId = catalogCategory.CatalogCategoryId.Id;
+            var catalogCategoryId = catalogCategory.CatalogCategoryId;
             
-            var randomIdx = A.Random.Next(0, this._testFixture.CatalogProducts.Count());
-            var randomCatalogProduct = this._testFixture.CatalogProducts[randomIdx];
-
-            var request = new GetCatalogCategoryDetailRequest(catalogCategoryId)
+            var request = new GetCatalogCategoryDetailRequest
             {
+                CatalogCategoryId = catalogCategoryId,
                 CatalogProductCriteria = new GetCatalogCategoryDetailRequest.CatalogProductSearchRequest
                 {
-                    SearchTerm = randomCatalogProduct.DisplayName
+                    SearchTerm = this._testFixture.CatalogProduct.DisplayName
                 }
             };
 
-            await this.ExecuteTestAndAssert(request, result =>
+            await this._testFixture.ExecuteTestRequestHandler<GetCatalogCategoryDetailRequest, GetCatalogCategoryDetailResult>(request, result =>
             {
                 result.ShouldNotBeNull();
                 result.CatalogCategoryDetail.ShouldNotBeNull();
-                result.CatalogCategoryDetail.CatalogId.ShouldBe(catalogCategory.CatalogId.Id);
+                result.CatalogCategoryDetail.CatalogId.ShouldBe(catalogCategory.CatalogId);
                 result.CatalogCategoryDetail.CatalogCategoryId.ShouldBe(catalogCategoryId);
                 result.CatalogCategoryDetail.CatalogCategoryName.ShouldBe(catalogCategory.DisplayName);
                 result.CatalogCategoryDetail.CatalogName.ShouldBe(this._testFixture.Catalog.DisplayName);
@@ -111,12 +87,11 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
 
                 result.CatalogProducts.ToList().ForEach(c =>
                 {
-                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x =>
-                        x.CatalogProductId == new CatalogProductId(c.CatalogProductId));
+                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == c.CatalogProductId);
 
                     catalogProduct.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogProduct.DisplayName);
-                    c.ProductId.ShouldBe(catalogProduct.CatalogProductId.Id);
+                    c.ProductId.ShouldBe(catalogProduct.ProductId);
                 });
             });
         }
@@ -124,23 +99,25 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
         [Fact(DisplayName = "GetCatalogCategoryDetail With Invalid Request Should Throw Validation Exception")]
         public async Task GetCatalogCategoryDetail_With_Invalid_Request_ShouldThrow_ValidationException()
         {
-            var request = new GetCatalogCategoryDetailRequest(Guid.Empty);
-
-            await this._testFixture.ExecuteScopeAsync(async dbConnectionFactory =>
+            var request = new GetCatalogCategoryDetailRequest
             {
-                IRequestHandler<GetCatalogCategoryDetailRequest, GetCatalogCategoryDetailResult> requestHandler
-                    = new RequestHandler(dbConnectionFactory, this._validator);
-                await Should.ThrowAsync<ValidationException>(async () =>
-                    await requestHandler.Handle(request, this._cancellationToken));
-            });
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
+            };
+
+            await Should.ThrowAsync<ValidationException>(async () =>
+                await this._testFixture.ExecuteTestRequestHandler<GetCatalogCategoryDetailRequest, GetCatalogCategoryDetailResult>(request, result =>{}));
         }
 
         [Fact(DisplayName = "Should Validate GetCatalogCategoryDetailRequest Correctly")]
-        public void Should_Validate_GetCatalogCategoryDetailRequest_Correctly()
+        public async Task Should_Validate_GetCatalogCategoryDetailRequest_Correctly()
         {
-            var request = new GetCatalogCategoryDetailRequest(Guid.Empty);
-            var result = this._validator.TestValidate(request);
-            result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
+            var request = new GetCatalogCategoryDetailRequest
+            {
+                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
+            };
+
+            await this._testFixture.ExecuteValidationTest(request,
+                result => { result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId); });
         }
     }
 }

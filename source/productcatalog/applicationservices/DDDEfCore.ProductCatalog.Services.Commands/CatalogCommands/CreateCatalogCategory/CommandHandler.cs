@@ -16,10 +16,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog> _repository;
-        private readonly AbstractValidator<CreateCatalogCategoryCommand> _validator;
+        private readonly IValidator<CreateCatalogCategoryCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory,
-            AbstractValidator<CreateCatalogCategoryCommand> validator)
+            IValidator<CreateCatalogCategoryCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this._repository = this._repositoryFactory.CreateRepository<Catalog>();

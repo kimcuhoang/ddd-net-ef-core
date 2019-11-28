@@ -2,7 +2,6 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog
 {
@@ -27,8 +26,6 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
                     category.RuleFor(x => x.CategoryId)
                         .Cascade(CascadeMode.StopOnFirstFailure)
                         .NotNull()
-                        .Must(x => x.IsNotEmpty)
-                        .WithMessage(x => $"{nameof(x.CategoryId)} is empty or invalid.")
                         .Must(x => CategoryMustExist(repositoryFactory, x))
                         .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
                 });

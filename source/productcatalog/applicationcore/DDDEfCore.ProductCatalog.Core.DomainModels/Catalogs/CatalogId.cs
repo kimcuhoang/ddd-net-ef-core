@@ -7,11 +7,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
     {
         #region Constructors
 
-        public CatalogId(Guid id) : base(id) { }
-
-        public CatalogId() : base() { }
+        private CatalogId(Guid id) : base(id) { }
 
         #endregion
 
+        public static explicit operator CatalogId(Guid id) => id == Guid.Empty ? null : new CatalogId(id);
     }
 }
