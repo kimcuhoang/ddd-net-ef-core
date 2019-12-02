@@ -171,8 +171,24 @@ For every test project, I use the following packages
 
 ## How to run
 
-- You have to change the connectionstring in `appsettings.json` in **Test Projects** to run the test
-- Then if you come with the browser, you have to change the connectionstring in `appsettings.Development.json` in `DDDEfCore.ProductCatalog.WebApi`. Then use the url `http://localhost:[port]/swagger`
+### Run Test Projects
+
+- In every integration test project, there are `appsettings.json` files that store `connectstrings` value. You have to change these values before running.
+
+![Test Results](docs/images/test-result.png)
+
+### Run via swagger from Visual Studio
+
+- You have to change the `connectionstring` value in `appsettings.Development.json` under `DDDEfCore.ProductCatalog.WebApi`
+- After run the WebApi by `Ctrl+F5` from Visual Studio, assume the Url is `http://localhost:[port]`
+	- Migrate database via `common/migrate` end-point
+
+	![Migrate Database](docs/images/common-migrate.png)
+
+	- Switch to swagger via `swagger`
+
+	![Swagger](docs/images/swagger.png)
+
 
 ## How to see the codecoverage report
 
