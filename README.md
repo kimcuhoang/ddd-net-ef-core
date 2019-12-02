@@ -152,7 +152,7 @@ I want to use Strongly-Typed Ids for all models (i.e. `CatalogId`, `CatalogCateg
 
 3. `DDDEfCore.ProductCatalog.Services.Commands.Tests`
     - Unit Test of Command Handlers.
-    - Use mock object of `DbContext` and `DbSet` to accomplish the operators of Create, Update, Delete
+    - Use [Moq.EntityFrameworkCore](https://github.com/MichalJankowskii/Moq.EntityFrameworkCore) to mock `DbSet`.
 
 4. `DDDEfCore.ProductCatalog.Services.Queries.Tests`
     - Integration Test with [Dapper](https://github.com/StackExchange/Dapper) and SqlServer for Query Handlers.
