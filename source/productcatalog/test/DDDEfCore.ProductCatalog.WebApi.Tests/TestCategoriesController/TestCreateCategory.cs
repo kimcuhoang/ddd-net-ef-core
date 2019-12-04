@@ -1,9 +1,7 @@
 ﻿using AutoFixture.Xunit2;
+using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -24,13 +22,12 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         [AutoData]
         public async Task Create_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions, services) =>
+            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
-                var jsonContent = JsonSerializer.Serialize(new
+                var content = ContentHelper.GetStringContent(new
                 {
                     CategoryName = categoryName
                 });
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -39,13 +36,12 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         [Fact(DisplayName = "Create Category With Empty Name Should Return HttpStatusCode400")]
         public async Task Create_Category_With_EmptyName_Should_Return_HttpStatusCode400()
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions, services) =>
+            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
-                var jsonContent = JsonSerializer.Serialize(new
+                var content = ContentHelper.GetStringContent(new
                 {
                     CategoryName = string.Empty
                 });
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
             });

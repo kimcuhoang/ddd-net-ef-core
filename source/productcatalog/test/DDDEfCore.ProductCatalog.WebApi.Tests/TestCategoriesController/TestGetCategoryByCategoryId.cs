@@ -3,7 +3,6 @@ using DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryDetai
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using Shouldly;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         [Fact(DisplayName = "Get Category By CategoryId Successfully")]
         public async Task Get_Category_By_CategoryId_Successfully()
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions, services) =>
+            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
                 var response = await client.GetAsync(this.ApiUrl);
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -43,7 +42,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         [Fact(DisplayName = "CategoryId empty should return Status400BadRequest")]
         public async Task CategoryId_Empty_Should_Return_Status400BadRequest()
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions, services) =>
+            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
                 var apiUrl = $"{this._testCategoryControllerFixture.BaseUrl}/{Guid.Empty}";
                 var response = await client.GetAsync(apiUrl);

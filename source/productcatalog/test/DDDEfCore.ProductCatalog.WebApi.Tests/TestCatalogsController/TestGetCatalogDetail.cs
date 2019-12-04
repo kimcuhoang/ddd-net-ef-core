@@ -2,12 +2,11 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
+using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -29,14 +28,15 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Get CatalogDetail Successfully")]
         public async Task Get_CatalogDetail_Successfully()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
                     CatalogId = this.Catalog.CatalogId
                 };
-                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
+
                 var response = await client.PostAsync(this.ApiUrl, content);
 
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -67,7 +67,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Get CatalogDetail Within Search CatalogCategory Successfully")]
         public async Task Get_CatalogDetail_Within_Search_CatalogCategory_Successfully()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
@@ -77,8 +77,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                         SearchTerm = this.CatalogCategory.DisplayName
                     }
                 };
-                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
+
                 var response = await client.PostAsync(this.ApiUrl, content);
 
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -113,7 +113,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [InlineData(int.MinValue, int.MinValue)]
         public async Task Invalid_GetCatalogDetail_Request_Should_Return_HttpStatusCode400(int pageIndex, int pageSize)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
@@ -124,8 +124,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                         PageSize = pageSize
                     }
                 };
-                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
@@ -143,14 +142,13 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Not Found Catalog Should Return Empty Result")]
         public async Task NotFound_Catalog_Should_Return_Empty_Result()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
                     CatalogId = IdentityFactory.Create<CatalogId>(Guid.NewGuid())
                 };
-                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
