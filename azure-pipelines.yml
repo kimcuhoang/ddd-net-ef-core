@@ -30,10 +30,10 @@ stages:
     #############
     # Install .net core
     #############
-    # - task: UseDotNet@2
-    #   displayName: "Install .NET Core $(NETCoreVersion)"
-    #   inputs: 
-    #     version: '$(NETCoreVersion)'
+    - task: UseDotNet@2
+      displayName: "Install .NET Core $(NETCoreVersion)"
+      inputs: 
+        version: '$(NETCoreVersion)'
     #############
     # dotnet restore solution
     #############
@@ -69,7 +69,18 @@ stages:
         docker ps -a
       displayName: "List all running containers"
 
-    
+    - script: |
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+        curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+        sudo apt-get update 
+        sudo apt-get install mssql-tools unixodbc-dev
+        echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+        source ~/.bashrc
+      displayName: 'Install SqlCommand tool for Linux'
+
+    - script: |
+        sqlcmd -S localhost -U sa -P $(sqlPassword) -Q "SELECT @@VERSION"
+      displayName: 'Test SqlConnection'
 
     #############
     # dotnet test
