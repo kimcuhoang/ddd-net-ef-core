@@ -10,7 +10,7 @@ pool:
 
 variables:
     buildConfiguration: 'Release'
-    NETCoreVersion: '3.1.x'
+    NETCoreVersion: '3.0.x'
     solutionFile: '$(Build.SourcesDirectory)/*.sln'
     unitTestPath: '$(Build.SourcesDirectory)/productcatalog/test'
     unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
@@ -33,11 +33,11 @@ stages:
     #############
     # dotnet restore solution
     #############
-    # - task: DotNetCoreCLI@2
-    #   displayName: "dotnet restore"
-    #   inputs:
-    #       command: 'restore'
-    #       projects: '$(solutionFile)'
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet restore"
+      inputs:
+          command: 'restore'
+          projects: '$(solutionFile)'
     #############
     # dotnet build solution
     #############
@@ -65,6 +65,11 @@ stages:
         docker ps -a
       displayName: "List all running containers"
 
+    - script: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:HtmlInline_AzurePipelines;Cobertura
+      displayName: 'Create Code coverage report'
+
     #############
     # dotnet test
     #############
@@ -75,12 +80,6 @@ stages:
         projects: '$(unitTestProjects)'
         arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
         nobuild: true
-
-    - script: |
-        dotnet tool install -g dotnet-reportgenerator-globaltool
-        reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:HtmlInline_AzurePipelines;Cobertura
-      displayName: 'Create Code coverage report'
-
     - task: PublishCodeCoverageResults@1
       displayName: 'Publish code coverage'
       inputs:
