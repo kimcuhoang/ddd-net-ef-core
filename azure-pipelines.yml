@@ -65,6 +65,10 @@ stages:
         docker ps -a
       displayName: "List all running containers"
 
+    - script: |
+        dir "$(unitTestPath)"
+      displayName: "List sub dirs in test"
+
     #############
     # dotnet test
     #############
