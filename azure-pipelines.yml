@@ -10,7 +10,7 @@ pool:
 
 variables:
     buildConfiguration: 'Release'
-    NETCoreVersion: '3.0.x'
+    NETCoreVersion: '3.1.x'
     solutionFile: '$(Build.SourcesDirectory)/*.sln'
     unitTestPath: '$(Build.SourcesDirectory)/productcatalog/test'
     unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
@@ -42,7 +42,7 @@ stages:
     # dotnet build solution
     #############
     - task: DotNetCoreCLI@2
-      displayName: "dotnet restore"
+      displayName: "dotnet build"
       inputs:
           command: 'build'
           arguments: '--configuration $(buildConfiguration)'
