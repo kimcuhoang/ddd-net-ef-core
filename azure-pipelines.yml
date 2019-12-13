@@ -106,23 +106,25 @@ stages:
         summaryFileLocation: '$(codeCoverageReportPath)/Cobertura.xml'
         reportDirectory: '$(codeCoverageReportPath)'
 
-- stage: CleanUp
-  displayName: "Cleanup After Build"
-  jobs:
-    - job: "CleanUpJob"
-      steps:
-      - script: |
-          docker container stop $(docker container ls -aq)
-          docker container rm $(docker container ls -aq)
-        displayName: 'Stop all container & Clean up'
-        continueOnError: true
+    - script: |
+        docker container stop $(docker container ls -aq)
+        docker container rm $(docker container ls -aq)
+      displayName: 'Stop all container & Clean up'
+      continueOnError: true
 
-      - task: DeleteFiles@1
-        continueOnError: true
-        inputs:
-          SourceFolder: '$(Agent.BuildDirectory)'
-          Contents: '**/*'
-          RemoveSourceFolder: true
+    - task: DeleteFiles@1
+      continueOnError: true
+      inputs:
+        SourceFolder: '$(Agent.BuildDirectory)'
+        Contents: '**/*'
+        RemoveSourceFolder: true
+
+# - stage: CleanUp
+#   displayName: "Cleanup After Build"
+#   jobs:
+#     - job: "CleanUpJob"
+#       steps:
+      
 
     
 
