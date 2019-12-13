@@ -1,0 +1,112 @@
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - master
+
+pool:
+    vmImage: 'ubuntu-16.04'
+
+variables:
+    buildConfiguration: 'Release'
+    NETCoreVersion: '3.0.x'
+    solutionFile: '$(Build.SourcesDirectory)/*.sln'
+    unitTestPath: '$(Build.SourcesDirectory)/productcatalog/test'
+    unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
+    codeCoverageReportPath : '$(Build.SourcesDirectory)/CodeCoverage'
+    sqlPassword: 'Kimcu@123'
+
+stages:
+- stage: RunBuild
+  displayName: 'Run Build'
+  jobs:
+  - job: BuildJob
+    steps:
+    #############
+    # Install .net core
+    #############
+    - task: UseDotNet@2
+      displayName: "Install .NET Core $(NETCoreVersion)"
+      inputs: 
+        version: '$(NETCoreVersion)'
+    #############
+    # dotnet restore solution
+    #############
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet restore"
+        inputs:
+            command: 'restore'
+            projects: '$(solutionFile)'
+    #############
+    # dotnet build solution
+    #############
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet restore"
+        inputs:
+            command: 'build'
+            arguments: '--configuration $(buildConfiguration)'
+            projects: '$(solutionFile)'
+
+- stage: RunTests
+  displayName: 'Run Tests'
+  jobs:
+  - job: RunTestsJob
+    displayName: 'Run Tests Projects'
+    steps:
+
+    - script: |
+        docker run -d -p 1433:1433 -e 'SA_PASSWORD=$(sqlPassword)' -e 'ACCEPT_EULA=Y' mcr.microsoft.com/mssql/server:2019-latest
+    displayName: 'Start docker'
+
+    - script: printenv
+
+    - script: |
+        docker ps -a
+    displayName: "List all running containers"
+
+    #############
+    # dotnet test
+    #############
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet test"
+      inputs:
+        command: test
+        projects: '$(unitTestProjects)'
+        arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+        nobuild: true
+
+    - script: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:HtmlInline_AzurePipelines;Cobertura
+      displayName: 'Create Code coverage report'
+
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish code coverage'
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: '$(codeCoverageReportPath)/Cobertura.xml'
+        reportDirectory: '$(codeCoverageReportPath)'
+
+- stage: CleanUp
+  displayName: "Cleanup After Build"
+  - jobs:
+    job: "CleanUpJob"
+    steps:
+    - script: |
+        docker container stop $(docker container ls -aq)
+        docker container rm $(docker container ls -aq)
+      displayName: 'Stop all container & Clean up'
+      continueOnError: true
+
+    - task: DeleteFiles@1
+      continueOnError: true
+      inputs:
+        SourceFolder: '$(Agent.BuildDirectory)'
+        Contents: '**/*'
+        RemoveSourceFolder: true
+
+    
+
+
+
