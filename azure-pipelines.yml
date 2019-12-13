@@ -12,7 +12,7 @@ variables:
     buildConfiguration: 'Release'
     NETCoreVersion: '3.0.x'
     solutionFile: '$(Build.SourcesDirectory)/*.sln'
-    unitTestPath: '$(Build.SourcesDirectory)/productcatalog/test'
+    unitTestPath: '$(Build.SourcesDirectory)/source/productcatalog/test'
     unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
     codeCoverageReportPath : '$(Build.SourcesDirectory)/CodeCoverage'
     sqlPassword: 'Kimcu@123'
@@ -24,7 +24,7 @@ stages:
   - job: BuildJob
     steps:
     - script: |
-        dir "$(Build.SourcesDirectory)"
+        dir "$(unitTestPath)"
       displayName: "Debug test"
 
     #############
