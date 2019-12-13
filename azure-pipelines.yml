@@ -26,10 +26,10 @@ stages:
     #############
     # Install .net core
     #############
-    - task: UseDotNet@2
-      displayName: "Install .NET Core $(NETCoreVersion)"
-      inputs: 
-        version: '$(NETCoreVersion)'
+    # - task: UseDotNet@2
+    #   displayName: "Install .NET Core $(NETCoreVersion)"
+    #   inputs: 
+    #     version: '$(NETCoreVersion)'
     #############
     # dotnet restore solution
     #############
@@ -65,11 +65,6 @@ stages:
         docker ps -a
       displayName: "List all running containers"
 
-    - script: |
-        dotnet tool install -g dotnet-reportgenerator-globaltool
-        reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:HtmlInline_AzurePipelines;Cobertura
-      displayName: 'Create Code coverage report'
-
     #############
     # dotnet test
     #############
@@ -80,6 +75,12 @@ stages:
         projects: '$(unitTestProjects)'
         arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
         nobuild: true
+
+    - script: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:HtmlInline_AzurePipelines;Cobertura
+      displayName: 'Create Code coverage report'
+      
     - task: PublishCodeCoverageResults@1
       displayName: 'Publish code coverage'
       inputs:
