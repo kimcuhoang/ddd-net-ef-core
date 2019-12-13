@@ -33,11 +33,11 @@ stages:
     #############
     # dotnet restore solution
     #############
-    - task: DotNetCoreCLI@2
-      displayName: "dotnet restore"
-      inputs:
-          command: 'restore'
-          projects: '$(solutionFile)'
+    # - task: DotNetCoreCLI@2
+    #   displayName: "dotnet restore"
+    #   inputs:
+    #       command: 'restore'
+    #       projects: '$(solutionFile)'
     #############
     # dotnet build solution
     #############
