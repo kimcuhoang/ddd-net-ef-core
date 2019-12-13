@@ -30,10 +30,10 @@ stages:
     #############
     # Install .net core
     #############
-    - task: UseDotNet@2
-      displayName: "Install .NET Core $(NETCoreVersion)"
-      inputs: 
-        version: '$(NETCoreVersion)'
+    # - task: UseDotNet@2
+    #   displayName: "Install .NET Core $(NETCoreVersion)"
+    #   inputs: 
+    #     version: '$(NETCoreVersion)'
     #############
     # dotnet restore solution
     #############
