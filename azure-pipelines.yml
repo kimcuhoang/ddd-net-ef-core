@@ -35,18 +35,18 @@ stages:
     #############
     - task: DotNetCoreCLI@2
       displayName: "dotnet restore"
-        inputs:
-            command: 'restore'
-            projects: '$(solutionFile)'
+      inputs:
+          command: 'restore'
+          projects: '$(solutionFile)'
     #############
     # dotnet build solution
     #############
     - task: DotNetCoreCLI@2
       displayName: "dotnet restore"
-        inputs:
-            command: 'build'
-            arguments: '--configuration $(buildConfiguration)'
-            projects: '$(solutionFile)'
+      inputs:
+          command: 'build'
+          arguments: '--configuration $(buildConfiguration)'
+          projects: '$(solutionFile)'
 
 - stage: RunTests
   displayName: 'Run Tests'
@@ -57,13 +57,13 @@ stages:
 
     - script: |
         docker run -d -p 1433:1433 -e 'SA_PASSWORD=$(sqlPassword)' -e 'ACCEPT_EULA=Y' mcr.microsoft.com/mssql/server:2019-latest
-    displayName: 'Start docker'
+      displayName: 'Start docker'
 
     - script: printenv
 
     - script: |
         docker ps -a
-    displayName: "List all running containers"
+      displayName: "List all running containers"
 
     #############
     # dotnet test
@@ -90,21 +90,21 @@ stages:
 
 - stage: CleanUp
   displayName: "Cleanup After Build"
-  - jobs:
-    job: "CleanUpJob"
-    steps:
-    - script: |
-        docker container stop $(docker container ls -aq)
-        docker container rm $(docker container ls -aq)
-      displayName: 'Stop all container & Clean up'
-      continueOnError: true
+  jobs:
+    - job: "CleanUpJob"
+      steps:
+      - script: |
+          docker container stop $(docker container ls -aq)
+          docker container rm $(docker container ls -aq)
+        displayName: 'Stop all container & Clean up'
+        continueOnError: true
 
-    - task: DeleteFiles@1
-      continueOnError: true
-      inputs:
-        SourceFolder: '$(Agent.BuildDirectory)'
-        Contents: '**/*'
-        RemoveSourceFolder: true
+      - task: DeleteFiles@1
+        continueOnError: true
+        inputs:
+          SourceFolder: '$(Agent.BuildDirectory)'
+          Contents: '**/*'
+          RemoveSourceFolder: true
 
     
 
