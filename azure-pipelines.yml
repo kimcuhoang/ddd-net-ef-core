@@ -24,9 +24,9 @@ stages:
   - job: BuildJob
     steps:
     - script: |
-        dir "$(unitTestPath)"
-      displayName: "List sub dirs in test"
-      
+        dir "$(Build.SourcesDirectory)"
+      displayName: "Debug test"
+
     #############
     # Install .net core
     #############
