@@ -98,13 +98,22 @@ stages:
         echo "##vso[task.prependpath]$HOME/.dotnet/tools"
         $HOME/.dotnet/tools/reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:HtmlInline_AzurePipelines;Cobertura
       displayName: 'Create Code coverage report'
-      
+
+    - script: dir '$(codeCoverageReportPath)'
+    
+    # - task: PublishCodeCoverageResults@1
+    #   displayName: 'Publish code coverage'
+    #   inputs:
+    #     codeCoverageTool: 'cobertura'
+    #     summaryFileLocation: '$(codeCoverageReportPath)/Cobertura.xml'
+    #     reportDirectory: '$(codeCoverageReportPath)'
+
     - task: PublishCodeCoverageResults@1
-      displayName: 'Publish code coverage'
       inputs:
-        codeCoverageTool: 'cobertura'
+        codeCoverageTool: 'Cobertura'
         summaryFileLocation: '$(codeCoverageReportPath)/Cobertura.xml'
         reportDirectory: '$(codeCoverageReportPath)'
+        failIfCoverageEmpty: true
 
     - script: |
         docker container stop $(docker container ls -aq)
