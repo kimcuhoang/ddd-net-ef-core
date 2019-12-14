@@ -23,17 +23,13 @@ stages:
   jobs:
   - job: BuildJob
     steps:
-    - script: |
-        dir "$(unitTestPath)"
-      displayName: "Debug test"
-
     #############
     # Install .net core
     #############
-    # - task: UseDotNet@2
-    #   displayName: "Install .NET Core $(NETCoreVersion)"
-    #   inputs: 
-    #     version: '$(NETCoreVersion)'
+    - task: UseDotNet@2
+      displayName: "Install .NET Core $(NETCoreVersion)"
+      inputs: 
+        version: '$(NETCoreVersion)'
     #############
     # dotnet restore solution
     #############
@@ -98,10 +94,6 @@ stages:
         $HOME/.dotnet/tools/reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:Cobertura
       displayName: 'Create Code coverage report'
 
-    - script: |
-        dir '$(codeCoverageReportPath)'
-      continueOnError: true
-    
     - task: PublishCodeCoverageResults@1
       continueOnError: true
       inputs:
@@ -116,18 +108,17 @@ stages:
       displayName: 'Stop all container & Clean up'
       continueOnError: true
 
-    - task: DeleteFiles@1
-      continueOnError: true
-      inputs:
-        SourceFolder: '$(Agent.BuildDirectory)'
-        Contents: '**/*'
-        RemoveSourceFolder: true
-
-# - stage: CleanUp
-#   displayName: "Cleanup After Build"
-#   jobs:
-#     - job: "CleanUpJob"
-#       steps:
+- stage: CleanUp
+  displayName: "Cleanup After Build"
+  jobs:
+    - job: "CleanUpJob"
+      steps:
+      - task: DeleteFiles@1
+        continueOnError: true
+        inputs:
+          SourceFolder: '$(Agent.BuildDirectory)'
+          Contents: '**/*'
+          RemoveSourceFolder: true
       
 
     
