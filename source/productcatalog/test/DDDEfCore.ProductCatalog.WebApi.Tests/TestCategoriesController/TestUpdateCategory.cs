@@ -27,7 +27,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         [AutoData]
         public async Task Update_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions, services) =>
+            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
                 var jsonContent = JsonSerializer.Serialize(categoryName);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -39,7 +39,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         [Fact(DisplayName = "Update Category with Empty Name Should Return HttpStatusCode400")]
         public async Task Update_Category_With_Empty_Name_Should_Return_HttpStatusCode400()
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions, services) =>
+            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
                 var jsonContent = JsonSerializer.Serialize(string.Empty);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");

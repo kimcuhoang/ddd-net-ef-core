@@ -31,7 +31,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [AutoData]
         public async Task Create_Catalog_Successfully_Should_Return_HttpStatusCode204(string catalogName)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var command = new CreateCatalogCommand
                 {
@@ -49,7 +49,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [AutoData]
         public async Task Create_Catalog_Within_CatalogCategory_Successfully_Should_Return_HttpStatusCode204(string catalogName)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var command = new CreateCatalogCommand
                 {
@@ -67,7 +67,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Empty Catalog Name Should Return HttpStatusCode400")]
         public async Task Empty_CatalogName_Should_Return_HttpStatusCode400()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var command = new CreateCatalogCommand();
 
@@ -91,7 +91,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [MemberData(nameof(InvalidCategoryIds))]
         public async Task Invalid_CategoryId_Should_Return_HttpStatusCode400(Guid categoryId)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var command = new CreateCatalogCommand
                 {

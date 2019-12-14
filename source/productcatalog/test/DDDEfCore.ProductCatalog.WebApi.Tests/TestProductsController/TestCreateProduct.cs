@@ -25,7 +25,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [AutoData]
         public async Task Create_Product_Successfully_Should_Return_HttpStatusCode204(string productName)
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var command = new CreateProductCommand
                 {
@@ -43,7 +43,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [Fact(DisplayName = "Create Product With Invalid Request Should Return HttpStatusCode400")]
         public async Task Create_Product_With_Invalid_Request_Should_Return_HttpStatusCode400()
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var command = new CreateProductCommand();
 

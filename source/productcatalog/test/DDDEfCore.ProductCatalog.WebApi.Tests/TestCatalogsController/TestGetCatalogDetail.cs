@@ -29,7 +29,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Get CatalogDetail Successfully")]
         public async Task Get_CatalogDetail_Successfully()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
@@ -67,7 +67,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Get CatalogDetail Within Search CatalogCategory Successfully")]
         public async Task Get_CatalogDetail_Within_Search_CatalogCategory_Successfully()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
@@ -113,7 +113,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [InlineData(int.MinValue, int.MinValue)]
         public async Task Invalid_GetCatalogDetail_Request_Should_Return_HttpStatusCode400(int pageIndex, int pageSize)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
@@ -143,7 +143,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Not Found Catalog Should Return Empty Result")]
         public async Task NotFound_Catalog_Should_Return_Empty_Result()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
                 var request = new GetCatalogDetailRequest
                 {
