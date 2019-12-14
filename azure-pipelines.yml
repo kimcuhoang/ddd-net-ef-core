@@ -76,7 +76,6 @@ stages:
         sudo apt-get install mssql-tools unixodbc-dev
         echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
         source ~/.bashrc
-        sudo apt-get install -y cobertura
       displayName: 'Install SqlCommand tool for Linux'
 
     - script: |
@@ -103,7 +102,7 @@ stages:
     - task: PublishCodeCoverageResults@1
       displayName: 'Publish code coverage'
       inputs:
-        codeCoverageTool: Cobertura
+        codeCoverageTool: 'cobertura'
         summaryFileLocation: '$(codeCoverageReportPath)/Cobertura.xml'
         reportDirectory: '$(codeCoverageReportPath)'
 
