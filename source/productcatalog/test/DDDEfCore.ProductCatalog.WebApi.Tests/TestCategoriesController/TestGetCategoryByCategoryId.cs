@@ -3,6 +3,7 @@ using DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryDetai
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;

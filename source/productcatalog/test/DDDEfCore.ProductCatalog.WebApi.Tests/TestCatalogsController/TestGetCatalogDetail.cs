@@ -2,11 +2,12 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -34,9 +35,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                 {
                     CatalogId = this.Catalog.CatalogId
                 };
-
-                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
-
+                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
 
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -77,8 +77,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                         SearchTerm = this.CatalogCategory.DisplayName
                     }
                 };
-                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
-
+                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
 
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -124,7 +124,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                         PageSize = pageSize
                     }
                 };
-                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
+                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
@@ -148,7 +149,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                 {
                     CatalogId = IdentityFactory.Create<CatalogId>(Guid.NewGuid())
                 };
-                var content = ContentHelper.GetStringContent(request, jsonSerializationOptions);
+                var jsonData = JsonSerializer.Serialize(request, jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
 

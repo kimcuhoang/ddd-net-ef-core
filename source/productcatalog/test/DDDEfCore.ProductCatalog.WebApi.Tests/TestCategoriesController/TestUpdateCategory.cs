@@ -1,10 +1,13 @@
-﻿using AutoFixture.Xunit2;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
-using Shouldly;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using AutoFixture.Xunit2;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+using Shouldly;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
@@ -26,7 +29,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         {
             await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
-                var content = ContentHelper.GetStringContent(categoryName);
+                var jsonContent = JsonSerializer.Serialize(categoryName);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                 var response = await client.PutAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -37,7 +41,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         {
             await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
-                var content = ContentHelper.GetStringContent(string.Empty);
+                var jsonContent = JsonSerializer.Serialize(string.Empty);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                 var response = await client.PutAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
             });

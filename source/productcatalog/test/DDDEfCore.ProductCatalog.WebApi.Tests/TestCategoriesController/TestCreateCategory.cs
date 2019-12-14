@@ -1,7 +1,9 @@
 ﻿using AutoFixture.Xunit2;
-using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -24,10 +26,11 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         {
             await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
-                var content = ContentHelper.GetStringContent(new
+                var jsonContent = JsonSerializer.Serialize(new
                 {
                     CategoryName = categoryName
                 });
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -38,10 +41,11 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
         {
             await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
             {
-                var content = ContentHelper.GetStringContent(new
+                var jsonContent = JsonSerializer.Serialize(new
                 {
                     CategoryName = string.Empty
                 });
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
             });
