@@ -2,6 +2,7 @@ trigger:
   branches:
     exclude:
       - feature/*
+
 pr:
   autoCancel: true
   branches:
@@ -81,6 +82,14 @@ stages:
         sqlcmd -S localhost -U sa -P $(sqlPassword) -Q "SELECT @@VERSION"
       displayName: 'Test SqlConnection'
 
+    - script: |
+        dotnet --list-sdks
+      displayName: 'List all installed sdks'
+
+    - task: UseDotNet@2
+      displayName: "Install .NET Core $(NETCoreVersion)"
+      inputs: 
+        version: '$(NETCoreVersion)'
     #############
     # dotnet test
     #############
