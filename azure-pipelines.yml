@@ -95,20 +95,15 @@ stages:
 
     - script: |
         dotnet tool install -g dotnet-reportgenerator-globaltool --version 4.3.6
-        echo "##vso[task.prependpath]$HOME/.dotnet/tools"
-        $HOME/.dotnet/tools/reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:HtmlInline_AzurePipelines;Cobertura
+        $HOME/.dotnet/tools/reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:Cobertura
       displayName: 'Create Code coverage report'
 
-    - script: dir '$(codeCoverageReportPath)'
+    - script: |
+        dir '$(codeCoverageReportPath)'
+      continueOnError: true
     
-    # - task: PublishCodeCoverageResults@1
-    #   displayName: 'Publish code coverage'
-    #   inputs:
-    #     codeCoverageTool: 'cobertura'
-    #     summaryFileLocation: '$(codeCoverageReportPath)/Cobertura.xml'
-    #     reportDirectory: '$(codeCoverageReportPath)'
-
     - task: PublishCodeCoverageResults@1
+      continueOnError: true
       inputs:
         codeCoverageTool: 'Cobertura'
         summaryFileLocation: '$(codeCoverageReportPath)/Cobertura.xml'
