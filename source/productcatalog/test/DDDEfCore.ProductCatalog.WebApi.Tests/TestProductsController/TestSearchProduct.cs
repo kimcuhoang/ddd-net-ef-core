@@ -35,7 +35,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [InlineData(null, null)]
         public async Task Search_Categories_With_Paging_Correctly(int? pageIndex, int? pageSize)
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var parameters = HttpUtility.ParseQueryString(string.Empty);
                 parameters.Add("searchTerm", this.Product.Name);
@@ -73,7 +73,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [AutoData]
         public async Task Search_Not_Found_Still_Return_HttpStatusCode200(string randomSearchTerm)
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var parameters = HttpUtility.ParseQueryString(string.Empty);
                 parameters.Add("searchTerm", randomSearchTerm);
@@ -100,7 +100,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [InlineData(int.MinValue, int.MinValue)]
         public async Task Invalid_Search_Request_Should_Return_HttpStatusCode400(int pageIndex, int pageSize)
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var parameters = HttpUtility.ParseQueryString(string.Empty);
                 parameters.Add(nameof(pageIndex), $"{pageIndex}");

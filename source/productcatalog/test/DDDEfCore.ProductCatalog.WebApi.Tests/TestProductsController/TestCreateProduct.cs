@@ -1,9 +1,10 @@
 ﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProduct;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -24,14 +25,15 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [AutoData]
         public async Task Create_Product_Successfully_Should_Return_HttpStatusCode204(string productName)
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var command = new CreateProductCommand
                 {
                     ProductName = productName
                 };
 
-                var content = ContentHelper.GetStringContent(command);
+                var jsonData = JsonSerializer.Serialize(command);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
 
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -41,12 +43,12 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [Fact(DisplayName = "Create Product With Invalid Request Should Return HttpStatusCode400")]
         public async Task Create_Product_With_Invalid_Request_Should_Return_HttpStatusCode400()
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var command = new CreateProductCommand();
 
-                var content = ContentHelper.GetStringContent(command);
-
+                var jsonData = JsonSerializer.Serialize(command);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 

@@ -1,15 +1,16 @@
-﻿using AutoFixture.Xunit2;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using AutoFixture.Xunit2;
 using DDDEfCore.Core.Common.Models;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
@@ -30,15 +31,15 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [AutoData]
         public async Task Create_Catalog_Successfully_Should_Return_HttpStatusCode204(string catalogName)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var command = new CreateCatalogCommand
                 {
                     CatalogName = catalogName
                 };
 
-                var content = ContentHelper.GetStringContent(command, jsonSerializationOptions);
-
+                var jsonData = JsonSerializer.Serialize(command);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -48,7 +49,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [AutoData]
         public async Task Create_Catalog_Within_CatalogCategory_Successfully_Should_Return_HttpStatusCode204(string catalogName)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var command = new CreateCatalogCommand
                 {
@@ -56,8 +57,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                 };
                 command.AddCategory(this.Category.CategoryId, this.Category.DisplayName);
 
-                var content = ContentHelper.GetStringContent(command, jsonSerializationOptions);
-
+                var jsonData = JsonSerializer.Serialize(command, jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -66,12 +67,12 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [Fact(DisplayName = "Empty Catalog Name Should Return HttpStatusCode400")]
         public async Task Empty_CatalogName_Should_Return_HttpStatusCode400()
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var command = new CreateCatalogCommand();
 
-                var content = ContentHelper.GetStringContent(command, jsonSerializationOptions);
-
+                var jsonData = JsonSerializer.Serialize(command);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
@@ -90,7 +91,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [MemberData(nameof(InvalidCategoryIds))]
         public async Task Invalid_CategoryId_Should_Return_HttpStatusCode400(Guid categoryId)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var command = new CreateCatalogCommand
                 {
@@ -98,8 +99,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                 };
                 command.AddCategory(IdentityFactory.Create<CategoryId>(categoryId), this.Category.DisplayName);
 
-                var content = ContentHelper.GetStringContent(command, jsonSerializationOptions);
-
+                var jsonData = JsonSerializer.Serialize(command,jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 

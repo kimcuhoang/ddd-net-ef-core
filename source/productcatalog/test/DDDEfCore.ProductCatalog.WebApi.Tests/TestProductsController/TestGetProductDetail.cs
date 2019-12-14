@@ -31,7 +31,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [Fact(DisplayName = "Should GetProductDetail by ProductId Correctly")]
         public async Task Should_GetProductDetail_By_ProductId_Correctly()
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var response = await client.GetAsync(this.ApiUrl);
                 response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -63,7 +63,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [Fact(DisplayName = "Invalid ProductId Should Return HttpStatusCode400")]
         public async Task Invalid_ProductId_Should_Return_HttpStatusCode400()
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var apiUrl = $"{this._testProductsControllerFixture.BaseUrl}/{Guid.Empty}";
                 var response = await client.GetAsync(apiUrl);
@@ -85,7 +85,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         [AutoData]
         public async Task NotFound_Product_Should_Return_Empty_Result_With_HttpStatusCode200(Guid randomProductId)
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var apiUrl = $"{this._testProductsControllerFixture.BaseUrl}/{randomProductId}";
                 var response = await client.GetAsync(apiUrl);

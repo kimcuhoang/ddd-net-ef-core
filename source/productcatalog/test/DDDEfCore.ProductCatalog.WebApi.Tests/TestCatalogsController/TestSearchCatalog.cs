@@ -32,7 +32,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [InlineData(null, null)]
         public async Task Search_All_With_Paging_Successfully(int? pageIndex, int? pageSize)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var parameters = HttpUtility.ParseQueryString(string.Empty);
 
@@ -76,7 +76,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [InlineData(null, null)]
         public async Task Search_With_SearchTerm_Successfully(int? pageIndex, int? pageSize)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var parameters = HttpUtility.ParseQueryString(string.Empty);
                 parameters.Add("searchTerm", this.Catalog.DisplayName);
@@ -116,7 +116,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [AutoData]
         public async Task Search_Not_Found_Still_Return_HttpStatusCode200(string randomSearchTerm)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var parameters = HttpUtility.ParseQueryString(string.Empty);
                 parameters.Add("searchTerm", randomSearchTerm);
@@ -143,7 +143,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
         [InlineData(int.MinValue, int.MinValue)]
         public async Task Invalid_Search_Request_Should_Return_HttpStatusCode400(int pageIndex, int pageSize)
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions, services) =>
             {
                 var parameters = HttpUtility.ParseQueryString(string.Empty);
                 parameters.Add(nameof(pageIndex), $"{pageIndex}");

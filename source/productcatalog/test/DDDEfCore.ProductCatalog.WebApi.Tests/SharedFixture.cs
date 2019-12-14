@@ -1,21 +1,20 @@
-﻿using AutoFixture;
-using DDDEfCore.Core.Common.Models;
+﻿using System;
+using System.Data;
 using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
-using System;
-using System.Data;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AutoFixture;
+using DDDEfCore.Core.Common.Models;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Tests
@@ -25,7 +24,6 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
         private readonly Checkpoint _checkpoint;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly TestServer _testServer;
-        private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         protected readonly IFixture AutoFixture;
 
@@ -40,10 +38,6 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
                 .UseStartup<Startup>();
 
             this._testServer = new TestServer(webHostBuilder);
-            this._httpClient = this._testServer.CreateClient();
-            this._httpClient.DefaultRequestHeaders.Accept.Clear();
-            this._httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
             this._serviceScopeFactory = this._testServer.Services.GetService<IServiceScopeFactory>();
             this._jsonSerializerOptions = new JsonSerializerOptions
             {
@@ -65,12 +59,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
             await this.ResetCheckpoint();
         }
 
-        public virtual Task DisposeAsync()
-        {
-            this._httpClient?.Dispose();
-            this._testServer?.Dispose();
-            return Task.CompletedTask;
-        }
+        public virtual Task DisposeAsync() => Task.CompletedTask;
 
         #endregion
 
@@ -95,12 +84,12 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
             }
         }
 
-        public async Task DoTest(Func<HttpClient, JsonSerializerOptions, Task> doTestFnc)
+        public async Task DoTest(Func<HttpClient, JsonSerializerOptions, IServiceProvider, Task> doTestFnc)
         {
-            //using var client = this._testServer.CreateClient();
-            //using var scope = this._serviceScopeFactory.CreateScope();
-            //var serviceProvider = scope.ServiceProvider;
-            await doTestFnc(this._httpClient, this._jsonSerializerOptions);
+            using var client = this._testServer.CreateClient();
+            using var scope = this._serviceScopeFactory.CreateScope();
+            var serviceProvider = scope.ServiceProvider;
+            await doTestFnc(client, this._jsonSerializerOptions, serviceProvider);
         }
 
         private async Task ResetCheckpoint()
