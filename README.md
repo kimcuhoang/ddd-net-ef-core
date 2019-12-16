@@ -1,10 +1,10 @@
-# An Example of using DDD with .NET Core 3.0
+# An Example of using DDD with .NET Core 3.1
 
 [![Build Status](https://kimcu.visualstudio.com/ddd-net-ef-core/_apis/build/status/kimcu-on-thenet.ddd-net-ef-core?branchName=master)](https://kimcu.visualstudio.com/ddd-net-ef-core/_build/latest?definitionId=8&branchName=master)
 
 - Domain Driven Design (aka DDD)
-- .NET Core 3.0
-- EntityFramework Core 3.0
+- .NET Core 3.1
+- EntityFramework Core 3.1
 
 ## Overview
 
@@ -191,7 +191,6 @@ For every test project, I use the following packages
 
 	![Swagger](docs/images/swagger.png)
 
-
 ## How to see the codecoverage report
 
 - Use PowerShell, change location to `cake`; then execute the following command
@@ -201,7 +200,6 @@ For every test project, I use the following packages
 ```
 
 - After run successfully, go to `code_coverage` folder, and open the `index.html` by browser to see the report
-
 
 ## Give a Star! :star:
 
