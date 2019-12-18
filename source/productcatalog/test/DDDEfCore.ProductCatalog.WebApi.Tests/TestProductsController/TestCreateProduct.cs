@@ -1,10 +1,9 @@
 ﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProduct;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
+using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -32,8 +31,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
                     ProductName = productName
                 };
 
-                var jsonData = JsonSerializer.Serialize(command);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var content = command.ToStringContent();
                 var response = await client.PostAsync(this.ApiUrl, content);
 
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -47,8 +45,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
             {
                 var command = new CreateProductCommand();
 
-                var jsonData = JsonSerializer.Serialize(command);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var content = command.ToStringContent();
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 

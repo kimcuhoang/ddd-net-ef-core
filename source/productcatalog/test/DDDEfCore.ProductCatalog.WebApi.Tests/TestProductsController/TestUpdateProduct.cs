@@ -1,11 +1,10 @@
 ﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
+using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -29,8 +28,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         {
             await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
-                var jsonData = JsonSerializer.Serialize(productName);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var content = productName.ToStringContent();
                 var response = await client.PutAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -41,8 +39,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         {
             await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
             {
-                var jsonData = JsonSerializer.Serialize(string.Empty);
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var content = string.Empty.ToStringContent();
                 var response = await client.PutAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
                 var result = await response.Content.ReadAsStringAsync();
