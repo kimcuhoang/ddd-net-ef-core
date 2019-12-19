@@ -1,15 +1,16 @@
-﻿using AutoFixture.Xunit2;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using AutoFixture.Xunit2;
 using DDDEfCore.Core.Common.Models;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
@@ -37,7 +38,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                     CatalogName = catalogName
                 };
 
-                var content = command.ToStringContent();
+                var jsonData = JsonSerializer.Serialize(command);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -55,7 +57,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                 };
                 command.AddCategory(this.Category.CategoryId, this.Category.DisplayName);
 
-                var content = command.ToStringContent(jsonSerializationOptions);
+                var jsonData = JsonSerializer.Serialize(command, jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
             });
@@ -68,7 +71,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
             {
                 var command = new CreateCatalogCommand();
 
-                var content = command.ToStringContent();
+                var jsonData = JsonSerializer.Serialize(command);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
@@ -95,7 +99,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                 };
                 command.AddCategory(IdentityFactory.Create<CategoryId>(categoryId), this.Category.DisplayName);
 
-                var content = command.ToStringContent(jsonSerializationOptions);
+                var jsonData = JsonSerializer.Serialize(command,jsonSerializationOptions);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(this.ApiUrl, content);
                 response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
