@@ -1,6 +1,7 @@
 ﻿using DDDEfCore.ProductCatalog.Services.Commands.Infrastructure;
 using DDDEfCore.ProductCatalog.Services.Queries;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures;
+using DDDEfCore.ProductCatalog.WebApi.Infrastructures.HostedServices;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using Microsoft.AspNetCore.Builder;
@@ -27,10 +28,11 @@ namespace DDDEfCore.ProductCatalog.WebApi
                     {
                         configure.JsonSerializerOptions.Converters.Add(new IdentityJsonConverterFactory());
                     });
-            services.AddSingleton<IConfiguration>(sp => this.Configuration);
+            services.AddSingleton(this.Configuration);
             services.AddApplicationCommands();
             services.AddApplicationQueries();
             services.AddSwaggerConfig();
+            services.AddHostedService<DbMigratorHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
