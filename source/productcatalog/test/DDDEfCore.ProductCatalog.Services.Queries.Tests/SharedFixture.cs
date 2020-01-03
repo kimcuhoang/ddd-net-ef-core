@@ -1,22 +1,22 @@
-﻿using DDDEfCore.Core.Common.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Respawn;
-using System;
-using System.Data;
-using System.Data.Common;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using DDDEfCore.Infrastructures.EfCore.Common.Migration;
-using DDDEfCore.ProductCatalog.Services.Queries.Db;
+﻿using AutoFixture;
+using DDDEfCore.Core.Common.Models;
+using DDDEfCore.ProductCatalog.WebApi;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Respawn;
+using System;
+using System.Data;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
@@ -24,27 +24,33 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
     public class SharedFixture : IAsyncLifetime
     {
         private readonly Checkpoint _checkpoint;
-
         private readonly IServiceScopeFactory _serviceScopeFactory;
-
         protected readonly IFixture Fixture;
+        private readonly IHost _host;
 
         public SharedFixture()
         {
-            var host = new Mock<IWebHostEnvironment>();
-            host.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+            var hostBuilder = new HostBuilder()
+                .ConfigureWebHost(webHost =>
+                {
+                    webHost.UseTestServer();
+                    webHost.UseStartup<Startup>();
+                })
+                .ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
+                {
+                    configurationBuilder.SetBasePath(Directory.GetCurrentDirectory());
+                    configurationBuilder.AddJsonFile("appsettings.json");
+                });
 
-            var services = new ServiceCollection();
-            var startup = new TestStartup(host.Object);
-            startup.ConfigureServices(services);
+            this._host = hostBuilder.Start();
+            this._serviceScopeFactory = this._host.Services.GetService<IServiceScopeFactory>();
 
-            this._serviceScopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
-
-            this.Fixture = new Fixture();
             this._checkpoint = new Checkpoint
             {
                 TablesToIgnore = new[] { "__EFMigrationsHistory" }
-            }; ;
+            };
+
+            this.Fixture = new Fixture();
         }
 
         #region Implementation of IAsyncLifetime
@@ -62,33 +68,20 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
         {
             if (entities != null && entities.Any())
             {
-                using (var scope = this._serviceScopeFactory.CreateScope())
+                using var scope = this._serviceScopeFactory.CreateScope();
+                var dbContext = scope.ServiceProvider.GetService<DbContext>();
+                await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+                try
                 {
-                    var dbContext = scope.ServiceProvider.GetService<DbContext>();
-                    using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
-                    {
-                        try
-                        {
-                            await dbContext.Set<T>().AddRangeAsync(entities);
-                            await dbContext.SaveChangesAsync();
-                            transaction.Commit();
-                        }
-                        catch (Exception)
-                        {
-                            transaction.Rollback();
-                            throw;
-                        }
-                    }
+                    await dbContext.Set<T>().AddRangeAsync(entities);
+                    await dbContext.SaveChangesAsync();
+                    transaction.Commit();
                 }
-            }
-        }
-
-        public async Task ExecuteScopeAsync(Func<SqlServerDbConnectionFactory, Task> action)
-        {
-            using (var scope = this._serviceScopeFactory.CreateScope())
-            {
-                var sqlServerDbConnection = scope.ServiceProvider.GetService<SqlServerDbConnectionFactory>();
-                await action(sqlServerDbConnection);
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
         }
 
@@ -102,40 +95,35 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
             where TRequest : IRequest<TResult>
         {
             var cancellationToken = new CancellationToken(false);
-            await this.ExecuteTest(async serviceProvider =>
-            {
-                var handler = serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResult>>();
+            using var scope = this._serviceScopeFactory.CreateScope();
 
-                var result = await handler.Handle(request, cancellationToken);
+            var handler = scope.ServiceProvider.GetRequiredService<IRequestHandler<TRequest, TResult>>();
 
-                assert(result);
-            });
+            var result = await handler.Handle(request, cancellationToken);
+
+            assert(result);
         }
 
-        public async Task ExecuteValidationTest<TRequest>(TRequest request, Action<TestValidationResult<TRequest, TRequest>> assert) where TRequest : class
+        public Task ExecuteValidationTest<TRequest>(TRequest request, Action<TestValidationResult<TRequest, TRequest>> assert) where TRequest : class
         {
-            await this.ExecuteTest(serviceProvider =>
-            {
-                var validator = serviceProvider.GetRequiredService<IValidator<TRequest>>();
-                var result = validator.TestValidate(request);
-                assert(result);
-                return Task.CompletedTask;
-            });
+            using var scope = this._serviceScopeFactory.CreateScope();
+            var validator = scope.ServiceProvider.GetRequiredService<IValidator<TRequest>>();
+
+            var result = validator.TestValidate(request);
+
+            assert(result);
+
+            return Task.CompletedTask;
         }
 
         private async Task ResetCheckpoint()
         {
-            using (var serviceScope = this._serviceScopeFactory.CreateScope())
-            {
-                var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var serviceScope = this._serviceScopeFactory.CreateScope();
+            var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                var databaseMigration = serviceScope.ServiceProvider.GetService<DatabaseMigration>();
-                await databaseMigration.ApplyMigration();
-
-                var dbConnection = dbContext.Database.GetDbConnection();
-                await dbConnection.OpenAsync();
-                await this._checkpoint.Reset(dbConnection);
-            }
+            var dbConnection = dbContext.Database.GetDbConnection();
+            await dbConnection.OpenAsync();
+            await this._checkpoint.Reset(dbConnection);
         }
     }
 }

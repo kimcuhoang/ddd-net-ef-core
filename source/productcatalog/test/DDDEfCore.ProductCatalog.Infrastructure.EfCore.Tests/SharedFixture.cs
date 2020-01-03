@@ -1,37 +1,51 @@
-﻿using DDDEfCore.Core.Common.Models;
-using DDDEfCore.Infrastructures.EfCore.Common.Migration;
+﻿using AutoFixture;
+using DDDEfCore.Core.Common;
+using DDDEfCore.Core.Common.Models;
+using DDDEfCore.ProductCatalog.WebApi;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Microsoft.Extensions.Hosting;
 using Respawn;
 using System;
 using System.Data;
 using System.IO;
 using System.Threading.Tasks;
-using AutoFixture;
-using DDDEfCore.Core.Common;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 {
     public class SharedFixture : IAsyncLifetime
     {
+        private readonly Checkpoint _checkpoint;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-
         protected readonly IFixture Fixture;
+        private readonly IHost _host;
 
         public SharedFixture()
         {
-            var host = new Mock<IWebHostEnvironment>();
-            host.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+            var hostBuilder = new HostBuilder()
+                .ConfigureWebHost(webHost =>
+                {
+                    webHost.UseTestServer();
+                    webHost.UseStartup<Startup>();
+                })
+                .ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
+                {
+                    configurationBuilder.SetBasePath(Directory.GetCurrentDirectory());
+                    configurationBuilder.AddJsonFile("appsettings.json");
+                });
 
-            var services = new ServiceCollection();
-            var startup = new TestStartup(host.Object);
-            startup.ConfigureServices(services);
+            this._host = hostBuilder.Start();
+            this._serviceScopeFactory = this._host.Services.GetService<IServiceScopeFactory>();
 
-            this._serviceScopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
+            this._checkpoint = new Checkpoint
+            {
+                TablesToIgnore = new[] { "__EFMigrationsHistory" }
+            };
 
             this.Fixture = new Fixture();
         }
@@ -47,28 +61,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         #endregion
 
-        public async Task ExecuteScopeAsync(Func<IServiceProvider, Task> action)
-        {
-            using (var scope = this._serviceScopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetService<DbContext>();
-                using (var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
-                {
-                    try
-                    {
-                        await action(scope.ServiceProvider);
-                        await dbContext.SaveChangesAsync();
-                        transaction.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-            }
-        }
-
         public async Task RepositoryExecute<TAggregate>(Func<IRepository<TAggregate>, Task> action) where TAggregate : AggregateRoot
         {
             using var scope = this._serviceScopeFactory.CreateScope();
@@ -79,34 +71,33 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
         {
-            if (entities != null && entities.Any())
+            if(entities != null && entities.Any())
             {
-                await this.ExecuteScopeAsync(async services =>
+                using var scope = this._serviceScopeFactory.CreateScope();
+                var dbContext = scope.ServiceProvider.GetService<DbContext>();
+                await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+                try
                 {
-                    var dbContext = services.GetService<DbContext>();
                     await dbContext.Set<T>().AddRangeAsync(entities);
-                });
+                    await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
         }
 
         private async Task ResetCheckpoint()
         {
-            var checkPoint = new Checkpoint
-            {
-                TablesToIgnore = new[] { "__EFMigrationsHistory" }
-            };
+            using var serviceScope = this._serviceScopeFactory.CreateScope();
+            var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
 
-            using (var serviceScope = this._serviceScopeFactory.CreateScope())
-            {
-                var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
-                var databaseMigration = serviceScope.ServiceProvider.GetService<DatabaseMigration>();
-                await databaseMigration.ApplyMigration();
-
-                
-                var dbConnection = dbContext.Database.GetDbConnection();
-                await dbConnection.OpenAsync();
-                await checkPoint.Reset(dbConnection);
-            }
+            var dbConnection = dbContext.Database.GetDbConnection();
+            await dbConnection.OpenAsync();
+            await this._checkpoint.Reset(dbConnection);
         }
     }
 }

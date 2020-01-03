@@ -104,9 +104,6 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
             using var serviceScope = this._serviceScopeFactory.CreateScope();
             var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
 
-            var databaseMigration = serviceScope.ServiceProvider.GetService<DatabaseMigration>();
-            await databaseMigration.ApplyMigration();
-
             var dbConnection = dbContext.Database.GetDbConnection();
             await dbConnection.OpenAsync();
             await this._checkpoint.Reset(dbConnection);
