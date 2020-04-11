@@ -23,7 +23,7 @@ variables:
     unitTestPath: '$(Build.SourcesDirectory)/source/productcatalog/test'
     unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
     codeCoverageReportPath : '$(Build.SourcesDirectory)/CodeCoverage'
-    sqlPassword: 'Kimcu@123'
+    sqlPassword: 'P@ssword'
 
 stages:
 - stage: RunBuild
