@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+
+    sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        restart: on-failure
+        networks:
+            - ddd-net-ef-core
+        environment:
+            SA_PASSWORD: "P@ssword"
+            ACCEPT_EULA: "Y"
+        ports:
+            - "1433:1433"
+
+networks:
+    ddd-net-ef-core:
+        name: ddd-net-ef-core-network
