@@ -29,7 +29,7 @@ namespace DDDEfCore.ProductCatalog.WebApi
                         configure.JsonSerializerOptions.Converters.Add(new IdentityJsonConverterFactory());
                     });
             services.AddSingleton(this.Configuration);
-            services.AddApplicationCommands();
+            services.AddApplicationCommands(this.Configuration);
             services.AddApplicationQueries();
             services.AddSwaggerConfig();
             services.AddHostedService<DbMigratorHostedService>();

@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "__", "__", "{9452B9A4-F1FD-4573-AC10-4A3A83F60EF6}"
 	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
+		docker-compose.yml = docker-compose.yml
 		global.json = global.json
 		README.md = README.md
 	EndProjectSection
@@ -45,7 +47,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.Services.Queries.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.Services.Queries.Tests\DDDEfCore.ProductCatalog.Services.Queries.Tests.csproj", "{2E5F9471-BC1A-45BB-8C02-603999E73E64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEfCore.ProductCatalog.WebApi.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.WebApi.Tests\DDDEfCore.ProductCatalog.WebApi.Tests.csproj", "{5548C388-56BA-4D82-9AC5-14B493D73003}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEfCore.ProductCatalog.WebApi.Tests", "source\productcatalog\test\DDDEfCore.ProductCatalog.WebApi.Tests\DDDEfCore.ProductCatalog.WebApi.Tests.csproj", "{5548C388-56BA-4D82-9AC5-14B493D73003}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

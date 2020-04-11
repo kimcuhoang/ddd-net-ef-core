@@ -119,13 +119,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             var result = this._validator.TestValidate(command);
 
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogName);
-            
-            // To verify each item in array, the 'PropertyName' must be for example Categories.DisplayName
-            
-            result.ShouldHaveValidationErrorFor(
-                $"{nameof(CreateCatalogCommand.Categories)}.{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
-            result.ShouldHaveValidationErrorFor(
-                $"{nameof(CreateCatalogCommand.Categories)}.{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
+
+            for (var i = 0; i < command.Categories.Count; i++)
+            {
+                result.ShouldHaveValidationErrorFor(
+                    $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
+                result.ShouldHaveValidationErrorFor(
+                    $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
+            }
         }
     }
 }
