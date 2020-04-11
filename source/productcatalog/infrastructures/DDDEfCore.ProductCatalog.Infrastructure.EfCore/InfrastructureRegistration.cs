@@ -1,5 +1,4 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db;
@@ -8,30 +7,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Reflection;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore
 {
     public static class InfrastructureRegistration
     {
-        public static IServiceCollection AddEfCoreSqlServerDb(this IServiceCollection services)
+        public static IServiceCollection AddEfCoreSqlServerDb(this IServiceCollection services, IConfiguration configuration)
         {
-            var svcProvider = services.BuildServiceProvider();
-
-            services.Replace(
-                ServiceDescriptor.Scoped<
-                    IDbConnStringFactory,
-                    SqlServerConnectionStringFactory>());
-
-            services.Replace(
-                ServiceDescriptor.Scoped<
-                    IExtendDbContextOptionsBuilder,
-                    SqlServerDbContextOptionsBuilder>());
-
-            services.AddDbContext<DbContext, ProductCatalogDbContext>((sp, o) =>
+            services.AddDbContext<DbContext, ProductCatalogDbContext>((serviceProvider, dbContextOptions) =>
             {
-                var extendOptionsBuilder = sp.GetRequiredService<IExtendDbContextOptionsBuilder>();
-                var connStringFactory = sp.GetRequiredService<IDbConnStringFactory>();
-                extendOptionsBuilder.Extend(o, connStringFactory, string.Empty);
+                dbContextOptions.UseSqlServer(configuration.GetConnectionString("DefaultDb"), opts =>
+                {
+                    opts.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                });
+                
             });
 
             services.Replace(
