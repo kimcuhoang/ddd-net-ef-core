@@ -56,9 +56,7 @@ I want to use Strongly-Typed Ids for all models (i.e. `CatalogId`, `CatalogCateg
 
     ```csharp
             builder
-                .Property(x => x.CatalogId)
-                .HasField("Id")
-                .HasColumnName("Id")
+                .Property(x => x.Id)
                 .UsePropertyAccessMode(PropertyAccessMode.Field)
                 .HasConversion(x => x.Id, id => (CatalogId)id);
     ```
@@ -183,10 +181,6 @@ For every test project, I use the following packages
 
 - You have to change the `connectionstring` value in `appsettings.Development.json` under `DDDEfCore.ProductCatalog.WebApi`
 - After run the WebApi by `Ctrl+F5` from Visual Studio, assume the Url is `http://localhost:[port]`
-	- Migrate database via `common/migrate` end-point
-
-	![Migrate Database](docs/images/common-migrate.png)
-
 	- Switch to swagger via `swagger`
 
 	![Swagger](docs/images/swagger.png)
