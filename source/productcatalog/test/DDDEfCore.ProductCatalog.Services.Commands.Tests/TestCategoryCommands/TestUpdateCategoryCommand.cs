@@ -14,7 +14,7 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
 {
-    public class TestUpdateCategoryCommand : UnitTestBase<Category>
+    public class TestUpdateCategoryCommand : UnitTestBase<Category, CategoryId>
     {
         private readonly UpdateCategoryCommandValidator _validator;
 
@@ -35,7 +35,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
 
             var command = new UpdateCategoryCommand
             {
-                CategoryId = category.CategoryId,
+                CategoryId = category.Id,
                 CategoryName = this.Fixture.Create<string>()
             };
 

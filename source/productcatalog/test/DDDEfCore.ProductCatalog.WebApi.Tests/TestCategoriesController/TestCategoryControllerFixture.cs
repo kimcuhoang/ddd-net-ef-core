@@ -19,7 +19,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
             await base.InitializeAsync();
 
             this.Category = Category.Create(this.AutoFixture.Create<string>());
-            await this.SeedingData(this.Category);
+            await this.SeedingData<Category,CategoryId>(this.Category);
         }
 
         #endregion

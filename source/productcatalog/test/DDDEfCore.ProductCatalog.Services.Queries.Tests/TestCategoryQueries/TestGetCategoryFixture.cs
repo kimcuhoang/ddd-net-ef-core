@@ -18,11 +18,11 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
             await base.InitializeAsync();
 
             this.Category = Category.Create(this.Fixture.Create<string>());
-            await this.SeedingData(this.Category);
+            await this.SeedingData<Category, CategoryId>(this.Category);
 
             this.Catalog = Catalog.Create(this.Fixture.Create<string>());
-            this.CatalogCategory = this.Catalog.AddCategory(this.Category.CategoryId, this.Category.DisplayName);
-            await this.SeedingData(this.Catalog);
+            this.CatalogCategory = this.Catalog.AddCategory(this.Category.Id, this.Category.DisplayName);
+            await this.SeedingData<Catalog,CatalogId>(this.Catalog);
         }
 
         #endregion

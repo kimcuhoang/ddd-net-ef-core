@@ -81,7 +81,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCa
             var selectedFields = new List<string>
             {
                 $"{nameof(GetCatalogCategoryDetailResult.CatalogCategoryDetail.CatalogId)} = {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)}",
-                $"{nameof(GetCatalogCategoryDetailResult.CatalogCategoryDetail.CatalogCategoryId)} = {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)}",
+                $"{nameof(GetCatalogCategoryDetailResult.CatalogCategoryDetail.CatalogCategoryId)} = {nameof(CatalogCategory)}.{nameof(CatalogCategory.Id)}",
                 $"{nameof(GetCatalogCategoryDetailResult.CatalogCategoryDetail.CatalogCategoryName)} = {nameof(CatalogCategory)}.{nameof(CatalogCategory.DisplayName)}",
                 $"{nameof(GetCatalogCategoryDetailResult.CatalogCategoryDetail.CatalogName)} = {nameof(Catalog)}.{nameof(Catalog.DisplayName)}"
             };
@@ -92,7 +92,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCa
                 .Append($" FROM {nameof(CatalogCategory)} AS {nameof(CatalogCategory)}")
                 .Append($" INNER JOIN {nameof(Catalog)} AS {nameof(Catalog)}")
                 .Append($" ON {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = {nameof(Catalog)}.Id")
-                .Append($" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)} = @CatalogCategoryId");
+                .Append($" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.Id)} = @CatalogCategoryId");
 
             return sqlClauseBuilder.ToString();
         }
@@ -101,7 +101,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCa
         {
             var fieldsDefinition = new Dictionary<string, string>
             {
-                {$"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.CatalogProductId)}", $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)}"},
+                {$"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.CatalogProductId)}", $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.Id)}"},
                 {$"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.DisplayName)}",  $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.DisplayName)}"},
                 {$"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.ProductId)}", $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.ProductId)}"},
                 {$"{nameof(GetCatalogCategoryDetailResult.CatalogProductResult.ProductName)}", $"{nameof(Product)}.{nameof(Product.Name)}"},

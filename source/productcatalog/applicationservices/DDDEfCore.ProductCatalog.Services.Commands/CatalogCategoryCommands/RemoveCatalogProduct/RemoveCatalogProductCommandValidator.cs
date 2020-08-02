@@ -27,8 +27,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
             {
                 RuleFor(command => command).Custom((command, context) =>
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog>();
-                    var catalog = repository.FindOneWithIncludeAsync(x => x.CatalogId == command.CatalogId,
+                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
+                    var catalog = repository.FindOneWithIncludeAsync(x => x.Id == command.CatalogId,
                         x => x.Include(c => c.Categories).ThenInclude(c => c.Products)).Result;
 
                     if (catalog == null)
@@ -38,7 +38,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
                     else
                     {
                         var catalogCategory =
-                            catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == command.CatalogCategoryId);
+                            catalog.Categories.SingleOrDefault(x => x.Id == command.CatalogCategoryId);
                         
                         if (catalogCategory == null)
                         {
@@ -47,7 +47,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
                         }
                         else
                         {
-                            if (catalogCategory.Products.All(x => x.CatalogProductId != command.CatalogProductId))
+                            if (catalogCategory.Products.All(x => x.Id != command.CatalogProductId))
                             {
                                 context.AddFailure(nameof(command.CatalogProductId),
                                     $"CatalogProduct#{command.CatalogProductId} could not be found in CatalogCategory#{command.CatalogCategoryId} of Catalog#{command.CatalogId}");

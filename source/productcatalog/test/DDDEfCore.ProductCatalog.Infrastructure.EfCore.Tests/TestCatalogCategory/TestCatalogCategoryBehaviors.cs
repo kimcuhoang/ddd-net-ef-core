@@ -46,7 +46,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCatego
             await this._testFixture.DoActionWithCatalogCategory(catalogCategory =>
             {
                 catalogProduct =
-                    catalogCategory.CreateCatalogProduct(this._testFixture.Product.ProductId, catalogProductDisplayName);
+                    catalogCategory.CreateCatalogProduct(this._testFixture.Product.Id, catalogProductDisplayName);
             });
 
             await this._testFixture.DoAssertForCatalogCategory(catalogCategory =>

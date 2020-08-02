@@ -25,7 +25,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
 
             var request = new GetProductDetailRequest
             {
-                ProductId = product.ProductId
+                ProductId = product.Id
             };
 
             await this._testProductsFixture.ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result =>
@@ -34,14 +34,14 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
 
                 var productDetail = result.Product;
                 productDetail.ShouldNotBeNull();
-                productDetail.Id.ShouldBe(product.ProductId);
+                productDetail.Id.ShouldBe(product.Id);
                 productDetail.Name.ShouldBe(product.Name);
 
                 result.CatalogCategories.ShouldHaveSingleItem();
                 var catalogCategory = result.CatalogCategories.FirstOrDefault();
-                catalogCategory.CatalogCategoryId.ShouldBe(this._testProductsFixture.CatalogCategory.CatalogCategoryId);
+                catalogCategory.CatalogCategoryId.ShouldBe(this._testProductsFixture.CatalogCategory.Id);
                 catalogCategory.CatalogCategoryName.ShouldBe(this._testProductsFixture.CatalogCategory.DisplayName);
-                catalogCategory.CatalogId.ShouldBe(this._testProductsFixture.Catalog.CatalogId);
+                catalogCategory.CatalogId.ShouldBe(this._testProductsFixture.Catalog.Id);
                 catalogCategory.CatalogName.ShouldBe(this._testProductsFixture.Catalog.DisplayName);
                 catalogCategory.ProductDisplayName.ShouldBe(this._testProductsFixture.CatalogProduct.DisplayName);
             });

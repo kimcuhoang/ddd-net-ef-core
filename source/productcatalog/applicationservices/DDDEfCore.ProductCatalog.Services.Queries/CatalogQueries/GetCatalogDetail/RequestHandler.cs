@@ -87,7 +87,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
         {
             var catalogCategoryFields = new List<string>
             {
-                nameof(CatalogCategory.CatalogCategoryId),
+                nameof(CatalogCategory.Id),
                 nameof(CatalogCategory.DisplayName),
                 nameof(CatalogCategory.CategoryId)
             }.Select(field => $"{nameof(CatalogCategory)}.{field}").ToList();
@@ -95,10 +95,10 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
             var selectedFieldsForCatalog = string.Join(",", catalogCategoryFields);
 
             var sqlStringBuilder = new StringBuilder($"SELECT {selectedFieldsForCatalog}")
-                .Append($", {nameof(GetCatalogDetailResult.CatalogCategorySearchResult.TotalOfProducts)} = COUNT({nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)})")
+                .Append($", {nameof(GetCatalogDetailResult.CatalogCategorySearchResult.TotalOfProducts)} = COUNT({nameof(CatalogProduct)}.{nameof(CatalogProduct.Id)})")
                 .Append($" FROM {nameof(CatalogCategory)} AS {nameof(CatalogCategory)}")
                 .Append($" LEFT JOIN {nameof(CatalogProduct)} AS {nameof(CatalogProduct)}")
-                .Append($" ON {nameof(CatalogProduct)}.{nameof(CatalogCategory.CatalogCategoryId)} = {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)}")
+                .Append($" ON {nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogCategory)}Id = {nameof(CatalogCategory)}.{nameof(CatalogCategory.Id)}")
                 .Append($" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)} = @catalogId");
 
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))

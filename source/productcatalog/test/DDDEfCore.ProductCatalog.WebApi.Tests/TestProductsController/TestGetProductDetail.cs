@@ -23,7 +23,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         private CatalogCategory CatalogCategory => this._testProductsControllerFixture.CatalogCategory;
         private CatalogProduct CatalogProduct => this._testProductsControllerFixture.CatalogProduct;
 
-        private string ApiUrl => $"{this._testProductsControllerFixture.BaseUrl}/{(Guid) this.Product.ProductId}";
+        private string ApiUrl => $"{this._testProductsControllerFixture.BaseUrl}/{(Guid) this.Product.Id}";
 
         public TestGetProductDetail(TestProductsControllerFixture testProductsControllerFixture)
             => this._testProductsControllerFixture = testProductsControllerFixture;
@@ -44,18 +44,18 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
 
                 var productDetail = productDetailResult.Product;
                 productDetail.ShouldNotBeNull();
-                productDetail.Id.ShouldBe(this.Product.ProductId);
+                productDetail.Id.ShouldBe(this.Product.Id);
                 productDetail.Name.ShouldBe(this.Product.Name);
 
                 var theirCategories = productDetailResult.CatalogCategories;
                 theirCategories.ShouldHaveSingleItem();
                 var catalogCategory = theirCategories.FirstOrDefault();
                 catalogCategory.ShouldNotBeNull();
-                catalogCategory.CatalogCategoryId.ShouldBe(this.CatalogCategory.CatalogCategoryId);
+                catalogCategory.CatalogCategoryId.ShouldBe(this.CatalogCategory.Id);
                 catalogCategory.CatalogCategoryName.ShouldBe(this.CatalogCategory.DisplayName);
-                catalogCategory.CatalogId.ShouldBe(this.Catalog.CatalogId);
+                catalogCategory.CatalogId.ShouldBe(this.Catalog.Id);
                 catalogCategory.CatalogName.ShouldBe(this.Catalog.DisplayName);
-                catalogCategory.CatalogProductId.ShouldBe(this.CatalogProduct.CatalogProductId);
+                catalogCategory.CatalogProductId.ShouldBe(this.CatalogProduct.Id);
                 catalogCategory.ProductDisplayName.ShouldBe(this.CatalogProduct.DisplayName);
             });
         }

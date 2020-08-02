@@ -18,8 +18,8 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestProduct
             var product = Product.Create(productName);
 
             product.ShouldNotBeNull();
-            product.ProductId.ShouldNotBeNull();
-            product.ProductId.ShouldBeAssignableTo<ProductId>();
+            product.Id.ShouldNotBeNull();
+            product.Id.ShouldBeAssignableTo<ProductId>();
             product.Name.ShouldBe(productName);
         }
 

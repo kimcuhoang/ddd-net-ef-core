@@ -23,11 +23,11 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQuer
         public async Task GetCatalogProductDetail_Correctly()
         {
             var catalogProduct = this._testFixture.CatalogProduct;
-            var catalogProductId = catalogProduct.CatalogProductId;
+            var catalogProductId = catalogProduct.Id;
             var catalogCategory = this._testFixture.CatalogCategory;
-            var catalogCategoryId = catalogCategory.CatalogCategoryId;
+            var catalogCategoryId = catalogCategory.Id;
             var catalog = this._testFixture.Catalog;
-            var catalogId = catalog.CatalogId;
+            var catalogId = catalog.Id;
 
             var request = new GetCatalogProductDetailRequest
             {

@@ -16,8 +16,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
             {
                 RuleFor(x => x.CategoryId).Custom((categoryId, context) =>
                 {
-                    var repository = repositoryFactory.CreateRepository<Category>();
-                    var category = repository.FindOneAsync(x => x.CategoryId == categoryId).GetAwaiter().GetResult();
+                    var repository = repositoryFactory.CreateRepository<Category, CategoryId>();
+                    var category = repository.FindOneAsync(x => x.Id == categoryId).GetAwaiter().GetResult();
 
                     if (category == null)
                     {

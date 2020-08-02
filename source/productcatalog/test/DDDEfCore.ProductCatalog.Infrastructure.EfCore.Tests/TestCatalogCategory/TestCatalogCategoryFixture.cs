@@ -24,20 +24,20 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCatego
             await base.InitializeAsync();
 
             this.Category = Category.Create(this.Fixture.Create<string>());
-            await this.SeedingData(this.Category);
+            await this.SeedingData<Category, CategoryId>(this.Category);
 
             this.Product = Product.Create(this.Fixture.Create<string>());
-            await this.SeedingData(this.Product);
+            await this.SeedingData<Product, ProductId>(this.Product);
 
             this.Catalog = Catalog.Create(this.Fixture.Create<string>());
 
             this.CatalogCategory =
-                this.Catalog.AddCategory(this.Category.CategoryId, this.Fixture.Create<string>());
+                this.Catalog.AddCategory(this.Category.Id, this.Fixture.Create<string>());
 
             this.CatalogProduct =
-                this.CatalogCategory.CreateCatalogProduct(this.Product.ProductId, this.Fixture.Create<string>());
+                this.CatalogCategory.CreateCatalogProduct(this.Product.Id, this.Fixture.Create<string>());
 
-            await this.RepositoryExecute<Catalog>(async repository =>
+            await this.RepositoryExecute<Catalog, CatalogId>(async repository =>
             {
                 await repository.AddAsync(this.Catalog);
             });
@@ -45,10 +45,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCatego
 
         public async Task DoActionWithCatalogCategory(Action<CatalogCategory> action)
         {
-            await this.RepositoryExecute<Catalog>(async repository =>
+            await this.RepositoryExecute<Catalog, CatalogId>(async repository =>
             {
                 var catalog = await repository
-                    .FindOneWithIncludeAsync(x => x.CatalogId == this.Catalog.CatalogId,
+                    .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
                         x => x.Include(c => c.Categories)
                             .ThenInclude(c => c.Products));
 
@@ -62,10 +62,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCatego
 
         public async Task DoAssertForCatalogCategory(Action<CatalogCategory> action)
         {
-            await this.RepositoryExecute<Catalog>(async repository =>
+            await this.RepositoryExecute<Catalog, CatalogId>(async repository =>
             {
                 var catalog = await repository
-                    .FindOneWithIncludeAsync(x => x.CatalogId == this.Catalog.CatalogId,
+                    .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
                         x => x.Include(c => c.Categories)
                             .ThenInclude(c => c.Products));
 

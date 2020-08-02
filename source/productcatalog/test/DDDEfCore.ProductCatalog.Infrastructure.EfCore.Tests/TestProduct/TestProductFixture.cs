@@ -15,10 +15,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct
             await base.InitializeAsync();
 
             this.ProductToRemove = Product.Create(this.Fixture.Create<string>());
-            await this.SeedingData(this.ProductToRemove);
+            await this.SeedingData<Product, ProductId>(this.ProductToRemove);
 
             this.Product = Product.Create(this.Fixture.Create<string>());
-            await this.RepositoryExecute<Product>(async repository =>
+            await this.RepositoryExecute<Product, ProductId>(async repository =>
             {
                 await repository.AddAsync(this.Product);
                 
@@ -26,10 +26,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct
         }
         public async Task DoAssert(ProductId productId, Action<Product> assertFor)
         {
-            await this.RepositoryExecute<Product>(async repository =>
+            await this.RepositoryExecute<Product, ProductId>(async repository =>
             {
                 var product = await repository
-                    .FindOneAsync(x => x.ProductId == productId);
+                    .FindOneAsync(x => x.Id == productId);
 
                 assertFor(product);
             });

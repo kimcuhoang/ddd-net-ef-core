@@ -64,7 +64,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
                 productsResult.Products.ToList().ForEach(product =>
                 {
                     var predefinedProduct = this.Products.SingleOrDefault(x =>
-                        x.ProductId == product.Id && x.Name == product.DisplayName);
+                        x.Id == product.Id && x.Name == product.DisplayName);
                     predefinedProduct.ShouldNotBeNull();
                 });
             });

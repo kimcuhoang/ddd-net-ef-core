@@ -15,7 +15,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
 
             this.Category = Category.Create(this.Fixture.Create<string>());
 
-            await this.RepositoryExecute<Category>(async repository =>
+            await this.RepositoryExecute<Category, CategoryId>(async repository =>
             {
                 await repository.AddAsync(this.Category);
             });
@@ -23,10 +23,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
 
         public async Task DoAssert(Action<Category> assertFor)
         {
-            await this.RepositoryExecute<Category>(async repository =>
+            await this.RepositoryExecute<Category, CategoryId>(async repository =>
             {
                 var category = await repository
-                    .FindOneAsync(x => x.CategoryId == this.Category.CategoryId);
+                    .FindOneAsync(x => x.Id == this.Category.Id);
 
                 assertFor(category);
             });

@@ -18,7 +18,7 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands
 {
-    public class TestUpdateCatalogCategoryCommand : UnitTestBase<Catalog>, IAsyncLifetime
+    public class TestUpdateCatalogCategoryCommand : UnitTestBase<Catalog, CatalogId>, IAsyncLifetime
     {
         private Mock<DbContext> _mockDbContext;
         private UpdateCatalogCategoryCommandValidator _validator;
@@ -33,19 +33,19 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         public Task InitializeAsync()
         {
             this._mockDbContext = new Mock<DbContext>();
-            var catalogRepository = new DefaultRepositoryAsync<Catalog>(this._mockDbContext.Object);
-            var categoryRepository = new DefaultRepositoryAsync<Category>(this._mockDbContext.Object);
+            var catalogRepository = new DefaultRepositoryAsync<Catalog, CatalogId>(this._mockDbContext.Object);
+            var categoryRepository = new DefaultRepositoryAsync<Category, CategoryId>(this._mockDbContext.Object);
             
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Catalog>())
+                .Setup(x => x.CreateRepository<Catalog, CatalogId>())
                 .Returns(catalogRepository);
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Category>())
+                .Setup(x => x.CreateRepository<Category, CategoryId>())
                 .Returns(categoryRepository);
 
             this._catalog = Catalog.Create(this.Fixture.Create<string>());
             this._category = Category.Create(this.Fixture.Create<string>());
-            this._catalogCategory = this._catalog.AddCategory(this._category.CategoryId, this._category.DisplayName);
+            this._catalogCategory = this._catalog.AddCategory(this._category.Id, this._category.DisplayName);
 
             this._mockDbContext.Setup(x => x.Set<Catalog>())
                 .ReturnsDbSet(new List<Catalog>{this._catalog});
@@ -67,8 +67,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new UpdateCatalogCategoryCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                CatalogId = this._catalog.Id,
+                CatalogCategoryId = this._catalogCategory.Id,
                 DisplayName = this.Fixture.Create<string>()
             };
 
@@ -113,7 +113,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new UpdateCatalogCategoryCommand
             {
-                CatalogId = this._catalog.CatalogId,
+                CatalogId = this._catalog.Id,
                 CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
                 DisplayName = this.Fixture.Create<string>()
             };
@@ -130,8 +130,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new UpdateCatalogCategoryCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                CatalogId = this._catalog.Id,
+                CatalogCategoryId = this._catalogCategory.Id,
                 DisplayName = string.Empty
             };
 

@@ -36,8 +36,8 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 foreach (var catalogItem in result.CatalogItems)
                 {
                     var catalogId = catalogItem.CatalogId;
-                    var catalog = catalogs.SingleOrDefault(x => x.CatalogId == catalogId);
-                    catalog.ShouldNotBeNull(() => $"Assert{catalogId} in {string.Join(",", catalogs.Select(x => x.CatalogId.Id.ToString()).ToArray())}");
+                    var catalog = catalogs.SingleOrDefault(x => x.Id == catalogId);
+                    catalog.ShouldNotBeNull(() => $"Assert{catalogId} in {string.Join(",", catalogs.Select(x => x.Id.Id.ToString()).ToArray())}");
                     catalogItem.DisplayName.ShouldBe(catalog.DisplayName);
                     catalogItem.TotalCategories.ShouldBe(catalog.Categories.Count());
                 }
@@ -105,7 +105,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 result.ShouldNotBeNull();
                 result.TotalCatalogs.ShouldBe(1);
                 var catalog =
-                    result.CatalogItems.SingleOrDefault(x => x.CatalogId == catalogAtRandomIndex.CatalogId.Id);
+                    result.CatalogItems.SingleOrDefault(x => x.CatalogId == catalogAtRandomIndex.Id.Id);
                 catalog.ShouldNotBeNull();
                 catalog.DisplayName.ShouldBe(catalogAtRandomIndex.DisplayName);
                 catalog.TotalCategories.ShouldBe(catalogAtRandomIndex.Categories.Count());

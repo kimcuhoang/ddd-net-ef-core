@@ -37,7 +37,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
 
                 var category = this._testFixture.Category;
                 var categoryResult = result.Categories.FirstOrDefault();
-                categoryResult.Id.ShouldBe(category.CategoryId);
+                categoryResult.Id.ShouldBe(category.Id);
                 categoryResult.DisplayName.ShouldBe(category.DisplayName);
             });
         }
@@ -57,7 +57,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
                 result.TotalCategories.ShouldBe(1);
                 result.Categories.ShouldHaveSingleItem();
                 var categoryResult = result.Categories.FirstOrDefault();
-                categoryResult.Id.ShouldBe(category.CategoryId);
+                categoryResult.Id.ShouldBe(category.Id);
                 categoryResult.DisplayName.ShouldBe(category.DisplayName);
             });
         }

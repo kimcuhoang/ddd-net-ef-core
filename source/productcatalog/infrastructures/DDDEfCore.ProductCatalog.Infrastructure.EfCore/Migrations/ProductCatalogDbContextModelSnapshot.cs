@@ -15,35 +15,41 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.Catalog", b =>
                 {
-                    b.Property<Guid>("CatalogId")
-                        .HasColumnName("Id");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DisplayName");
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CatalogId");
+                    b.HasKey("Id");
 
                     b.ToTable("Catalog");
                 });
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogCategory", b =>
                 {
-                    b.Property<Guid>("CatalogCategoryId");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CatalogCategoryParentId");
+                    b.Property<Guid?>("CatalogCategoryParentId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CatalogId");
+                    b.Property<Guid>("CatalogId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoryId");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DisplayName");
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CatalogCategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CatalogCategoryParentId");
 
@@ -54,15 +60,19 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogProduct", b =>
                 {
-                    b.Property<Guid>("CatalogProductId");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CatalogCategoryId");
+                    b.Property<Guid>("CatalogCategoryId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DisplayName");
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProductId");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("CatalogProductId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CatalogCategoryId");
 
@@ -71,24 +81,26 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Categories.Category", b =>
                 {
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnName("Id");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DisplayName");
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.ToTable("Category");
                 });
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Products.Product", b =>
                 {
-                    b.Property<Guid>("ProductId")
-                        .HasColumnName("Id");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ProductId");
+                    b.HasKey("Id");
 
                     b.ToTable("Product");
                 });
@@ -99,10 +111,11 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                         .WithMany()
                         .HasForeignKey("CatalogCategoryParentId");
 
-                    b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.Catalog")
+                    b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.Catalog", null)
                         .WithMany("Categories")
                         .HasForeignKey("CatalogId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogProduct", b =>
@@ -110,7 +123,8 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                     b.HasOne("DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs.CatalogCategory", "CatalogCategory")
                         .WithMany("Products")
                         .HasForeignKey("CatalogCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

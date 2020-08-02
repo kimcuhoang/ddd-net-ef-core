@@ -12,14 +12,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
     {
         private readonly IRepositoryFactory _repositoryFactory;
 
-        private readonly IRepository<Category> _repository;
+        private readonly IRepository<Category, CategoryId> _repository;
 
         private readonly IValidator<UpdateCategoryCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<UpdateCategoryCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Category>();
+            this._repository = this._repositoryFactory.CreateRepository<Category, CategoryId>();
             this._validator = validator;
         }
 
@@ -29,7 +29,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var category = await this._repository.FindOneAsync(x => x.CategoryId == request.CategoryId);
+            var category = await this._repository.FindOneAsync(x => x.Id == request.CategoryId);
             
             category.ChangeDisplayName(request.CategoryName);
 

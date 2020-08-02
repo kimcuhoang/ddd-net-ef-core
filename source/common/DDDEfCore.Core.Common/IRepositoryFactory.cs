@@ -5,6 +5,8 @@ namespace DDDEfCore.Core.Common
 {
     public interface IRepositoryFactory: IDisposable
     {
-        IRepository<TAggregate> CreateRepository<TAggregate>() where TAggregate : AggregateRoot;
+        IRepository<TAggregate, TIdentity> CreateRepository<TAggregate, TIdentity>() 
+            where TAggregate : AggregateRoot<TIdentity>
+            where TIdentity : IdentityBase;
     }
 }

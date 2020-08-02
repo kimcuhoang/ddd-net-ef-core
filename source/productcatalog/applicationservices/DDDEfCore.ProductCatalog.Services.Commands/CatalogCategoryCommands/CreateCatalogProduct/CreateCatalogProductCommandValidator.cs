@@ -31,8 +31,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
             {
                 RuleFor(command => command).Custom((command, context) =>
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog>();
-                    var catalog = repository.FindOneWithIncludeAsync(x => x.CatalogId == command.CatalogId,
+                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
+                    var catalog = repository.FindOneWithIncludeAsync(x => x.Id == command.CatalogId,
                         x => x.Include(c => c.Categories)
                             .ThenInclude(c => c.Products)).GetAwaiter().GetResult();
 
@@ -43,7 +43,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
                     else
                     {
                         var catalogCategory =
-                            catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == command.CatalogCategoryId);
+                            catalog.Categories.SingleOrDefault(x => x.Id == command.CatalogCategoryId);
 
                         if (catalogCategory == null)
                         {
@@ -75,8 +75,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
 
         private bool ProductMustExist(IRepositoryFactory repositoryFactory, ProductId productId)
         {
-            var repository = repositoryFactory.CreateRepository<Product>();
-            var product = repository.FindOneAsync(x => x.ProductId == productId).Result;
+            var repository = repositoryFactory.CreateRepository<Product, ProductId>();
+            var product = repository.FindOneAsync(x => x.Id == productId).Result;
             return product != null;
         }
     }

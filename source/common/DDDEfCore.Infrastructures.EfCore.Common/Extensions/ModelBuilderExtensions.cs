@@ -50,9 +50,9 @@ namespace DDDEfCore.Infrastructures.EfCore.Common.Extensions
 
         private static bool IsConcreteOfAggregateRoot(this Type type)
         {
-            return typeof(AggregateRoot).IsAssignableFrom(type)
+            return typeof(AggregateRoot<>).IsAssignableFrom(type)
                    || (type.GetTypeInfo().BaseType.IsGenericType &&
-                       typeof(AggregateRoot).IsAssignableFrom(type.GetTypeInfo().BaseType.GetGenericTypeDefinition()));
+                       typeof(AggregateRoot<>).IsAssignableFrom(type.GetTypeInfo().BaseType.GetGenericTypeDefinition()));
         }
     }
 }

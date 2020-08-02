@@ -17,7 +17,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
         private readonly TestProductsControllerFixture _testProductsControllerFixture;
 
         private Product Product => this._testProductsControllerFixture.Product;
-        private string ApiUrl => $"{this._testProductsControllerFixture.BaseUrl}/{(Guid)this.Product.ProductId}";
+        private string ApiUrl => $"{this._testProductsControllerFixture.BaseUrl}/{(Guid)this.Product.Id}";
 
         public TestUpdateProduct(TestProductsControllerFixture testProductsControllerFixture)
             => this._testProductsControllerFixture = testProductsControllerFixture;

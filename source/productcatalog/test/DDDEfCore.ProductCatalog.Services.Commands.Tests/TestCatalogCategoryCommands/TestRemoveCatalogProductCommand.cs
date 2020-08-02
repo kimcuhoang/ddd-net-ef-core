@@ -19,7 +19,7 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands
 {
-    public class TestRemoveCatalogProductCommand : UnitTestBase<Catalog>, IAsyncLifetime
+    public class TestRemoveCatalogProductCommand : UnitTestBase<Catalog, CatalogId>, IAsyncLifetime
     {
         private Mock<DbContext> _mockDbContext;
         private IRequestHandler<RemoveCatalogProductCommand> _requestHandler;
@@ -36,18 +36,18 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         public Task InitializeAsync()
         {
             this._mockDbContext = new Mock<DbContext>();
-            var catalogRepository = new DefaultRepositoryAsync<Catalog>(this._mockDbContext.Object);
+            var catalogRepository = new DefaultRepositoryAsync<Catalog, CatalogId>(this._mockDbContext.Object);
 
-            this.MockRepositoryFactory.Setup(x => x.CreateRepository<Catalog>())
+            this.MockRepositoryFactory.Setup(x => x.CreateRepository<Catalog, CatalogId>())
                 .Returns(catalogRepository);
 
             this._catalog = Catalog.Create(this.Fixture.Create<string>());
             this._category = Category.Create(this.Fixture.Create<string>());
             this._product = Product.Create(this.Fixture.Create<string>());
 
-            this._catalogCategory = this._catalog.AddCategory(this._category.CategoryId, this._category.DisplayName);
+            this._catalogCategory = this._catalog.AddCategory(this._category.Id, this._category.DisplayName);
             this._catalogProduct =
-                this._catalogCategory.CreateCatalogProduct(this._product.ProductId, this._product.Name);
+                this._catalogCategory.CreateCatalogProduct(this._product.Id, this._product.Name);
 
             this._mockDbContext
                 .Setup(x => x.Set<Catalog>())
@@ -67,9 +67,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new RemoveCatalogProductCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
-                CatalogProductId = this._catalogProduct.CatalogProductId
+                CatalogId = this._catalog.Id,
+                CatalogCategoryId = this._catalogCategory.Id,
+                CatalogProductId = this._catalogProduct.Id
             };
 
             await this._requestHandler.Handle(command, this.CancellationToken);
@@ -129,7 +129,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new RemoveCatalogProductCommand
             {
-                CatalogId = this._catalog.CatalogId,
+                CatalogId = this._catalog.Id,
                 CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
                 CatalogProductId = IdentityFactory.Create<CatalogProductId>()
             };
@@ -146,8 +146,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new RemoveCatalogProductCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                CatalogId = this._catalog.Id,
+                CatalogCategoryId = this._catalogCategory.Id,
                 CatalogProductId = IdentityFactory.Create<CatalogProductId>()
             };
 

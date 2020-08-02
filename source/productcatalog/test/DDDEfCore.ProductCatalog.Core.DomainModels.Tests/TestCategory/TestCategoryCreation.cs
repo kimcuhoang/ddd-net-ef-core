@@ -15,7 +15,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCategory
             var category = Category.Create(categoryName);
 
             category.ShouldNotBeNull();
-            category.CategoryId.ShouldNotBeNull();
+            category.Id.ShouldNotBeNull();
             category.DisplayName.ShouldBe(categoryName);
         }
 

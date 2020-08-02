@@ -6,10 +6,8 @@ using System.Linq;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
-    public class Catalog : AggregateRoot
+    public class Catalog : AggregateRoot<CatalogId>
     {
-        public CatalogId CatalogId => (CatalogId)this.Id;
-
         public string DisplayName { get; private set; }
 
         private List<CatalogCategory> _categories = new List<CatalogCategory>();
@@ -63,10 +61,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
                 throw new DomainException($"{nameof(categoryId)} is null");
 
             if (this._categories.Any(x => x.Parent == parentCatalogCategory && x.CategoryId == categoryId))
-                throw new DomainException($"Category#{categoryId} is existing in Catalog#{this.CatalogId}");
+                throw new DomainException($"Category#{categoryId} is existing in Catalog#{this.Id}");
 
             var catalogCategory =
-                CatalogCategory.Create(this.CatalogId, categoryId, displayName, parentCatalogCategory);
+                CatalogCategory.Create(this.Id, categoryId, displayName, parentCatalogCategory);
 
             this._categories.Add(catalogCategory);
 

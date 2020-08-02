@@ -25,7 +25,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
             var category = this._testFixture.Category;
             var request = new GetCategoryDetailRequest
             {
-                CategoryId = this._testFixture.Category.CategoryId
+                CategoryId = this._testFixture.Category.Id
             };
 
             await this._testFixture.ExecuteTestRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>(request, result =>
@@ -33,12 +33,12 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
                 var predefinedCatalog = this._testFixture.Catalog;
 
                 result.ShouldNotBeNull();
-                result.CategoryDetail.Id.ShouldBe(category.CategoryId);
+                result.CategoryDetail.Id.ShouldBe(category.Id);
                 result.CategoryDetail.DisplayName.ShouldBe(category.DisplayName);
                 result.TotalCatalogs.ShouldBe(1);
                 result.AssignedToCatalogs.ToList().ForEach(catalog =>
                 {
-                    catalog.Id.ShouldBe(predefinedCatalog.CatalogId);
+                    catalog.Id.ShouldBe(predefinedCatalog.Id);
                     catalog.DisplayName.ShouldBe(predefinedCatalog.DisplayName);
                 });
             });

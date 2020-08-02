@@ -1,5 +1,4 @@
-﻿using System.Data;
-using DDDEfCore.Core.Common;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 
@@ -17,8 +16,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatal
             {
                 RuleFor(command => command).Custom((command, context) =>
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog>();
-                    var catalog = repository.FindOneAsync(x => x.CatalogId == command.CatalogId).Result;
+                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
+                    var catalog = repository.FindOneAsync(x => x.Id == command.CatalogId).Result;
 
                     if (catalog == null)
                     {

@@ -61,15 +61,15 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         #endregion
 
-        public async Task RepositoryExecute<TAggregate>(Func<IRepository<TAggregate>, Task> action) where TAggregate : AggregateRoot
+        public async Task RepositoryExecute<TAggregate, TIdentity>(Func<IRepository<TAggregate, TIdentity>, Task> action) where TAggregate : AggregateRoot<TIdentity> where TIdentity : IdentityBase
         {
             using var scope = this._serviceScopeFactory.CreateScope();
             using var repositoryFactory = scope.ServiceProvider.GetService<IRepositoryFactory>();
-            var repository = repositoryFactory.CreateRepository<TAggregate>();
+            var repository = repositoryFactory.CreateRepository<TAggregate, TIdentity>();
             await action(repository);
         }
 
-        public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
+        public async Task SeedingData<TAggregate, TIdentity>(params TAggregate[] entities) where TAggregate : AggregateRoot<TIdentity> where TIdentity : IdentityBase
         {
             if(entities != null && entities.Any())
             {
@@ -78,7 +78,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
                 await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
                 try
                 {
-                    await dbContext.Set<T>().AddRangeAsync(entities);
+                    await dbContext.Set<TAggregate>().AddRangeAsync(entities);
                     await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }

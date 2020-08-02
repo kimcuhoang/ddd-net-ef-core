@@ -12,14 +12,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
     public class CommandHandler : AsyncRequestHandler<CreateCatalogCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly IValidator<CreateCatalogCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<CreateCatalogCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog>();
+            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
         }
 
         #region Overrides of AsyncRequestHandler<CreateCatalogCommand>

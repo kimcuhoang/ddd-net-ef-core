@@ -36,7 +36,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
                 var productResult = result.Products.FirstOrDefault();
 
                 productResult.ShouldNotBeNull();
-                productResult.Id.ShouldBe(product.ProductId);
+                productResult.Id.ShouldBe(product.Id);
                 productResult.DisplayName.ShouldBe(product.Name);
             });
         }
@@ -59,7 +59,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
                 var productResult = result.Products.FirstOrDefault();
 
                 productResult.ShouldNotBeNull();
-                productResult.Id.ShouldBe(product.ProductId);
+                productResult.Id.ShouldBe(product.Id);
                 productResult.DisplayName.ShouldBe(product.Name);
             });
         }

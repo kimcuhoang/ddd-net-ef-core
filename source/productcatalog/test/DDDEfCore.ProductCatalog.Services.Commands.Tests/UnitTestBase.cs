@@ -6,12 +6,12 @@ using System.Threading;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests
 {
-    public abstract class UnitTestBase<TAggregateRoot> where TAggregateRoot : AggregateRoot
+    public abstract class UnitTestBase<TAggregateRoot, TIdentity> where TAggregateRoot : AggregateRoot<TIdentity> where TIdentity : IdentityBase
     {
         protected readonly IFixture Fixture;
         protected readonly CancellationToken CancellationToken;
         protected readonly Mock<IRepositoryFactory> MockRepositoryFactory;
-        protected readonly Mock<IRepository<TAggregateRoot>> MockRepository;
+        protected readonly Mock<IRepository<TAggregateRoot, TIdentity>> MockRepository;
 
         protected UnitTestBase()
         {
@@ -19,10 +19,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests
             
             this.MockRepositoryFactory = new Mock<IRepositoryFactory>();
             
-            this.MockRepository = new Mock<IRepository<TAggregateRoot>>();
+            this.MockRepository = new Mock<IRepository<TAggregateRoot, TIdentity>>();
 
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<TAggregateRoot>())
+                .Setup(x => x.CreateRepository<TAggregateRoot, TIdentity>())
                 .Returns(this.MockRepository.Object);
 
             this.CancellationToken = new CancellationToken(false);

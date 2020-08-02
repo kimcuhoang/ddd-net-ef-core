@@ -15,14 +15,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
     public class CommandHandler : AsyncRequestHandler<CreateCatalogCategoryCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly IValidator<CreateCatalogCategoryCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory,
             IValidator<CreateCatalogCategoryCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog>();
+            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
             this._validator = validator;
         }
 
@@ -32,14 +32,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == request.CatalogId,
+            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories));
 
             CatalogCategory parent = null;
 
             if (request.ParentCatalogCategoryId != null)
             {
-                parent = catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == request.ParentCatalogCategoryId);
+                parent = catalog.Categories.SingleOrDefault(x => x.Id == request.ParentCatalogCategoryId);
             }
 
             catalog.AddCategory(request.CategoryId, request.DisplayName, parent);

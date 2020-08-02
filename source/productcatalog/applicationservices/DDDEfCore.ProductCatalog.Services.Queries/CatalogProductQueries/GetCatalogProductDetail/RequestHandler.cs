@@ -77,7 +77,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
             {
                 { 
                     $"{nameof(GetCatalogProductDetailResult.CatalogProduct.CatalogProductId)}",
-                    $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)}"
+                    $"{nameof(CatalogProduct)}.{nameof(CatalogProduct.Id)}"
                 },
                 { 
                     $"{nameof(GetCatalogProductDetailResult.CatalogProduct.DisplayName)}",
@@ -89,7 +89,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
 
             var sqlClauseBuilder = new StringBuilder($"SELECT {selectedFields}")
                 .Append($" FROM {nameof(CatalogProduct)} AS {nameof(CatalogProduct)}")
-                .Append($" WHERE {nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)} = @CatalogProductId");
+                .Append($" WHERE {nameof(CatalogProduct)}.{nameof(CatalogProduct.Id)} = @CatalogProductId");
             
             return sqlClauseBuilder.ToString();
         }
@@ -97,7 +97,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
         private string SqlClauseForFindingCatalogCategoryIdOfCatalogProduct => 
             new StringBuilder($"SELECT {nameof(CatalogProduct)}.{nameof(CatalogCategoryId)}")
                 .Append($" FROM {nameof(CatalogProduct)} AS {nameof(CatalogProduct)}")
-                .Append($" WHERE {nameof(CatalogProduct)}.{nameof(CatalogProduct.CatalogProductId)} = @CatalogProductId")
+                .Append($" WHERE {nameof(CatalogProduct)}.{nameof(CatalogProduct.Id)} = @CatalogProductId")
                 .ToString();
 
 
@@ -107,7 +107,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
             {
                 {
                     $"{nameof(GetCatalogProductDetailResult.CatalogCategory.CatalogCategoryId)}",
-                    $"{nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)}"
+                    $"{nameof(CatalogCategory)}.{nameof(CatalogCategory.Id)}"
                 },
                 {
                     $"{nameof(GetCatalogProductDetailResult.CatalogCategory.DisplayName)}",
@@ -119,7 +119,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
             var sqlClauseBuilder = new StringBuilder($"SELECT {selectedFields}")
                 .Append($" FROM {nameof(CatalogCategory)} AS {nameof(CatalogCategory)}")
                 .Append(
-                    $" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)} = ({this.SqlClauseForFindingCatalogCategoryIdOfCatalogProduct})");
+                    $" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.Id)} = ({this.SqlClauseForFindingCatalogCategoryIdOfCatalogProduct})");
 
             return sqlClauseBuilder.ToString();
         }
@@ -128,7 +128,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
             new StringBuilder($"SELECT {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogId)}")
                 .Append($" FROM {nameof(CatalogCategory)} AS {nameof(CatalogCategory)}")
                 .Append(
-                    $" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)} = ({this.SqlClauseForFindingCatalogCategoryIdOfCatalogProduct})")
+                    $" WHERE {nameof(CatalogCategory)}.{nameof(CatalogCategory.Id)} = ({this.SqlClauseForFindingCatalogCategoryIdOfCatalogProduct})")
                 .ToString();
 
         private string SqlClauseForQueryingCatalog()

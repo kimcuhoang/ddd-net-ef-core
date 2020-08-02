@@ -11,13 +11,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatal
     public class CommandHandler : AsyncRequestHandler<UpdateCatalogCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly IValidator<UpdateCatalogCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<UpdateCatalogCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog>();
+            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
@@ -27,7 +27,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatal
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var catalog = await this._repository.FindOneAsync(x => x.CatalogId == request.CatalogId);
+            var catalog = await this._repository.FindOneAsync(x => x.Id == request.CatalogId);
 
             catalog.ChangeDisplayName(request.CatalogName);
 

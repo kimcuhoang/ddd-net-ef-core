@@ -31,7 +31,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
             var request = new GetCatalogDetailRequest
             {
-                CatalogId = catalog.CatalogId,
+                CatalogId = catalog.Id,
                 SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
                 {
                     PageIndex = pageIndex,
@@ -43,7 +43,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             {
                 result.ShouldNotBeNull();
                 result.CatalogDetail.ShouldNotBeNull();
-                result.CatalogDetail.Id.ShouldBe(catalog.CatalogId);
+                result.CatalogDetail.Id.ShouldBe(catalog.Id);
                 result.CatalogDetail.DisplayName.ShouldBe(catalog.DisplayName);
                 
                 result.TotalOfCatalogCategories.ShouldBe(catalog.Categories.Count());
@@ -51,9 +51,9 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 result.CatalogCategories.ToList().ForEach(c =>
                 {
                     var catalogCategory =
-                        catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == c.CatalogCategoryId);
+                        catalog.Categories.SingleOrDefault(x => x.Id == c.Id);
                     catalogCategory.ShouldNotBeNull();
-                    c.CategoryId.ShouldBe(this._testFixture.Category.CategoryId);
+                    c.CategoryId.ShouldBe(this._testFixture.Category.Id);
                     c.DisplayName.ShouldBe(catalogCategory.DisplayName);
                     c.TotalOfProducts.ShouldBe(catalogCategory.Products.Count());
                 });
@@ -64,7 +64,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         public async Task Should_GetCatalogDetail_With_Search_CatalogCategory_Correctly()
         {
             var catalog = this._testFixture.CatalogHasCatalogCategory;
-            var catalogId = catalog.CatalogId;
+            var catalogId = catalog.Id;
             var catalogCategories = catalog.Categories.ToList();
 
             var randomIndex = A.Random.Next(0, catalogCategories.Count);
@@ -72,7 +72,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 
             var request = new GetCatalogDetailRequest
             {
-                CatalogId = catalog.CatalogId,
+                CatalogId = catalog.Id,
                 SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
                 {
                     SearchTerm = randomCatalogCategory.DisplayName
@@ -91,10 +91,10 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 result.CatalogCategories.ToList().ForEach(c =>
                 {
                     var catalogCategory =
-                        catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == c.CatalogCategoryId);
+                        catalog.Categories.SingleOrDefault(x => x.Id == c.Id);
 
                     catalogCategory.ShouldNotBeNull();
-                    c.CategoryId.ShouldBe(this._testFixture.Category.CategoryId);
+                    c.CategoryId.ShouldBe(this._testFixture.Category.Id);
                     c.DisplayName.ShouldBe(catalogCategory.DisplayName);
                     c.TotalOfProducts.ShouldBe(catalogCategory.Products.Count());
                 });
@@ -105,7 +105,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         public async Task Should_GetCatalogDetail_With_NotFound_Any_CatalogCategory_From_Search_Still_Correct()
         {
             var request = new GetCatalogDetailRequest { 
-                CatalogId = this._testFixture.CatalogWithoutCatalogCategory.CatalogId
+                CatalogId = this._testFixture.CatalogWithoutCatalogCategory.Id
             };
 
             await this._testFixture.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>

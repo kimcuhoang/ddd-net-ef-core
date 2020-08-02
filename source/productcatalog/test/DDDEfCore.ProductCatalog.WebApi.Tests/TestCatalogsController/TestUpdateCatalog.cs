@@ -18,7 +18,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
 
         private Catalog Catalog => this._testCatalogsControllerFixture.Catalog;
 
-        private string ApiUrl => $"{this._testCatalogsControllerFixture.BaseUrl}/{(Guid) this.Catalog.CatalogId}";
+        private string ApiUrl => $"{this._testCatalogsControllerFixture.BaseUrl}/{(Guid) this.Catalog.Id}";
 
         public TestUpdateCatalog(TestCatalogsControllerFixture testCatalogsControllerFixture)
             => this._testCatalogsControllerFixture = testCatalogsControllerFixture;

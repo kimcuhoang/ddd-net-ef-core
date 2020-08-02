@@ -14,13 +14,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogProductCommands.Upda
     public class CommandHandler : AsyncRequestHandler<UpdateCatalogProductCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly IValidator<UpdateCatalogProductCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<UpdateCatalogProductCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog>();
+            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
@@ -30,14 +30,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogProductCommands.Upda
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == request.CatalogId,
+            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories).ThenInclude(c => c.Products));
 
             var catalogCategory =
-                catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == request.CatalogCategoryId);
+                catalog.Categories.SingleOrDefault(x => x.Id == request.CatalogCategoryId);
 
             var catalogProduct =
-                catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == request.CatalogProductId);
+                catalogCategory.Products.SingleOrDefault(x => x.Id == request.CatalogProductId);
 
             catalogProduct.ChangeDisplayName(request.DisplayName);
 

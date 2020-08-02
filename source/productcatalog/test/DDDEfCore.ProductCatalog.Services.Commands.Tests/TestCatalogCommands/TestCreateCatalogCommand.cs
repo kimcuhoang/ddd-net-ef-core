@@ -19,7 +19,7 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 {
-    public class TestCreateCatalogCommand : UnitTestBase<Catalog>
+    public class TestCreateCatalogCommand : UnitTestBase<Catalog, CatalogId>
     {
         private readonly CreateCatalogCommandValidator _validator;
 
@@ -59,9 +59,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             mockDbContext.Setup(x => x.Set<Category>())
                         .ReturnsDbSet(categories);
 
-            var categoryRepository = new DefaultRepositoryAsync<Category>(mockDbContext.Object);
+            var categoryRepository = new DefaultRepositoryAsync<Category, CategoryId>(mockDbContext.Object);
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Category>())
+                .Setup(x => x.CreateRepository<Category, CategoryId>())
                 .Returns(categoryRepository);
 
             var command = new CreateCatalogCommand
@@ -70,7 +70,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             };
             foreach (var category in categories)
             {
-                command.AddCategory(category.CategoryId, this.Fixture.Create<string>());
+                command.AddCategory(category.Id, this.Fixture.Create<string>());
             }
 
             IRequestHandler<CreateCatalogCommand> handler

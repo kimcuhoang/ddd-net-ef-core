@@ -52,24 +52,24 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
         private bool CatalogIsExisting(IRepositoryFactory repositoryFactory, CatalogId catalogId)
         {
-            var repository = repositoryFactory.CreateRepository<Catalog>();
-            var catalog = repository.FindOneAsync(x => x.CatalogId == catalogId).GetAwaiter().GetResult();
+            var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
+            var catalog = repository.FindOneAsync(x => x.Id == catalogId).GetAwaiter().GetResult();
             return catalog != null;
         }
 
         private bool CategoryIsExisting(IRepositoryFactory repositoryFactory, CategoryId categoryId)
         {
-            var repository = repositoryFactory.CreateRepository<Category>();
-            var category = repository.FindOneAsync(x => x.CategoryId == categoryId).GetAwaiter().GetResult();
+            var repository = repositoryFactory.CreateRepository<Category, CategoryId>();
+            var category = repository.FindOneAsync(x => x.Id == categoryId).GetAwaiter().GetResult();
             return category != null;
         }
 
         private bool CatalogCategoryIsExistingInCatalog(IRepositoryFactory repositoryFactory, CatalogId catalogId, CatalogCategoryId catalogCategoryId)
         {
-            var repository = repositoryFactory.CreateRepository<Catalog>();
-            var catalog = repository.FindOneWithIncludeAsync(x => x.CatalogId == catalogId,
+            var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
+            var catalog = repository.FindOneWithIncludeAsync(x => x.Id == catalogId,
                 x => x.Include(c => c.Categories)).GetAwaiter().GetResult();
-            return catalog != null && catalog.Categories.Any(x => x.CatalogCategoryId == catalogCategoryId);
+            return catalog != null && catalog.Categories.Any(x => x.Id == catalogCategoryId);
         }
     }
 }

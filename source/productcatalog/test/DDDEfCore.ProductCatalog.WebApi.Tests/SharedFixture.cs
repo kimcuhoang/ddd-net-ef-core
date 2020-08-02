@@ -70,7 +70,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
 
         #endregion
 
-        public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
+        public async Task SeedingData<TAggregateRoot, TIdentity>(params TAggregateRoot[] entities) where TAggregateRoot : AggregateRoot<TIdentity> where TIdentity : IdentityBase
         {
             if (entities != null && entities.Any())
             {
@@ -79,7 +79,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
                 await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
                 try
                 {
-                    await dbContext.Set<T>().AddRangeAsync(entities);
+                    await dbContext.Set<TAggregateRoot>().AddRangeAsync(entities);
                     await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
