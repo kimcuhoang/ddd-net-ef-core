@@ -14,14 +14,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
     public class CommandHandler : AsyncRequestHandler<RemoveCatalogCategoryCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly IValidator<RemoveCatalogCategoryCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory,
             IValidator<RemoveCatalogCategoryCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog>();
+            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
@@ -31,11 +31,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == request.CatalogId,
+            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories));
 
             var catalogCategory =
-                catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == request.CatalogCategoryId);
+                catalog.Categories.SingleOrDefault(x => x.Id == request.CatalogCategoryId);
 
             catalog.RemoveCatalogCategoryWithDescendants(catalogCategory);
 

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
 {
-    public partial class Database_Initialize : Migration
+    public partial class Init_Database : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -47,7 +47,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                 name: "CatalogCategory",
                 columns: table => new
                 {
-                    CatalogCategoryId = table.Column<Guid>(nullable: false),
+                    Id = table.Column<Guid>(nullable: false),
                     CatalogId = table.Column<Guid>(nullable: false),
                     CategoryId = table.Column<Guid>(nullable: false),
                     DisplayName = table.Column<string>(nullable: true),
@@ -55,12 +55,12 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CatalogCategory", x => x.CatalogCategoryId);
+                    table.PrimaryKey("PK_CatalogCategory", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CatalogCategory_CatalogCategory_CatalogCategoryParentId",
                         column: x => x.CatalogCategoryParentId,
                         principalTable: "CatalogCategory",
-                        principalColumn: "CatalogCategoryId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_CatalogCategory_Catalog_CatalogId",
@@ -74,19 +74,19 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Migrations
                 name: "CatalogProduct",
                 columns: table => new
                 {
-                    CatalogProductId = table.Column<Guid>(nullable: false),
+                    Id = table.Column<Guid>(nullable: false),
                     DisplayName = table.Column<string>(nullable: true),
                     ProductId = table.Column<Guid>(nullable: false),
                     CatalogCategoryId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CatalogProduct", x => x.CatalogProductId);
+                    table.PrimaryKey("PK_CatalogProduct", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CatalogProduct_CatalogCategory_CatalogCategoryId",
                         column: x => x.CatalogCategoryId,
                         principalTable: "CatalogCategory",
-                        principalColumn: "CatalogCategoryId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 

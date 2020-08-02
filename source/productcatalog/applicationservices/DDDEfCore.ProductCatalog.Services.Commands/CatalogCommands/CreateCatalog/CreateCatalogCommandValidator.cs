@@ -34,8 +34,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
         private bool CategoryMustExist(IRepositoryFactory repositoryFactory, CategoryId categoryId)
         {
-            var repository = repositoryFactory.CreateRepository<Category>();
-            var category = repository.FindOneAsync(x => x.CategoryId == categoryId).Result;
+            var repository = repositoryFactory.CreateRepository<Category, CategoryId>();
+            var category = repository.FindOneAsync(x => x.Id == categoryId).Result;
             return category != null;
         }
     }

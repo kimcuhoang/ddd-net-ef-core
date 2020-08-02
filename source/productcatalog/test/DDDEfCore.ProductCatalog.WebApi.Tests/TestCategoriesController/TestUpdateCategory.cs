@@ -18,7 +18,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
             => this._testCategoryControllerFixture = testCategoryControllerFixture;
 
         private Category Category => this._testCategoryControllerFixture.Category;
-        public string ApiUrl => $"{this._testCategoryControllerFixture.BaseUrl}/{(Guid)this.Category.CategoryId}";
+        public string ApiUrl => $"{this._testCategoryControllerFixture.BaseUrl}/{(Guid)this.Category.Id}";
 
         [Theory(DisplayName = "Update Category Successfully Should Return HttpStatusCode204")]
         [AutoData]

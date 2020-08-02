@@ -62,7 +62,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
 
                 var catalogItem = searchCatalogResult.CatalogItems.FirstOrDefault();
                 catalogItem.ShouldNotBeNull();
-                catalogItem.CatalogId.ShouldBe(this.Catalog.CatalogId);
+                catalogItem.CatalogId.ShouldBe(this.Catalog.Id);
                 catalogItem.DisplayName.ShouldBe(this.Catalog.DisplayName);
                 catalogItem.TotalCategories.ShouldBe(this.Catalog.Categories.Count());
             });
@@ -106,7 +106,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
 
                 var catalogItem = searchCatalogResult.CatalogItems.FirstOrDefault();
                 catalogItem.ShouldNotBeNull();
-                catalogItem.CatalogId.ShouldBe(this.Catalog.CatalogId);
+                catalogItem.CatalogId.ShouldBe(this.Catalog.Id);
                 catalogItem.DisplayName.ShouldBe(this.Catalog.DisplayName);
                 catalogItem.TotalCategories.ShouldBe(this.Catalog.Categories.Count());
             });

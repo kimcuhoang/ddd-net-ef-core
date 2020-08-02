@@ -11,10 +11,11 @@ namespace DDDEfCore.Infrastructures.EfCore.Common.Extensions
 {
     public static class RepositoryExtensions
     {
-        public static async Task<TEntity> FindOneWithIncludeAsync<TEntity>(this IRepository<TEntity> repository,
-            Expression<Func<TEntity, bool>> predicate,
-            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null)
-            where TEntity : AggregateRoot
+        public static async Task<TAggregate> FindOneWithIncludeAsync<TAggregate, TIdentity>(this IRepository<TAggregate, TIdentity> repository,
+                                                                                            Expression<Func<TAggregate, bool>> predicate,
+                                                                                            Func<IQueryable<TAggregate>, IIncludableQueryable<TAggregate, object>> include = null)
+            where TAggregate : AggregateRoot<TIdentity>
+            where TIdentity : IdentityBase
         {
             var queryable = repository.AsQueryable();
 

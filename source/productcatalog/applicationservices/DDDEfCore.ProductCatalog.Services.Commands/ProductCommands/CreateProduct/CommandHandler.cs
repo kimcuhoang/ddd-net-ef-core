@@ -11,13 +11,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProdu
     public class CommandHandler : AsyncRequestHandler<CreateProductCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Product> _repository;
+        private readonly IRepository<Product, ProductId> _repository;
         private readonly IValidator<CreateProductCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<CreateProductCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Product>();
+            this._repository = this._repositoryFactory.CreateRepository<Product, ProductId>();
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 

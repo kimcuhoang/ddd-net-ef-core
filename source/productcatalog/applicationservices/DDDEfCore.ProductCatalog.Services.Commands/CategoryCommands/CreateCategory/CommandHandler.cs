@@ -12,14 +12,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCate
     {
         private readonly IRepositoryFactory _repositoryFactory;
 
-        private readonly IRepository<Category> _repository;
+        private readonly IRepository<Category, CategoryId> _repository;
 
         private readonly IValidator<CreateCategoryCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<CreateCategoryCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Category>();
+            this._repository = this._repositoryFactory.CreateRepository<Category, CategoryId>();
             this._validator = validator;
         }
 

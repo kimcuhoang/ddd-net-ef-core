@@ -3,10 +3,8 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Exceptions;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Categories
 {
-    public class Category : AggregateRoot
+    public class Category : AggregateRoot<CategoryId>
     {
-        public CategoryId CategoryId => (CategoryId)this.Id;
-
         public string DisplayName { get; private set; }
 
         #region Constructors

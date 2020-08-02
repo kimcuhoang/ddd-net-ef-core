@@ -17,14 +17,16 @@ namespace DDDEfCore.Infrastructures.EfCore.Common.Repositories
 
         #region Implementation of IRepositoryFactory
 
-        public IRepository<TAggregate> CreateRepository<TAggregate>() where TAggregate : AggregateRoot
+        public IRepository<TAggregate, TIdentity> CreateRepository<TAggregate, TIdentity>() 
+                        where TAggregate : AggregateRoot<TIdentity>
+                        where TIdentity : IdentityBase
         {
             if (_repositories == null) _repositories = new ConcurrentDictionary<Type, object>();
 
             if (!_repositories.ContainsKey(typeof(TAggregate)))
-                _repositories[typeof(TAggregate)] = new DefaultRepositoryAsync<TAggregate>(this._dbContext);
+                _repositories[typeof(TAggregate)] = new DefaultRepositoryAsync<TAggregate, TIdentity>(this._dbContext);
 
-            return (IRepository<TAggregate>)_repositories[typeof(TAggregate)];
+            return (IRepository<TAggregate,TIdentity>)_repositories[typeof(TAggregate)];
         }
 
         #endregion

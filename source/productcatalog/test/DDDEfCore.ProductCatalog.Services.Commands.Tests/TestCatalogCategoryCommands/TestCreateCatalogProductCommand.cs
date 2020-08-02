@@ -19,7 +19,7 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands
 {
-    public class TestCreateCatalogProductCommand : UnitTestBase<Catalog>, IAsyncLifetime
+    public class TestCreateCatalogProductCommand : UnitTestBase<Catalog, CatalogId>, IAsyncLifetime
     {
         private Mock<DbContext> _mockDbContext;
         private CreateCatalogProductCommandValidator _validator;
@@ -35,18 +35,18 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         public Task InitializeAsync()
         {
             this._mockDbContext = new Mock<DbContext>();
-            var catalogRepository = new DefaultRepositoryAsync<Catalog>(this._mockDbContext.Object);
-            var productRepository = new DefaultRepositoryAsync<Product>(this._mockDbContext.Object);
+            var catalogRepository = new DefaultRepositoryAsync<Catalog, CatalogId>(this._mockDbContext.Object);
+            var productRepository = new DefaultRepositoryAsync<Product, ProductId>(this._mockDbContext.Object);
 
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Catalog>()).Returns(catalogRepository);
+                .Setup(x => x.CreateRepository<Catalog, CatalogId>()).Returns(catalogRepository);
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Product>()).Returns(productRepository);
+                .Setup(x => x.CreateRepository<Product, ProductId>()).Returns(productRepository);
 
             this._catalog = Catalog.Create(this.Fixture.Create<string>());
             this._category = Category.Create(this.Fixture.Create<string>());
             this._product = Product.Create(this.Fixture.Create<string>());
-            this._catalogCategory = this._catalog.AddCategory(this._category.CategoryId, this._category.DisplayName);
+            this._catalogCategory = this._catalog.AddCategory(this._category.Id, this._category.DisplayName);
 
             this._mockDbContext
                 .Setup(x => x.Set<Catalog>())
@@ -70,9 +70,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new CreateCatalogProductCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
-                ProductId = this._product.ProductId,
+                CatalogId = this._catalog.Id,
+                CatalogCategoryId = this._catalogCategory.Id,
+                ProductId = this._product.Id,
                 DisplayName = this._product.Name
             };
 
@@ -122,7 +122,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             {
                 CatalogId = IdentityFactory.Create<CatalogId>(),
                 CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
-                ProductId = this._product.ProductId,
+                ProductId = this._product.Id,
                 DisplayName = this._product.Name
             };
 
@@ -139,9 +139,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new CreateCatalogProductCommand
             {
-                CatalogId = this._catalog.CatalogId,
+                CatalogId = this._catalog.Id,
                 CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
-                ProductId = this._product.ProductId,
+                ProductId = this._product.Id,
                 DisplayName = this._product.Name
             };
 
@@ -158,8 +158,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new CreateCatalogProductCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
+                CatalogId = this._catalog.Id,
+                CatalogCategoryId = this._catalogCategory.Id,
                 ProductId = IdentityFactory.Create<ProductId>(),
                 DisplayName = this._product.Name
             };
@@ -176,13 +176,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         public void Duplicate_Product_ShouldBe_Invalid()
         {
             var catalogProduct =
-                this._catalogCategory.CreateCatalogProduct(this._product.ProductId, this._product.Name);
+                this._catalogCategory.CreateCatalogProduct(this._product.Id, this._product.Name);
 
             var command = new CreateCatalogProductCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CatalogCategoryId = this._catalogCategory.CatalogCategoryId,
-                ProductId = this._product.ProductId,
+                CatalogId = this._catalog.Id,
+                CatalogCategoryId = this._catalogCategory.Id,
+                ProductId = this._product.Id,
                 DisplayName = this._product.Name
             };
 

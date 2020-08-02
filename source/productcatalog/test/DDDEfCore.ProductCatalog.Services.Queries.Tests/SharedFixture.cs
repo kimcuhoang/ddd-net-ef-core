@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +14,7 @@ using Respawn;
 using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -64,22 +64,22 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests
 
         #endregion
 
-        public async Task SeedingData<T>(params T[] entities) where T : AggregateRoot
+        public async Task SeedingData<TAggregateRoot, TIdentity>(params TAggregateRoot[] entities) where TAggregateRoot : AggregateRoot<TIdentity> where TIdentity : IdentityBase
         {
-            if (entities != null && entities.Any())
+            if (entities != null && entities.ToArray().Any())
             {
                 using var scope = this._serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetService<DbContext>();
                 await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
                 try
                 {
-                    await dbContext.Set<T>().AddRangeAsync(entities);
+                    await dbContext.Set<TAggregateRoot>().AddRangeAsync(entities);
                     await dbContext.SaveChangesAsync();
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
                     throw;
                 }
             }

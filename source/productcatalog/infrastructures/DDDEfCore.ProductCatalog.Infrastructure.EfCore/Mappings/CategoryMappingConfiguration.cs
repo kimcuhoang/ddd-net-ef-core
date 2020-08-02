@@ -10,12 +10,8 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
 
         public void Configure(EntityTypeBuilder<Category> builder)
         {
-            builder.HasKey(x => x.CategoryId);
-
             builder
-                .Property(x => x.CategoryId)
-                .HasField("Id")
-                .HasColumnName("Id")
+                .Property(x => x.Id)
                 .UsePropertyAccessMode(PropertyAccessMode.Field)
                 .HasConversion(x => x.Id, id => (CategoryId)id);
         }

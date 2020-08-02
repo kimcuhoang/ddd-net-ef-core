@@ -70,7 +70,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCol
             var groupByFields = string.Join(",", fieldsDefinition.Select(x => x.Value));
 
             fieldsDefinition.Add($"{nameof(GetCatalogCollectionResult.CatalogItem.TotalCategories)}", 
-                 $"COUNT({nameof(CatalogCategory)}.{nameof(CatalogCategory.CatalogCategoryId)})");
+                 $"COUNT({nameof(CatalogCategory)}.{nameof(CatalogCategory.Id)})");
             var selectedFields = string.Join(",", fieldsDefinition.Select(x => $"{x.Key}={x.Value}"));
 
             var sqlClauseBuilder = new StringBuilder($"SELECT {selectedFields}")

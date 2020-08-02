@@ -1,8 +1,8 @@
 ﻿namespace DDDEfCore.Core.Common.Models
 {
-    public abstract class AggregateRoot : EntityBase
+    public abstract class AggregateRoot<TIdentity> : EntityBase<TIdentity> where TIdentity : IdentityBase
     {
-        protected AggregateRoot(IdentityBase id) : base(id)
+        protected AggregateRoot(TIdentity id) : base(id)
         {
         }
         protected AggregateRoot() { }

@@ -11,7 +11,7 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
 {
-    public class TestCreateCategoryCommand : UnitTestBase<Category>
+    public class TestCreateCategoryCommand : UnitTestBase<Category, CategoryId>
     {
         [Fact(DisplayName = "Create Category Successfully")]
         public async Task Create_Category_Successfully()

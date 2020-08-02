@@ -63,7 +63,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
                 categoryResult.TotalCategories.ShouldBe(this.Categories.Count());
                 categoryResult.Categories.ToList().ForEach(category =>
                 {
-                    var predefinedCategory = this.Categories.SingleOrDefault(x => x.CategoryId == category.Id && x.DisplayName == category.DisplayName);
+                    var predefinedCategory = this.Categories.SingleOrDefault(x => x.Id == category.Id && x.DisplayName == category.DisplayName);
                     predefinedCategory.ShouldNotBeNull();
                 });
             });

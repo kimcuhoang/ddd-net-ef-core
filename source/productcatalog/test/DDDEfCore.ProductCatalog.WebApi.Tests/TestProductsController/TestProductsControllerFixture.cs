@@ -24,15 +24,15 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
             await base.InitializeAsync();
 
             this.Product = Product.Create(this.AutoFixture.Create<string>());
-            await this.SeedingData(this.Product);
+            await this.SeedingData<Product,ProductId>(this.Product);
 
             this.Category = Category.Create(this.AutoFixture.Create<string>());
-            await this.SeedingData(this.Category);
+            await this.SeedingData<Category,CategoryId>(this.Category);
 
             this.Catalog = Catalog.Create(this.AutoFixture.Create<string>());
-            this.CatalogCategory = this.Catalog.AddCategory(this.Category.CategoryId, this.Category.DisplayName);
-            this.CatalogProduct = this.CatalogCategory.CreateCatalogProduct(this.Product.ProductId, this.Product.Name);
-            await this.SeedingData(this.Catalog);
+            this.CatalogCategory = this.Catalog.AddCategory(this.Category.Id, this.Category.DisplayName);
+            this.CatalogProduct = this.CatalogCategory.CreateCatalogProduct(this.Product.Id, this.Product.Name);
+            await this.SeedingData<Catalog,CatalogId>(this.Catalog);
         }
 
         #endregion

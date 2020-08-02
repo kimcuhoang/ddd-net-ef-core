@@ -1,8 +1,6 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db;
-using DDDEfCore.ProductCatalog.Infrastructure.EfCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,11 +26,6 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore
                 ServiceDescriptor.Scoped<
                     IRepositoryFactory,
                     DefaultRepositoryFactory>());
-
-            services.Replace(
-                ServiceDescriptor.Scoped<
-                    DatabaseMigration,
-                    SqlServerDatabaseMigration>());
 
             return services;
         }

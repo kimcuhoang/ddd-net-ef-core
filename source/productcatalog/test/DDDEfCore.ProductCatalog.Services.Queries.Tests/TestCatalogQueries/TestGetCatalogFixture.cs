@@ -21,14 +21,14 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
             await base.InitializeAsync();
 
             this.Category = Category.Create(this.Fixture.Create<string>());
-            await this.SeedingData(this.Category);
+            await this.SeedingData<Category, CategoryId>(this.Category);
 
             this.Product = Product.Create(this.Fixture.Create<string>());
-            await this.SeedingData(this.Product);
+            await this.SeedingData<Product, ProductId>(this.Product);
 
             this.CatalogHasCatalogCategory = Catalog.Create(this.Fixture.Create<string>()); 
-            var catalogCategory = this.CatalogHasCatalogCategory.AddCategory(this.Category.CategoryId, this.Category.DisplayName);
-            var catalogProduct = catalogCategory.CreateCatalogProduct(this.Product.ProductId, this.Product.Name);
+            var catalogCategory = this.CatalogHasCatalogCategory.AddCategory(this.Category.Id, this.Category.DisplayName);
+            var catalogProduct = catalogCategory.CreateCatalogProduct(this.Product.Id, this.Product.Name);
 
 
             this.CatalogWithoutCatalogCategory = Catalog.Create(this.Fixture.Create<string>());
@@ -39,7 +39,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
                 this.CatalogWithoutCatalogCategory
             };
 
-            await this.SeedingData(this.Catalogs.ToArray());
+            await this.SeedingData<Catalog, CatalogId>(this.Catalogs.ToArray());
         }
     }
 }

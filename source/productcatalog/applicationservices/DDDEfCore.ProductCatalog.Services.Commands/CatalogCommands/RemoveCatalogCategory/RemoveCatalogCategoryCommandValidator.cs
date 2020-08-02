@@ -23,9 +23,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
             {
                 RuleFor(x => x).Custom((command, context) =>
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog>();
+                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
                     var catalog = repository
-                        .FindOneWithIncludeAsync(x => x.CatalogId == command.CatalogId,
+                        .FindOneWithIncludeAsync(x => x.Id == command.CatalogId,
                             x => x.Include(c => c.Categories)).GetAwaiter().GetResult();
                     if (catalog == null)
                     {
@@ -33,7 +33,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
                     }
                     else
                     {
-                        if (catalog.Categories.All(x => x.CatalogCategoryId != command.CatalogCategoryId))
+                        if (catalog.Categories.All(x => x.Id != command.CatalogCategoryId))
                         {
                             context.AddFailure(nameof(command.CatalogCategoryId), $"Could not found CatalogCategory#{command.CatalogCategoryId} in Catalog#{command.CatalogId}");
                         }

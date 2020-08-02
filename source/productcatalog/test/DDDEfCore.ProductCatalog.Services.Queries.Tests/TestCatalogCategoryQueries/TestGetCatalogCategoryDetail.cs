@@ -26,7 +26,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
         public async Task Should_GetCatalogCategoryDetail_With_Paging_CatalogProduct_Correctly(int pageIndex, int pageSize)
         {
             var catalogCategory = this._testFixture.CatalogCategory;
-            var catalogCategoryId = catalogCategory.CatalogCategoryId;
+            var catalogCategoryId = catalogCategory.Id;
             var request = new GetCatalogCategoryDetailRequest
             {
                 CatalogCategoryId = catalogCategoryId,
@@ -41,7 +41,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
             {
                 result.ShouldNotBeNull();
                 result.CatalogCategoryDetail.ShouldNotBeNull();
-                result.CatalogCategoryDetail.CatalogId.ShouldBe(this._testFixture.Catalog.CatalogId);
+                result.CatalogCategoryDetail.CatalogId.ShouldBe(this._testFixture.Catalog.Id);
                 result.CatalogCategoryDetail.CatalogCategoryId.ShouldBe(catalogCategoryId);
                 result.CatalogCategoryDetail.CatalogCategoryName.ShouldBe(this._testFixture.CatalogCategory.DisplayName);
                 result.CatalogCategoryDetail.CatalogName.ShouldBe(this._testFixture.Catalog.DisplayName);
@@ -50,7 +50,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
 
                 result.CatalogProducts.ToList().ForEach(c =>
                 {
-                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == c.CatalogProductId);
+                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.Id == c.CatalogProductId);
 
                     catalogProduct.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogProduct.DisplayName);
@@ -63,7 +63,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
         public async Task Should_GetCatalogCategoryDetail_With_Search_CatalogProduct_Correctly()
         {
             var catalogCategory = this._testFixture.CatalogCategory;
-            var catalogCategoryId = catalogCategory.CatalogCategoryId;
+            var catalogCategoryId = catalogCategory.Id;
             
             var request = new GetCatalogCategoryDetailRequest
             {
@@ -87,7 +87,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
 
                 result.CatalogProducts.ToList().ForEach(c =>
                 {
-                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == c.CatalogProductId);
+                    var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x.Id == c.CatalogProductId);
 
                     catalogProduct.ShouldNotBeNull();
                     c.DisplayName.ShouldBe(catalogProduct.DisplayName);

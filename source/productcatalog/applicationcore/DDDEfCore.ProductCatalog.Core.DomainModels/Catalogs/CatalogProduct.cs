@@ -5,10 +5,8 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
-    public class CatalogProduct : EntityBase
+    public class CatalogProduct : EntityBase<CatalogProductId>
     {
-        public CatalogProductId CatalogProductId => (CatalogProductId) this.Id;
-
         public string DisplayName { get; private set; }
 
         public ProductId ProductId { get; private set; }

@@ -19,19 +19,19 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 {
-    public class TestRemoveCatalogCategoryCommand : UnitTestBase<Catalog>
+    public class TestRemoveCatalogCategoryCommand : UnitTestBase<Catalog, CatalogId>
     {
         private readonly Mock<DbContext> _mockDbContext;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly RemoveCatalogCategoryCommandValidator _validator;
 
         public TestRemoveCatalogCategoryCommand() : base()
         {
             this._mockDbContext = new Mock<DbContext>();
-            this._repository = new DefaultRepositoryAsync<Catalog>(this._mockDbContext.Object);
+            this._repository = new DefaultRepositoryAsync<Catalog, CatalogId>(this._mockDbContext.Object);
             this._validator = new RemoveCatalogCategoryCommandValidator(this.MockRepositoryFactory.Object);
             this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Catalog>())
+                .Setup(x => x.CreateRepository<Catalog, CatalogId>())
                 .Returns(this._repository);
         }
 
@@ -50,8 +50,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = catalog.CatalogId,
-                CatalogCategoryId = catalogCategory.CatalogCategoryId
+                CatalogId = catalog.Id,
+                CatalogCategoryId = catalogCategory.Id
             };
                 
             IRequestHandler<RemoveCatalogCategoryCommand> handler
@@ -118,7 +118,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = catalog.CatalogId,
+                CatalogId = catalog.Id,
                 CatalogCategoryId = (CatalogCategoryId)Guid.Empty
             };
 

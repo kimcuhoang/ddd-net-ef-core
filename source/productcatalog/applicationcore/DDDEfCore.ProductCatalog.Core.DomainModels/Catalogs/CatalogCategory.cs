@@ -8,10 +8,8 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 
 namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
 {
-    public class CatalogCategory : EntityBase
+    public class CatalogCategory : EntityBase<CatalogCategoryId>
     {
-        public CatalogCategoryId CatalogCategoryId => (CatalogCategoryId) this.Id;
-
         public CatalogId CatalogId { get; private set; }
 
         public CategoryId CategoryId { get; private set; }
@@ -79,7 +77,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
                 throw new DomainException($"{nameof(productId)} is null.");
 
             if (this._products.Any(x => x.ProductId == productId))
-                throw new DomainException($"Product#{productId} is existing in CatalogCategory#{this.CatalogCategoryId}");
+                throw new DomainException($"Product#{productId} is existing in CatalogCategory#{this.Id}");
 
             var catalogProduct = CatalogProduct.Create(productId, displayName, this);
 

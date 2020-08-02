@@ -1,14 +1,12 @@
-﻿using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
+﻿using AutoFixture.Xunit2;
+using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoFixture;
-using AutoFixture.Xunit2;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
@@ -85,10 +83,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
         {
             await this._testFixture.InitData();
 
-            await this._testFixture.RepositoryExecute<Catalog>(async repository =>
+            await this._testFixture.RepositoryExecute<Catalog, CatalogId>(async repository =>
             {
                 var catalog = await repository
-                    .FindOneWithIncludeAsync(x => x.CatalogId == this._testFixture.Catalog.CatalogId,
+                    .FindOneWithIncludeAsync(x => x.Id == this._testFixture.Catalog.Id,
                         x => x.Include(y => y.Categories));
 
                 await repository.RemoveAsync(catalog);
@@ -112,15 +110,15 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalog
             CatalogCategory catalogCategory1 = null;
             CatalogCategory catalogCategory2 = null;
 
-            await this._testFixture.SeedingData(category1, category2);
+            await this._testFixture.SeedingData<Category,CategoryId>(category1, category2);
 
             await this._testFixture.DoActionWithCatalog(catalog =>
             {
                 catalogCategory1 =
-                    catalog.AddCategory(category1.CategoryId, category1.DisplayName);
+                    catalog.AddCategory(category1.Id, category1.DisplayName);
 
                 catalogCategory2 =
-                    catalog.AddCategory(category2.CategoryId, category2.DisplayName);
+                    catalog.AddCategory(category2.Id, category2.DisplayName);
             });
 
             await this._testFixture.DoAssert(catalog =>

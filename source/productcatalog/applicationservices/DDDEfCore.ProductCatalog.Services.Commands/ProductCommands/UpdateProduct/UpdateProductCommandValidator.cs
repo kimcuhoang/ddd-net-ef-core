@@ -22,8 +22,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProdu
 
         private bool ProductMustExist(IRepositoryFactory repositoryFactory, ProductId productId)
         {
-            var repository = repositoryFactory.CreateRepository<Product>();
-            var product = repository.FindOneAsync(x => x.ProductId == productId).Result;
+            var repository = repositoryFactory.CreateRepository<Product, ProductId>();
+            var product = repository.FindOneAsync(x => x.Id == productId).Result;
             return product != null;
         }
     }

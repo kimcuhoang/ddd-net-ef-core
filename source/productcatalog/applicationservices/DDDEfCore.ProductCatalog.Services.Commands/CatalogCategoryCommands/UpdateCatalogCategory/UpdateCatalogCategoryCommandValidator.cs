@@ -23,9 +23,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Upd
             {
                 RuleFor(x => x).Custom((x, context) =>
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog>();
+                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
 
-                    var catalog = repository.FindOneWithIncludeAsync(c => c.CatalogId == x.CatalogId,
+                    var catalog = repository.FindOneWithIncludeAsync(c => c.Id == x.CatalogId,
                         y => y.Include(c => c.Categories)).GetAwaiter().GetResult();
 
                     if (catalog == null)
@@ -34,7 +34,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Upd
                     }
                     else
                     {
-                        if (catalog.Categories.All(c => c.CatalogCategoryId != x.CatalogCategoryId))
+                        if (catalog.Categories.All(c => c.Id != x.CatalogCategoryId))
                         {
                             context.AddFailure(nameof(x.CatalogCategoryId),
                                 $"CatalogCategory#{x.CatalogCategoryId} could not be found in Catalog#{x.CatalogId}");

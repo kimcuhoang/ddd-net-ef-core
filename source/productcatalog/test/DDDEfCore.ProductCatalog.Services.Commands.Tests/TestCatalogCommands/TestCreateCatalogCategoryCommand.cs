@@ -21,7 +21,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
     /// <summary>
     /// https://github.com/MichalJankowskii/Moq.EntityFrameworkCore
     /// </summary>
-    public class TestCreateCatalogCategoryCommand : UnitTestBase<Catalog>, IAsyncLifetime
+    public class TestCreateCatalogCategoryCommand : UnitTestBase<Catalog, CatalogId>, IAsyncLifetime
     {
         private Mock<DbContext> _mockDbContext;
         private CreateCatalogCategoryCommandValidator _validator;
@@ -35,13 +35,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         public Task InitializeAsync()
         {
             this._mockDbContext = new Mock<DbContext>();
-            var catalogRepository = new DefaultRepositoryAsync<Catalog>(this._mockDbContext.Object);
-            var categoryRepository = new DefaultRepositoryAsync<Category>(this._mockDbContext.Object);
+            var catalogRepository = new DefaultRepositoryAsync<Catalog, CatalogId>(this._mockDbContext.Object);
+            var categoryRepository = new DefaultRepositoryAsync<Category, CategoryId>(this._mockDbContext.Object);
 
-            this.MockRepositoryFactory.Setup(x => x.CreateRepository<Catalog>())
+            this.MockRepositoryFactory.Setup(x => x.CreateRepository<Catalog, CatalogId>())
                 .Returns(catalogRepository);
 
-            this.MockRepositoryFactory.Setup(x => x.CreateRepository<Category>())
+            this.MockRepositoryFactory.Setup(x => x.CreateRepository<Category, CategoryId>())
                 .Returns(categoryRepository);
 
             this._catalog = Catalog.Create(this.Fixture.Create<string>());
@@ -67,8 +67,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new CreateCatalogCategoryCommand
                 {
-                    CatalogId = this._catalog.CatalogId,
-                    CategoryId = this._category.CategoryId,
+                    CatalogId = this._catalog.Id,
+                    CategoryId = this._category.Id,
                     DisplayName = this.Fixture.Create<string>()
                 };
 
@@ -80,7 +80,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         [Fact(DisplayName = "Create CatalogCategory As Child Successfully")]
         public async Task Create_CatalogCategory_As_Child_Successfully()
         {
-            var catalogCategory = this._catalog.AddCategory(this._category.CategoryId, this._category.DisplayName);
+            var catalogCategory = this._catalog.AddCategory(this._category.Id, this._category.DisplayName);
             var childCategory = Category.Create(this.Fixture.Create<string>());
 
             this._mockDbContext
@@ -89,10 +89,10 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 
             var command = new CreateCatalogCategoryCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CategoryId = childCategory.CategoryId,
+                CatalogId = this._catalog.Id,
+                CategoryId = childCategory.Id,
                 DisplayName = childCategory.DisplayName,
-                ParentCatalogCategoryId = catalogCategory.CatalogCategoryId
+                ParentCatalogCategoryId = catalogCategory.Id
             };
 
             await this._requestHandler.Handle(command, this.CancellationToken);
@@ -137,7 +137,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             var command = new CreateCatalogCategoryCommand
             {
                 CatalogId = IdentityFactory.Create<CatalogId>(),
-                CategoryId = this._category.CategoryId,
+                CategoryId = this._category.Id,
                 DisplayName = this._category.DisplayName
             };
 
@@ -153,7 +153,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new CreateCatalogCategoryCommand
             {
-                CatalogId = this._catalog.CatalogId,
+                CatalogId = this._catalog.Id,
                 CategoryId = IdentityFactory.Create<CategoryId>(),
                 DisplayName = this.Fixture.Create<string>()
             };
@@ -171,8 +171,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
 
             var command = new CreateCatalogCategoryCommand
             {
-                CatalogId = this._catalog.CatalogId,
-                CategoryId = this._category.CategoryId,
+                CatalogId = this._catalog.Id,
+                CategoryId = this._category.Id,
                 DisplayName = this.Fixture.Create<string>(),
                 ParentCatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>()
             };

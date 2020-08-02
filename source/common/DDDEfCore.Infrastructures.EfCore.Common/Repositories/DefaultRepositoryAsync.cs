@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.Infrastructures.EfCore.Common.Repositories
 {
-    public class DefaultRepositoryAsync<TAggregate> : IRepository<TAggregate> where TAggregate : AggregateRoot
+    public class DefaultRepositoryAsync<TAggregate, TIdentity> : IRepository<TAggregate, TIdentity> 
+                    where TAggregate : AggregateRoot<TIdentity>
+                    where TIdentity : IdentityBase
     {
         private readonly DbContext _dbContext;
 

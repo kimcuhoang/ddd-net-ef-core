@@ -29,10 +29,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
         [AutoData]
         public async Task ShouldUpdateCategorySuccessfully(string newCategoryName)
         {
-            await this._testFixture.RepositoryExecute<Category>(async repository =>
+            await this._testFixture.RepositoryExecute<Category, CategoryId>(async repository =>
             {
                 var category =
-                    await repository.FindOneAsync(x => x.CategoryId == this._testFixture.Category.CategoryId);
+                    await repository.FindOneAsync(x => x.Id == this._testFixture.Category.Id);
 
                 category.ChangeDisplayName(newCategoryName);
 
@@ -50,9 +50,9 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
         [Fact(DisplayName = "Should Remove Category Successfully")]
         public async Task ShouldRemoveCategorySuccessfully()
         {
-            await this._testFixture.RepositoryExecute<Category>(async repository =>
+            await this._testFixture.RepositoryExecute<Category, CategoryId>(async repository =>
             {
-                var category = await repository.FindOneAsync(x => x.CategoryId == this._testFixture.Category.CategoryId);
+                var category = await repository.FindOneAsync(x => x.Id == this._testFixture.Category.Id);
                 await repository.RemoveAsync(category);
             });
 

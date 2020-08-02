@@ -23,7 +23,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalog
             var catalog = Catalog.Create(catalogName);
             catalog.ShouldNotBeNull();
             catalog.DisplayName.ShouldBe(catalogName);
-            catalog.CatalogId.ShouldNotBeNull();
+            catalog.Id.ShouldNotBeNull();
         }
 
         [Fact(DisplayName = "Create Catalog Without Display Name Should Throw Exception")]

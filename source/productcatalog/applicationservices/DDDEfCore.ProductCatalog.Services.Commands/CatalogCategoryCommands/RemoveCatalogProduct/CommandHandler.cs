@@ -14,14 +14,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
     public class CommandHandler : AsyncRequestHandler<RemoveCatalogProductCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly IValidator<RemoveCatalogProductCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory,
             IValidator<RemoveCatalogProductCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = repositoryFactory.CreateRepository<Catalog>();
+            this._repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
@@ -31,14 +31,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == request.CatalogId,
+            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories).ThenInclude(c => c.Products));
 
             var catalogCategory =
-                catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == request.CatalogCategoryId);
+                catalog.Categories.SingleOrDefault(x => x.Id == request.CatalogCategoryId);
 
             var catalogProduct =
-                catalogCategory.Products.SingleOrDefault(x => x.CatalogProductId == request.CatalogProductId);
+                catalogCategory.Products.SingleOrDefault(x => x.Id == request.CatalogProductId);
 
             catalogCategory.RemoveCatalogProduct(catalogProduct);
 

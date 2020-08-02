@@ -32,7 +32,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
             {
                 var request = new GetCatalogDetailRequest
                 {
-                    CatalogId = this.Catalog.CatalogId
+                    CatalogId = this.Catalog.Id
                 };
 
                 var content = request.ToStringContent(jsonSerializationOptions);
@@ -48,13 +48,13 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
 
                 var catalogDetail = catalogDetailResult.CatalogDetail;
                 catalogDetail.ShouldNotBeNull();
-                catalogDetail.Id.ShouldBe(this.Catalog.CatalogId);
+                catalogDetail.Id.ShouldBe(this.Catalog.Id);
                 catalogDetail.DisplayName.ShouldBe(this.Catalog.DisplayName);
 
                 catalogDetailResult.CatalogCategories.ToList().ForEach(category =>
                 {
                     var catalogCategory = this.Catalog.Categories.SingleOrDefault(x =>
-                        x.CatalogCategoryId == category.CatalogCategoryId
+                        x.Id == category.Id
                         && category.DisplayName == x.DisplayName
                         && category.CategoryId == x.CategoryId);
                     catalogCategory.ShouldNotBeNull();
@@ -70,7 +70,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
             {
                 var request = new GetCatalogDetailRequest
                 {
-                    CatalogId = this.Catalog.CatalogId,
+                    CatalogId = this.Catalog.Id,
                     SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
                     {
                         SearchTerm = this.CatalogCategory.DisplayName
@@ -90,13 +90,13 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
 
                 var catalogDetail = catalogDetailResult.CatalogDetail;
                 catalogDetail.ShouldNotBeNull();
-                catalogDetail.Id.ShouldBe(this.Catalog.CatalogId);
+                catalogDetail.Id.ShouldBe(this.Catalog.Id);
                 catalogDetail.DisplayName.ShouldBe(this.Catalog.DisplayName);
 
                 catalogDetailResult.CatalogCategories.ToList().ForEach(category =>
                 {
                     var catalogCategory = this.Catalog.Categories.SingleOrDefault(x =>
-                        x.CatalogCategoryId == category.CatalogCategoryId
+                        x.Id == category.Id
                         && category.DisplayName == x.DisplayName
                         && category.CategoryId == x.CategoryId);
                     catalogCategory.ShouldNotBeNull();

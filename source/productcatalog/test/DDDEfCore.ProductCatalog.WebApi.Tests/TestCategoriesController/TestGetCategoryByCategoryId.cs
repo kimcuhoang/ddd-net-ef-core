@@ -18,7 +18,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
 
         private Category Category => this._testCategoryControllerFixture.Category;
 
-        private string ApiUrl => $"{this._testCategoryControllerFixture.BaseUrl}/{(Guid) this.Category.CategoryId}";
+        private string ApiUrl => $"{this._testCategoryControllerFixture.BaseUrl}/{(Guid) this.Category.Id}";
 
         public TestGetCategoryByCategoryId(TestCategoryControllerFixture testCategoryControllerFixture)
             => this._testCategoryControllerFixture = testCategoryControllerFixture;
@@ -35,7 +35,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
                 var category = JsonSerializer.Deserialize<GetCategoryDetailResult>(result, jsonSerializeOptions);
                 
                 category.ShouldNotBeNull();
-                category.CategoryDetail.Id.ShouldBe(this.Category.CategoryId);
+                category.CategoryDetail.Id.ShouldBe(this.Category.Id);
                 category.CategoryDetail.DisplayName.ShouldBe(this.Category.DisplayName);
             });
         }

@@ -14,14 +14,14 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
     public class CommandHandler : AsyncRequestHandler<CreateCatalogProductCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog> _repository;
+        private readonly IRepository<Catalog, CatalogId> _repository;
         private readonly IValidator<CreateCatalogProductCommand> _validator;
 
         public CommandHandler(IRepositoryFactory repositoryFactory,
             IValidator<CreateCatalogProductCommand> validator)
         {
             this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog>();
+            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
@@ -31,11 +31,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
         {
             await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.CatalogId == request.CatalogId,
+            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories).ThenInclude(c => c.Products));
 
             var catalogCategory =
-                catalog.Categories.SingleOrDefault(x => x.CatalogCategoryId == request.CatalogCategoryId);
+                catalog.Categories.SingleOrDefault(x => x.Id == request.CatalogCategoryId);
 
             catalogCategory.CreateCatalogProduct(request.ProductId, request.DisplayName);
 

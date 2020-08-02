@@ -24,7 +24,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
 
         public class CatalogCategorySearchResult
         {
-            public CatalogCategoryId CatalogCategoryId { get; set; }
+            public CatalogCategoryId Id { get; set; }
             public CategoryId CategoryId { get; set; }
             public string DisplayName { get; set; }
             public int TotalOfProducts { get; set; }
