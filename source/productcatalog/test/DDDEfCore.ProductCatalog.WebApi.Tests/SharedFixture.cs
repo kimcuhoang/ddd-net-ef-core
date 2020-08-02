@@ -1,11 +1,9 @@
 ﻿using AutoFixture;
 using DDDEfCore.Core.Common.Models;
-using DDDEfCore.Infrastructures.EfCore.Common.Migration;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +11,7 @@ using Respawn;
 using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -72,7 +71,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
 
         public async Task SeedingData<TAggregateRoot, TIdentity>(params TAggregateRoot[] entities) where TAggregateRoot : AggregateRoot<TIdentity> where TIdentity : IdentityBase
         {
-            if (entities != null && entities.Any())
+            if (entities != null && entities.ToArray().Any())
             {
                 using var scope = this._serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetService<DbContext>();
@@ -81,11 +80,11 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
                 {
                     await dbContext.Set<TAggregateRoot>().AddRangeAsync(entities);
                     await dbContext.SaveChangesAsync();
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
                     throw;
                 }
             }

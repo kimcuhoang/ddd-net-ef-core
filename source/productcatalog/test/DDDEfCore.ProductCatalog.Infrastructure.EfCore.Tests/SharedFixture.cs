@@ -5,7 +5,6 @@ using DDDEfCore.ProductCatalog.WebApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +12,7 @@ using Respawn;
 using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -71,7 +71,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
 
         public async Task SeedingData<TAggregate, TIdentity>(params TAggregate[] entities) where TAggregate : AggregateRoot<TIdentity> where TIdentity : IdentityBase
         {
-            if(entities != null && entities.Any())
+            if (entities != null && entities.ToArray().Any())
             {
                 using var scope = this._serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetService<DbContext>();
@@ -80,11 +80,11 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
                 {
                     await dbContext.Set<TAggregate>().AddRangeAsync(entities);
                     await dbContext.SaveChangesAsync();
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
                     throw;
                 }
             }
