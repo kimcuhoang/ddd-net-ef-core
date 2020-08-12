@@ -19,7 +19,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Categories
             this.DisplayName = categoryName;
         }
 
-        private Category(string categoryName) : this(IdentityFactory.Create<CategoryId>(), categoryName) { }
+        private Category(string categoryName) : this(CategoryId.New, categoryName) { }
 
         private Category() { }
 

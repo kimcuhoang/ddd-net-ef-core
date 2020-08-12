@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -85,7 +84,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         public async Task Create_Catalog_With_Invalid_Command_ShouldThrowException()
         {
             var command = new CreateCatalogCommand();
-            command.AddCategory((CategoryId)Guid.Empty, string.Empty);
+            command.AddCategory(CategoryId.Empty, string.Empty);
 
             IRequestHandler<CreateCatalogCommand> handler
                 = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -114,7 +113,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             {
                 CatalogName = this.Fixture.Create<string>()
             };
-            command.AddCategory((CategoryId)Guid.Empty, string.Empty);
+            command.AddCategory(CategoryId.Empty, string.Empty);
 
             var result = this._validator.TestValidate(command);
 

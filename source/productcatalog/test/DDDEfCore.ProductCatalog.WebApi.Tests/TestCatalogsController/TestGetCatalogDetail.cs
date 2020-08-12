@@ -116,7 +116,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
             {
                 var request = new GetCatalogDetailRequest
                 {
-                    CatalogId = IdentityFactory.Create<CatalogId>(Guid.Empty),
+                    CatalogId = CatalogId.Empty,
                     SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
                     {
                         PageIndex = pageIndex,
@@ -145,7 +145,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
             {
                 var request = new GetCatalogDetailRequest
                 {
-                    CatalogId = IdentityFactory.Create<CatalogId>(Guid.NewGuid())
+                    CatalogId = CatalogId.New
                 };
                 var content = request.ToStringContent(jsonSerializationOptions);
                 var response = await client.PostAsync(this.ApiUrl, content);

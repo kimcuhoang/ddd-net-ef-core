@@ -26,7 +26,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
             this.DisplayName = catalogName;
         }
 
-        private Catalog(string catalogName) : this(IdentityFactory.Create<CatalogId>(), catalogName) { }
+        private Catalog(string catalogName) : this(CatalogId.New, catalogName) { }
 
         private Catalog() { }
 

@@ -93,7 +93,7 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
                 {
                     CatalogName = "CatalogName"
                 };
-                command.AddCategory(IdentityFactory.Create<CategoryId>(categoryId), this.Category.DisplayName);
+                command.AddCategory(CategoryId.Of(categoryId), this.Category.DisplayName);
 
                 var content = command.ToStringContent(jsonSerializationOptions);
                 var response = await client.PostAsync(this.ApiUrl, content);

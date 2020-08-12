@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -12,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -82,9 +80,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new RemoveCatalogProductCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
-                CatalogProductId = (CatalogProductId)Guid.Empty
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.Empty,
+                CatalogProductId = CatalogProductId.Empty
             };
 
             await Should.ThrowAsync<ValidationException>(async () =>
@@ -96,15 +94,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new RemoveCatalogProductCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
-                CatalogProductId = (CatalogProductId)Guid.Empty
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.Empty,
+                CatalogProductId = CatalogProductId.Empty
             };
             var result = this._validator.TestValidate(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CatalogId);
-            result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
-            result.ShouldHaveValidationErrorFor(x => x.CatalogProductId);
         }
 
         [Fact(DisplayName = "Validation: Catalog Not Found Should Be Invalid")]
@@ -112,9 +108,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new RemoveCatalogProductCommand
             {
-                CatalogId = IdentityFactory.Create<CatalogId>(),
-                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
-                CatalogProductId = IdentityFactory.Create<CatalogProductId>()
+                CatalogId = CatalogId.New,
+                CatalogCategoryId = CatalogCategoryId.New,
+                CatalogProductId = CatalogProductId.New
             };
 
             var result = this._validator.TestValidate(command);
@@ -130,8 +126,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             var command = new RemoveCatalogProductCommand
             {
                 CatalogId = this._catalog.Id,
-                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
-                CatalogProductId = IdentityFactory.Create<CatalogProductId>()
+                CatalogCategoryId = CatalogCategoryId.New,
+                CatalogProductId = CatalogProductId.New
             };
 
             var result = this._validator.TestValidate(command);
@@ -148,7 +144,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             {
                 CatalogId = this._catalog.Id,
                 CatalogCategoryId = this._catalogCategory.Id,
-                CatalogProductId = IdentityFactory.Create<CatalogProductId>()
+                CatalogProductId = CatalogProductId.New
             };
 
             var result = this._validator.TestValidate(command);

@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -11,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -105,8 +103,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new CreateCatalogCategoryCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CategoryId = (CategoryId)Guid.Empty,
+                CatalogId = CatalogId.Empty,
+                CategoryId = CategoryId.Empty,
                 DisplayName = string.Empty
             };
 
@@ -119,8 +117,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new CreateCatalogCategoryCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CategoryId = (CategoryId)Guid.Empty,
+                CatalogId = CatalogId.Empty,
+                CategoryId = CategoryId.Empty,
                 DisplayName = string.Empty
             };
 
@@ -136,7 +134,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new CreateCatalogCategoryCommand
             {
-                CatalogId = IdentityFactory.Create<CatalogId>(),
+                CatalogId = CatalogId.New,
                 CategoryId = this._category.Id,
                 DisplayName = this._category.DisplayName
             };
@@ -154,7 +152,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             var command = new CreateCatalogCategoryCommand
             {
                 CatalogId = this._catalog.Id,
-                CategoryId = IdentityFactory.Create<CategoryId>(),
+                CategoryId = CategoryId.New,
                 DisplayName = this.Fixture.Create<string>()
             };
 
@@ -174,7 +172,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
                 CatalogId = this._catalog.Id,
                 CategoryId = this._category.Id,
                 DisplayName = this.Fixture.Create<string>(),
-                ParentCatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>()
+                ParentCatalogCategoryId = CatalogCategoryId.New
             };
 
             var result = this._validator.TestValidate(command);

@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -12,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -86,9 +84,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new CreateCatalogProductCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
-                ProductId = (ProductId)Guid.Empty,
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.Empty,
+                ProductId = ProductId.Empty,
                 DisplayName = string.Empty
             };
 
@@ -101,16 +99,15 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new CreateCatalogProductCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
-                ProductId = (ProductId)Guid.Empty,
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.Empty,
+                ProductId = ProductId.Empty,
                 DisplayName = string.Empty
             };
 
             var result = this._validator.TestValidate(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CatalogId);
-            result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
             result.ShouldHaveValidationErrorFor(x => x.ProductId);
             result.ShouldHaveValidationErrorFor(x => x.DisplayName);
         }
@@ -120,8 +117,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new CreateCatalogProductCommand
             {
-                CatalogId = IdentityFactory.Create<CatalogId>(),
-                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                CatalogId = CatalogId.New,
+                CatalogCategoryId = CatalogCategoryId.New,
                 ProductId = this._product.Id,
                 DisplayName = this._product.Name
             };
@@ -140,7 +137,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             var command = new CreateCatalogProductCommand
             {
                 CatalogId = this._catalog.Id,
-                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                CatalogCategoryId = CatalogCategoryId.New,
                 ProductId = this._product.Id,
                 DisplayName = this._product.Name
             };
@@ -160,7 +157,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             {
                 CatalogId = this._catalog.Id,
                 CatalogCategoryId = this._catalogCategory.Id,
-                ProductId = IdentityFactory.Create<ProductId>(),
+                ProductId = ProductId.New,
                 DisplayName = this._product.Name
             };
 

@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using DDDEfCore.Core.Common;
-using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -45,7 +44,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
                 .Setup(x => x.Set<Catalog>())
                 .ReturnsDbSet(catalogs);
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this.Fixture.Create<string>());
 
             var command = new RemoveCatalogCategoryCommand
@@ -67,8 +66,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.Empty
             };
 
             IRequestHandler<RemoveCatalogCategoryCommand> handler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
@@ -83,8 +82,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.Empty
             };
 
             var result = this._validator.TestValidate(command);
@@ -98,8 +97,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         {
             var command = new RemoveCatalogCategoryCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>()
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.New
             };
 
             var result = this._validator.TestValidate(command);
@@ -119,7 +118,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             var command = new RemoveCatalogCategoryCommand
             {
                 CatalogId = catalog.Id,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
+                CatalogCategoryId = CatalogCategoryId.Empty
             };
 
             var result = this._validator.TestValidate(command);

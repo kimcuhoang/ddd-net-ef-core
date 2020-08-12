@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DDDEfCore.Core.Common.Models;
@@ -17,7 +18,12 @@ namespace DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters
 
         public override TIdentity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return IdentityFactory.Create<TIdentity>(reader.GetGuid());
+            //return IdentityFactory.Create<TIdentity>(reader.GetGuid());
+            return (TIdentity)Activator.CreateInstance(type: typeof(TIdentity),
+                bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance,
+                binder: null,
+                args: new object[] { reader.GetGuid() },
+                culture: null);
         }
 
         public override void Write(Utf8JsonWriter writer, TIdentity value, JsonSerializerOptions options)

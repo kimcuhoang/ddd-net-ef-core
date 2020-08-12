@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using DDDEfCore.Core.Common.Models;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory;
 using FluentValidation;
@@ -53,7 +52,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         {
             var command = new UpdateCategoryCommand
             {
-                CategoryId = IdentityFactory.Create<CategoryId>(),
+                CategoryId = CategoryId.New,
                 CategoryName = this.Fixture.Create<string>()
             };
 
@@ -72,7 +71,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         {
             var command = new UpdateCategoryCommand
             {
-                CategoryId = (CategoryId)Guid.Empty,
+                CategoryId = CategoryId.Empty,
                 CategoryName = string.Empty
             };
 
@@ -88,7 +87,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
         {
             var command = new UpdateCategoryCommand
             {
-                CategoryId = (CategoryId)Guid.Empty,
+                CategoryId = CategoryId.Empty,
                 CategoryName = string.Empty
             };
 

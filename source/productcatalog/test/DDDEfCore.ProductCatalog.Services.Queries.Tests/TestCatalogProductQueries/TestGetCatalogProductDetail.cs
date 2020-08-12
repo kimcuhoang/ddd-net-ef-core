@@ -1,9 +1,7 @@
-﻿using DDDEfCore.Core.Common.Models;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCatalogProductDetail;
 using FluentValidation;
 using Shouldly;
-using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -56,7 +54,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQuer
         {
             var request = new GetCatalogProductDetailRequest
             {
-                CatalogProductId = IdentityFactory.Create<CatalogProductId>()
+                CatalogProductId = CatalogProductId.New
             };
             await this._testFixture.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>
             {
@@ -77,7 +75,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQuer
         {
             var request = new GetCatalogProductDetailRequest
             {
-                CatalogProductId = (CatalogProductId)Guid.Empty
+                CatalogProductId = CatalogProductId.Empty
             };
 
             await Should.ThrowAsync<ValidationException>(async () =>
@@ -89,7 +87,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogProductQuer
         {
             var request = new GetCatalogProductDetailRequest
             {
-                CatalogProductId = (CatalogProductId)Guid.Empty
+                CatalogProductId = CatalogProductId.Empty
             };
 
             await this._testFixture.ExecuteValidationTest(request,

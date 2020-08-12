@@ -13,7 +13,7 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
             builder
                 .Property(x => x.Id)
                 .UsePropertyAccessMode(PropertyAccessMode.Field)
-                .HasConversion(x => x.Id, id => (CategoryId)id);
+                .HasConversion(x => x.Id, id => CategoryId.Of(id));
         }
 
         #endregion

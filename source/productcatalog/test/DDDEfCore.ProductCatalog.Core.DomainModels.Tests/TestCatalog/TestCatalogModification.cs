@@ -46,9 +46,9 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalog
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryIdLv1 = IdentityFactory.Create<CategoryId>();
-            var categoryIdLv2 = IdentityFactory.Create<CategoryId>();
-            var categoryIdLv3 = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv1 = CategoryId.New;
+            var categoryIdLv2 = CategoryId.New;
+            var categoryIdLv3 = CategoryId.New;
 
             var catalogCategoryLv1 = 
                 catalog.AddCategory(categoryIdLv1, this._fixture.Create<string>());
@@ -100,9 +100,9 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalog
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryIdLv1 = IdentityFactory.Create<CategoryId>();
-            var categoryIdLv2 = IdentityFactory.Create<CategoryId>();
-            var categoryIdLv3 = IdentityFactory.Create<CategoryId>();
+            var categoryIdLv1 = CategoryId.New;
+            var categoryIdLv2 = CategoryId.New;
+            var categoryIdLv3 = CategoryId.New;
 
             var catalogCategoryLv1 =
                 catalog.AddCategory(categoryIdLv1, this._fixture.Create<string>());

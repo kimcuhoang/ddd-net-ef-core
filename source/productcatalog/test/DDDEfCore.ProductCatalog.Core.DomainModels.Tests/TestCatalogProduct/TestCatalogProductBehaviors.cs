@@ -24,10 +24,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogProduct
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this._fixture.Create<string>());
 
-            var productId = IdentityFactory.Create<ProductId>();
+            var productId = ProductId.New;
             var catalogProduct = catalogCategory
                 .CreateCatalogProduct(productId, creationName);
 

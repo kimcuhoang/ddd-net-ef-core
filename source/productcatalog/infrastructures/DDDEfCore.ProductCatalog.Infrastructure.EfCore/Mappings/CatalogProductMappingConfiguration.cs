@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -17,12 +14,12 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
             builder
                 .Property(x => x.Id)
                 .UsePropertyAccessMode(PropertyAccessMode.Field)
-                .HasConversion(x => x.Id, id => (CatalogProductId)id);
+                .HasConversion(x => x.Id, id => CatalogProductId.Of(id));
 
             builder
                 .Property(x => x.ProductId)
                 .IsRequired()
-                .HasConversion(x => x.Id, id => (ProductId)id);
+                .HasConversion(x => x.Id, id => ProductId.Of(id));
 
             builder
                 .HasOne(x => x.CatalogCategory)
