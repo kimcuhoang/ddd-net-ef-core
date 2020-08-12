@@ -1,5 +1,4 @@
-﻿using System;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryDetail
@@ -11,7 +10,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryD
             RuleFor(x => x.CategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull()
-                .NotEqual((CategoryId)Guid.Empty);
+                .NotEqual(CategoryId.Empty);
         }
     }
 }

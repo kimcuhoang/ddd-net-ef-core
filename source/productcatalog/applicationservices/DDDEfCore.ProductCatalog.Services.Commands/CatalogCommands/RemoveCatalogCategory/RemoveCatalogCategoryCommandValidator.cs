@@ -1,4 +1,5 @@
-﻿using DDDEfCore.Core.Common;
+﻿using System;
+using DDDEfCore.Core.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
@@ -13,13 +14,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
         {
             RuleFor(x => x.CatalogId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull();
+                .NotNull().NotEqual(CatalogId.Empty);
 
             RuleFor(x => x.CatalogCategoryId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull();
+                .NotNull().NotEqual(CatalogCategoryId.Empty);
 
-            When(x => x.CatalogId != null && x.CatalogCategoryId != null, () =>
+            When(x => IsValid(x), () =>
             {
                 RuleFor(x => x).Custom((command, context) =>
                 {
@@ -41,5 +42,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
                 });
             });
         }
+
+        private readonly Func<RemoveCatalogCategoryCommand, bool> IsValid = command
+            => command.CatalogId != null && command.CatalogId != CatalogId.Empty 
+            && command.CatalogCategoryId != null && command.CatalogCategoryId != CatalogCategoryId.Empty;
     }
 }

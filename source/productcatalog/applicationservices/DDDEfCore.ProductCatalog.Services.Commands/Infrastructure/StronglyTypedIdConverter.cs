@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Reflection;
 using DDDEfCore.Core.Common.Models;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure
@@ -17,9 +18,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             var stringValue = value as string;
-            if (!string.IsNullOrEmpty(stringValue) && Guid.TryParse(stringValue, out var guid))
+            if (!string.IsNullOrEmpty(stringValue) && Guid.TryParse(stringValue, out var guidValue))
             {
-                return IdentityFactory.Create<TIdentity>(guid);
+                return (TIdentity)Activator.CreateInstance(type: typeof(TIdentity),
+                    bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance,
+                    binder: null,
+                    args: new object[] { guidValue },
+                    culture: null);
             }
 
             return base.ConvertFrom(context, culture, value);

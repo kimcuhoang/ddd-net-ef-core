@@ -11,6 +11,8 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Categories
 
         #endregion
 
-        public static explicit operator CategoryId(Guid id) => id == Guid.Empty ? null : new CategoryId(id);
+        public static CategoryId New => new CategoryId(Guid.NewGuid());
+        public static CategoryId Of(Guid id) => new CategoryId(id);
+        public static CategoryId Empty => new CategoryId(Guid.Empty);
     }
 }

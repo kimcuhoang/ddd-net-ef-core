@@ -40,7 +40,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
         }
 
         private CatalogCategory(CatalogId catalogId, CategoryId categoryId, string displayName, CatalogCategory parent = null)
-            : this(IdentityFactory.Create<CatalogCategoryId>(), catalogId, categoryId, displayName, parent) { }
+            : this(CatalogCategoryId.New, catalogId, categoryId, displayName, parent) { }
 
         private CatalogCategory() { }
 

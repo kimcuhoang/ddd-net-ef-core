@@ -25,7 +25,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
 
                     category.RuleFor(x => x.CategoryId)
                         .Cascade(CascadeMode.StopOnFirstFailure)
-                        .NotNull()
+                        .NotNull().NotEqual(CategoryId.Empty)
                         .Must(x => CategoryMustExist(repositoryFactory, x))
                         .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
                 });

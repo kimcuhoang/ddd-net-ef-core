@@ -19,7 +19,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products
             this.Name = productName;
         }
 
-        private Product(string productName) : this(IdentityFactory.Create<ProductId>(), productName) { }
+        private Product(string productName) : this(ProductId.New, productName) { }
 
         private Product() { }
         #endregion

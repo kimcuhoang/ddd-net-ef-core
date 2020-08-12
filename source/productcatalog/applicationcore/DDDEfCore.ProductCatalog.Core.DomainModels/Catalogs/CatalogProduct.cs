@@ -28,7 +28,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs
         }
 
         private CatalogProduct(ProductId productId, string displayName, CatalogCategory catalogCategory)
-            : this(IdentityFactory.Create<CatalogProductId>(), productId, displayName, catalogCategory) { }
+            : this(CatalogProductId.New, productId, displayName, catalogCategory) { }
 
         private CatalogProduct() { }
         #endregion

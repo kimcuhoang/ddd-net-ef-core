@@ -29,7 +29,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog
                                     .AddCategory(categoryId, creationName)
                                     .ChangeDisplayName(changeToName);
@@ -43,7 +43,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, creationName);
 
             Should.Throw<DomainException>(() => catalogCategory.ChangeDisplayName(string.Empty));
@@ -58,10 +58,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this._fixture.Create<string>());
 
-            var productId = IdentityFactory.Create<ProductId>();
+            var productId = ProductId.New;
             var catalogProduct = catalogCategory.CreateCatalogProduct(productId, this._fixture.Create<string>());
 
             catalogCategory.Products.ShouldContain(catalogProduct);
@@ -74,10 +74,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this._fixture.Create<string>());
 
-            var productId = IdentityFactory.Create<ProductId>();
+            var productId = ProductId.New;
             var catalogProduct = catalogCategory.CreateCatalogProduct(productId, this._fixture.Create<string>());
 
             Should.Throw<DomainException>(() => catalogCategory.CreateCatalogProduct(productId, this._fixture.Create<string>()));
@@ -88,7 +88,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this._fixture.Create<string>());
 
             Should.Throw<DomainException>(() => catalogCategory.CreateCatalogProduct(null, this._fixture.Create<string>()));
@@ -99,10 +99,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this._fixture.Create<string>());
 
-            var productId = IdentityFactory.Create<ProductId>();
+            var productId = ProductId.New;
 
             Should.Throw<DomainException>(() => catalogCategory.CreateCatalogProduct(productId, string.Empty));
         }
@@ -112,10 +112,10 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this._fixture.Create<string>());
 
-            var productId = IdentityFactory.Create<ProductId>();
+            var productId = ProductId.New;
             var catalogProduct = catalogCategory.CreateCatalogProduct(productId, this._fixture.Create<string>());
 
             catalogCategory.RemoveCatalogProduct(catalogProduct);
@@ -127,7 +127,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
         {
             var catalog = Catalog.Create(this._fixture.Create<string>());
 
-            var categoryId = IdentityFactory.Create<CategoryId>();
+            var categoryId = CategoryId.New;
             var catalogCategory = catalog.AddCategory(categoryId, this._fixture.Create<string>());
 
             var catalogProduct = catalogCategory.Products.FirstOrDefault();

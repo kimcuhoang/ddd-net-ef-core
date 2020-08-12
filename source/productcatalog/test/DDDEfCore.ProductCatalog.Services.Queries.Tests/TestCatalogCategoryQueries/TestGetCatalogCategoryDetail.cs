@@ -2,10 +2,8 @@
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogCategoryQueries.GetCatalogCategoryDetail;
 using FluentValidation;
 using Shouldly;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NuGet.Frameworks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQueries
@@ -101,7 +99,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
         {
             var request = new GetCatalogCategoryDetailRequest
             {
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
+                CatalogCategoryId = CatalogCategoryId.Empty
             };
 
             await Should.ThrowAsync<ValidationException>(async () =>
@@ -113,7 +111,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQue
         {
             var request = new GetCatalogCategoryDetailRequest
             {
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty
+                CatalogCategoryId = CatalogCategoryId.Empty
             };
 
             await this._testFixture.ExecuteValidationTest(request,

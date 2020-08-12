@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using DDDEfCore.Core.Common.Models;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
@@ -11,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -82,8 +80,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new UpdateCatalogCategoryCommand
             {
-                CatalogId = (CatalogId)Guid.Empty,
-                CatalogCategoryId = (CatalogCategoryId)Guid.Empty,
+                CatalogId = CatalogId.Empty,
+                CatalogCategoryId = CatalogCategoryId.Empty,
                 DisplayName = this.Fixture.Create<string>()
             };
 
@@ -96,8 +94,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         {
             var command = new UpdateCatalogCategoryCommand
             {
-                CatalogId = IdentityFactory.Create<CatalogId>(),
-                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                CatalogId = CatalogId.New,
+                CatalogCategoryId = CatalogCategoryId.New,
                 DisplayName = this.Fixture.Create<string>()
             };
 
@@ -114,7 +112,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
             var command = new UpdateCatalogCategoryCommand
             {
                 CatalogId = this._catalog.Id,
-                CatalogCategoryId = IdentityFactory.Create<CatalogCategoryId>(),
+                CatalogCategoryId = CatalogCategoryId.New,
                 DisplayName = this.Fixture.Create<string>()
             };
 

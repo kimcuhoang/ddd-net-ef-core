@@ -125,7 +125,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         {
             var request = new GetCatalogDetailRequest
             {
-                CatalogId = IdentityFactory.Create<CatalogId>(Guid.Empty),
+                CatalogId = CatalogId.Empty,
                 SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
                 {
                     PageIndex = pageIndex,
@@ -140,7 +140,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         [Fact(DisplayName = "Should GetCatalogDetail Successfully Even Not Found Catalog")]
         public async Task Should_GetCatalogDetail_Successfully_Even_NotFound_Catalog()
         {
-            var request = new GetCatalogDetailRequest { CatalogId = IdentityFactory.Create<CatalogId>() };
+            var request = new GetCatalogDetailRequest { CatalogId = CatalogId.New };
 
             await this._testFixture.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
             {
@@ -162,7 +162,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
         {
             var request = new GetCatalogDetailRequest
             {
-                CatalogId = IdentityFactory.Create<CatalogId>(Guid.Empty),
+                CatalogId = CatalogId.Empty,
                 SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest
                 {
                     PageIndex = pageIndex,

@@ -11,6 +11,8 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products
 
         #endregion
 
-        public static explicit operator ProductId(Guid id) => id == Guid.Empty ? null : new ProductId(id);
+        public static ProductId New => new ProductId(Guid.NewGuid());
+        public static ProductId Of(Guid id) => new ProductId(id);
+        public static ProductId Empty => new ProductId(Guid.Empty);
     }
 }

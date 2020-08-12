@@ -1,9 +1,7 @@
-﻿using DDDEfCore.Core.Common.Models;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
+﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductDetail;
 using FluentValidation;
 using Shouldly;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -50,7 +48,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
         [Fact(DisplayName = "Not Found Product Should Return Empty")]
         public async Task NotFound_Product_Should_Return_Empty()
         {
-            var request = new GetProductDetailRequest {ProductId = IdentityFactory.Create<ProductId>()};
+            var request = new GetProductDetailRequest {ProductId = ProductId.New};
             await this._testProductsFixture.ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result =>
             {
                 result.ShouldNotBeNull(); 
@@ -66,7 +64,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
         [Fact(DisplayName = "Invalid Request Should Throw ValidationException")]
         public async Task Invalid_Request_Should_Throw_ValidationException()
         {
-            var request = new GetProductDetailRequest{ProductId = (ProductId)Guid.Empty};
+            var request = new GetProductDetailRequest{ProductId = ProductId.Empty};
 
             await Should.ThrowAsync<ValidationException>(async ()=>
                 await this._testProductsFixture
@@ -76,7 +74,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
         [Fact(DisplayName = "Invalid Request Should Fail Validation")]
         public async Task Invalid_Request_Should_Fail_Validation()
         {
-            var request = new GetProductDetailRequest { ProductId = (ProductId)Guid.Empty };
+            var request = new GetProductDetailRequest { ProductId = ProductId.Empty };
             await this._testProductsFixture
                 .ExecuteValidationTest(request, result => { result.ShouldHaveValidationErrorFor(x => x.ProductId); });
         }

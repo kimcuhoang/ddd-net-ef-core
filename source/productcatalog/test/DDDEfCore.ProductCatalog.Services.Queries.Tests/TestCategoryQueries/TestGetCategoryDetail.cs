@@ -2,7 +2,6 @@
 using DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryDetail;
 using FluentValidation;
 using Shouldly;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -49,7 +48,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
         {
             var request = new GetCategoryDetailRequest
             {
-                CategoryId = (CategoryId)Guid.NewGuid()
+                CategoryId = CategoryId.New
             };
 
             await this._testFixture.ExecuteTestRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>(request, result =>
@@ -66,7 +65,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
         {
             var request = new GetCategoryDetailRequest
             {
-                CategoryId = (CategoryId)Guid.Empty
+                CategoryId = CategoryId.Empty
             };
 
             await Should.ThrowAsync<ValidationException>(async () 
@@ -78,7 +77,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCategoryQueries
         {
             var request = new GetCategoryDetailRequest
             {
-                CategoryId = (CategoryId)Guid.Empty
+                CategoryId = CategoryId.Empty
             };
             await this._testFixture
                 .ExecuteValidationTest(request, result => { result.ShouldHaveValidationErrorFor(x => x.CategoryId); });
