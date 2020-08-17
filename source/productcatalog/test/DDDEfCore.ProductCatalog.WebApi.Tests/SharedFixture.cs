@@ -1,16 +1,15 @@
 ﻿using AutoFixture;
 using DDDEfCore.Core.Common.Models;
-using DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Respawn;
 using System;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -22,34 +21,16 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
 {
     public class SharedFixture : IAsyncLifetime
     {
+        protected const string TestEnvironment = "Test";
         private readonly Checkpoint _checkpoint;
-        private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
         protected readonly IFixture AutoFixture;
-        private readonly IHost _host;
+
+        public IHost Host { get; private set; }
+        public JsonSerializerOptions JsonSerializerOptions { get; private set; }
 
         public SharedFixture()
         {
-            var hostBuilder = new HostBuilder()
-                .ConfigureWebHost(webHost =>
-                {
-                    webHost.UseTestServer();
-                    webHost.UseStartup<Startup>();
-                })
-                .ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
-                {
-                    configurationBuilder.SetBasePath(Directory.GetCurrentDirectory());
-                    configurationBuilder.AddJsonFile("appsettings.json");
-                });
-
-            this._host = hostBuilder.Start();
-            this._serviceScopeFactory = this._host.Services.GetService<IServiceScopeFactory>();
-            
-            this._jsonSerializerOptions = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-            this._jsonSerializerOptions.Converters.Add(new IdentityJsonConverterFactory());
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", TestEnvironment);
 
             this._checkpoint = new Checkpoint
             {
@@ -62,10 +43,28 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
 
         public virtual async Task InitializeAsync()
         {
-            await this.ResetCheckpoint();
+            var hostBuilder = Program.CreateHostBuilder(new string[0]).UseEnvironment(TestEnvironment)
+                                    .ConfigureWebHostDefaults(webHost =>
+                                    {
+                                        webHost.UseTestServer();
+                                    });
+
+            this.Host = await hostBuilder.StartAsync();
+            this.JsonSerializerOptions = this.Host.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions;
         }
 
-        public virtual Task DisposeAsync() => Task.CompletedTask;
+        public virtual async Task DisposeAsync()
+        {
+            var serviceScopeFactory = this.Host.Services.GetRequiredService<IServiceScopeFactory>();
+            using var scope = serviceScopeFactory.CreateScope();
+
+            var dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
+            var dbConnection = dbContext.Database.GetDbConnection();
+            await dbConnection.OpenAsync();
+
+            await this._checkpoint.Reset(dbConnection);
+            await this.Host.StopAsync();
+        }
 
         #endregion
 
@@ -73,7 +72,8 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
         {
             if (entities != null && entities.ToArray().Any())
             {
-                using var scope = this._serviceScopeFactory.CreateScope();
+                var serviceScopeFactory = this.Host.Services.GetRequiredService<IServiceScopeFactory>();
+                using var scope = serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetService<DbContext>();
                 await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
                 try
@@ -92,20 +92,10 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests
 
         public async Task DoTest(Func<HttpClient, JsonSerializerOptions, Task> doTestFnc)
         {
-            using var client = this._host.GetTestClient();
+            using var client = this.Host.GetTestClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            await doTestFnc(client, this._jsonSerializerOptions);
-        }
-
-        private async Task ResetCheckpoint()
-        {
-            using var serviceScope = this._serviceScopeFactory.CreateScope();
-            var dbContext = serviceScope.ServiceProvider.GetService<DbContext>();
-
-            var dbConnection = dbContext.Database.GetDbConnection();
-            await dbConnection.OpenAsync();
-            await this._checkpoint.Reset(dbConnection);
+            await doTestFnc(client, this.JsonSerializerOptions);
         }
     }
 }
