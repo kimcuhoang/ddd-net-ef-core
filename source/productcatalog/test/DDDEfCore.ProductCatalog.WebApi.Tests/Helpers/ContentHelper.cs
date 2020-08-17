@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
@@ -10,7 +11,11 @@ namespace DDDEfCore.ProductCatalog.WebApi.Tests.Helpers
         {
             if (jsonSerializerOptions == null)
             {
-                jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                jsonSerializerOptions = new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true,
+                };
+                jsonSerializerOptions.Converters.Add(new IdentityJsonConverterFactory());
             }
                 
             return new StringContent(JsonSerializer.Serialize(obj, jsonSerializerOptions), Encoding.UTF8, "application/json");
