@@ -4,76 +4,76 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct
+namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct;
+
+public class TestCatalogProductFixture : DefaultTestFixture
 {
-    public class TestCatalogProductFixture : SharedFixture
+    public TestCatalogProductFixture(DefaultWebApplicationFactory factory) : base(factory)
     {
-        public Catalog Catalog { get; private set; }
-        public Category Category { get; private set; }
-        public Product Product { get; private set; }
-        public CatalogCategory CatalogCategory { get; private set; }
-        public CatalogProduct CatalogProduct { get; private set; }
+    }
+
+    public Catalog Catalog { get; private set; }
+    public Category Category { get; private set; }
+    public Product Product { get; private set; }
+    public CatalogCategory CatalogCategory { get; private set; }
+    public CatalogProduct CatalogProduct { get; private set; }
 
 
-        public override async Task InitializeAsync()
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        this.Category = Category.Create(this.Fixture.Create<string>());
+        await this.SeedingData<Category,CategoryId>(this.Category);
+
+        this.Product = Product.Create(this.Fixture.Create<string>());
+        await this.SeedingData<Product, ProductId>(this.Product);
+
+        this.Catalog = Catalog.Create(this.Fixture.Create<string>());
+
+        this.CatalogCategory =
+            this.Catalog.AddCategory(this.Category.Id, this.Fixture.Create<string>());
+
+        this.CatalogProduct =
+            this.CatalogCategory.CreateCatalogProduct(this.Product.Id, this.Fixture.Create<string>());
+
+        await this.RepositoryExecute<Catalog, CatalogId>(async repository => { await repository.AddAsync(this.Catalog); });
+    }
+
+    public async Task DoActionWithCatalogProduct(Action<CatalogProduct> action)
+    {
+        await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
         {
-            await base.InitializeAsync();
+            var catalog = await repository
+                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
+                    x => x.Include(c => c.Categories)
+                        .ThenInclude(c => c.Products));
 
-            this.Category = Category.Create(this.Fixture.Create<string>());
-            await this.SeedingData<Category,CategoryId>(this.Category);
+            var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
 
-            this.Product = Product.Create(this.Fixture.Create<string>());
-            await this.SeedingData<Product, ProductId>(this.Product);
+            var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x == this.CatalogProduct);
 
-            this.Catalog = Catalog.Create(this.Fixture.Create<string>());
+            action(catalogProduct);
 
-            this.CatalogCategory =
-                this.Catalog.AddCategory(this.Category.Id, this.Fixture.Create<string>());
+            await repository.UpdateAsync(catalog);
+        });
+    }
 
-            this.CatalogProduct =
-                this.CatalogCategory.CreateCatalogProduct(this.Product.Id, this.Fixture.Create<string>());
-
-            await this.RepositoryExecute<Catalog, CatalogId>(async repository => { await repository.AddAsync(this.Catalog); });
-        }
-
-        public async Task DoActionWithCatalogProduct(Action<CatalogProduct> action)
+    public async Task DoAssertForCatalogProduct(Action<CatalogProduct> action)
+    {
+        await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
         {
-            await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
-            {
-                var catalog = await repository
-                    .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                        x => x.Include(c => c.Categories)
-                            .ThenInclude(c => c.Products));
+            var catalog = await repository
+                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
+                    x => x.Include(c => c.Categories)
+                        .ThenInclude(c => c.Products));
 
-                var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
+            var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
 
-                var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x == this.CatalogProduct);
+            var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x == this.CatalogProduct);
 
-                action(catalogProduct);
-
-                await repository.UpdateAsync(catalog);
-            });
-        }
-
-        public async Task DoAssertForCatalogProduct(Action<CatalogProduct> action)
-        {
-            await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
-            {
-                var catalog = await repository
-                    .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                        x => x.Include(c => c.Categories)
-                            .ThenInclude(c => c.Products));
-
-                var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
-
-                var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x == this.CatalogProduct);
-
-                action(catalogProduct);
-            });
-        }
+            action(catalogProduct);
+        });
     }
 }

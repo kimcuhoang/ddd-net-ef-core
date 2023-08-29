@@ -1,65 +1,61 @@
 ﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Shouldly;
-using System;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory
+namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory;
+
+public class TestCategoryRepository : TestBase<TestCategoryFixture>
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestCategoryRepository : IClassFixture<TestCategoryFixture>
+    public TestCategoryRepository(ITestOutputHelper testOutput, TestCategoryFixture fixture) : base(testOutput, fixture)
     {
-        private readonly TestCategoryFixture _testFixture;
+    }
 
-        public TestCategoryRepository(TestCategoryFixture testFixture)
-            => this._testFixture = testFixture ?? throw new ArgumentNullException(nameof(testFixture));
-
-        [Fact(DisplayName = "Should Create Category Successfully")]
-        public async Task ShouldCreateCategorySuccessfully()
+    [Fact(DisplayName = "Should Create Category Successfully")]
+    public async Task ShouldCreateCategorySuccessfully()
+    {
+        await this._fixture.DoAssert(category =>
         {
-            await this._testFixture.DoAssert(category =>
-            {
-                category.ShouldNotBeNull();
-                category.Equals(this._testFixture.Category).ShouldBeTrue();
-            });
-        }
+            category.ShouldNotBeNull();
+            category.Equals(this._fixture.Category).ShouldBeTrue();
+        });
+    }
 
-        [Theory(DisplayName = "Should Update Category Successfully")]
-        [AutoData]
-        public async Task ShouldUpdateCategorySuccessfully(string newCategoryName)
+    [Theory(DisplayName = "Should Update Category Successfully")]
+    [AutoData]
+    public async Task ShouldUpdateCategorySuccessfully(string newCategoryName)
+    {
+        await this._fixture.RepositoryExecute<Category, CategoryId>(async repository =>
         {
-            await this._testFixture.RepositoryExecute<Category, CategoryId>(async repository =>
-            {
-                var category =
-                    await repository.FindOneAsync(x => x.Id == this._testFixture.Category.Id);
+            var category =
+                await repository.FindOneAsync(x => x.Id == this._fixture.Category.Id);
 
-                category.ChangeDisplayName(newCategoryName);
+            category.ChangeDisplayName(newCategoryName);
 
-                await repository.UpdateAsync(category);
-            });
+            await repository.UpdateAsync(category);
+        });
 
-            await this._testFixture.DoAssert(category =>
-            {
-                category.ShouldNotBeNull();
-                category.Equals(this._testFixture.Category).ShouldBeTrue();
-                category.DisplayName.ShouldBe(newCategoryName);
-            });
-        }
-
-        [Fact(DisplayName = "Should Remove Category Successfully")]
-        public async Task ShouldRemoveCategorySuccessfully()
+        await this._fixture.DoAssert(category =>
         {
-            await this._testFixture.RepositoryExecute<Category, CategoryId>(async repository =>
-            {
-                var category = await repository.FindOneAsync(x => x.Id == this._testFixture.Category.Id);
-                await repository.RemoveAsync(category);
-            });
+            category.ShouldNotBeNull();
+            category.Equals(this._fixture.Category).ShouldBeTrue();
+            category.DisplayName.ShouldBe(newCategoryName);
+        });
+    }
 
-            await this._testFixture.DoAssert(category =>
-            {
-                category.ShouldBeNull();
-            });
-        }
+    [Fact(DisplayName = "Should Remove Category Successfully")]
+    public async Task ShouldRemoveCategorySuccessfully()
+    {
+        await this._fixture.RepositoryExecute<Category, CategoryId>(async repository =>
+        {
+            var category = await repository.FindOneAsync(x => x.Id == this._fixture.Category.Id);
+            await repository.RemoveAsync(category);
+        });
+
+        await this._fixture.DoAssert(category =>
+        {
+            category.ShouldBeNull();
+        });
     }
 }
