@@ -8,10 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Respawn;
-using System;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
@@ -27,6 +24,8 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
         public SharedFixture()
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", TestEnvironment);
+
+            Resp
 
             this._checkpoint = new Checkpoint
             {
@@ -44,6 +43,8 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests
                 {
                     webHost.UseTestServer();
                 });
+
+            await Respawner.CreateAsync()
 
             this.Host = await hostBuilder.StartAsync();
         }

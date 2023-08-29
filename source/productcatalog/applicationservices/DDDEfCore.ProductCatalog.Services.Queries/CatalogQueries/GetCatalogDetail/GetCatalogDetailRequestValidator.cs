@@ -8,17 +8,17 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
         public GetCatalogDetailRequestValidator()
         {
             RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEqual(CatalogId.Empty);
 
             RuleFor(x => x.SearchCatalogCategoryRequest.PageIndex)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .GreaterThan(0)
                 .LessThan(int.MaxValue);
 
             RuleFor(x => x.SearchCatalogCategoryRequest.PageSize)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .GreaterThan(0)
                 .LessThan(int.MaxValue);
         }

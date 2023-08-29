@@ -26,7 +26,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogCol
 
         public async Task<GetCatalogCollectionResult> Handle(GetCatalogCollectionRequest request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             using var connection = await this._dbConnection.GetConnection(cancellationToken);
             var sqlClauses = new List<string>

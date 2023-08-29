@@ -10,7 +10,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
         public CreateCatalogCommandValidator(IRepositoryFactory repositoryFactory)
         {
             RuleFor(x => x.CatalogName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEmpty();
 
@@ -19,12 +19,12 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
                 RuleForEach(x => x.Categories).ChildRules(category =>
                 {
                     category.RuleFor(x => x.DisplayName)
-                        .Cascade(CascadeMode.StopOnFirstFailure)
+                        
                         .NotNull()
                         .NotEmpty();
 
                     category.RuleFor(x => x.CategoryId)
-                        .Cascade(CascadeMode.StopOnFirstFailure)
+                        
                         .NotNull().NotEqual(CategoryId.Empty)
                         .Must(x => CategoryMustExist(repositoryFactory, x))
                         .WithMessage(x => $"Category#{x.CategoryId} could not be found.");

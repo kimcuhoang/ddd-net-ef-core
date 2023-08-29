@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory
 {
-    public class CommandHandler : AsyncRequestHandler<UpdateCategoryCommand>
+    public class CommandHandler : IRequestHandler<UpdateCategoryCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
 
@@ -23,11 +23,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
             this._validator = validator;
         }
 
-        #region Overrides of AsyncRequestHandler<UpdateCategoryCommand>
+        #region Overrides of IRequestHandler<UpdateCategoryCommand>
 
-        protected override async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var category = await this._repository.FindOneAsync(x => x.Id == request.CategoryId);
             

@@ -11,11 +11,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogProductCommands.Upda
     {
         public UpdateCatalogProductCommandValidator(IRepositoryFactory repositoryFactory)
         {
-            RuleFor(x => x.CatalogId).Cascade(CascadeMode.StopOnFirstFailure).NotNull();
+            RuleFor(x => x.CatalogId).NotNull();
 
-            RuleFor(x => x.CatalogCategoryId).Cascade(CascadeMode.StopOnFirstFailure).NotNull();
+            RuleFor(x => x.CatalogCategoryId).NotNull();
 
-            RuleFor(x => x.CatalogProductId).Cascade(CascadeMode.StopOnFirstFailure).NotNull();
+            RuleFor(x => x.CatalogProductId).NotNull();
 
             When(CommandIsValid, () =>
             {
@@ -51,7 +51,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogProductCommands.Upda
                 });
             });
 
-            RuleFor(x => x.DisplayName).Cascade(CascadeMode.StopOnFirstFailure)
+            RuleFor(x => x.DisplayName)
                 .NotNull().NotEmpty();
         }
 

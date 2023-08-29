@@ -7,7 +7,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProdu
         public CreateProductCommandValidator()
         {
             RuleFor(x => x.ProductName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEmpty();
         }

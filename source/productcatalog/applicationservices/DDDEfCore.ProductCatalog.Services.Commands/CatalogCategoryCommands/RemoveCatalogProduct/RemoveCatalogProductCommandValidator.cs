@@ -12,15 +12,15 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
         public RemoveCatalogProductCommandValidator(IRepositoryFactory repositoryFactory)
         {
             RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull();
 
             RuleFor(x => x.CatalogCategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull();
 
             RuleFor(x => x.CatalogProductId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull();
 
             When(CommandIsValid, () =>

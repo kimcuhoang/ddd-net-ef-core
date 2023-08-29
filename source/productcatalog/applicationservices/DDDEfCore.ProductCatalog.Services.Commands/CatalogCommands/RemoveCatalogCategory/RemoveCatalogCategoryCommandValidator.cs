@@ -13,11 +13,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
         public RemoveCatalogCategoryCommandValidator(IRepositoryFactory repositoryFactory)
         {
             RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull().NotEqual(CatalogId.Empty);
 
             RuleFor(x => x.CatalogCategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull().NotEqual(CatalogCategoryId.Empty);
 
             When(x => IsValid(x), () =>

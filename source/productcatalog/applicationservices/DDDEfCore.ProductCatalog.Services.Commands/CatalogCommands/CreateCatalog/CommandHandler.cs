@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog
 {
-    public class CommandHandler : AsyncRequestHandler<CreateCatalogCommand>
+    public class CommandHandler : IRequestHandler<CreateCatalogCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog, CatalogId> _repository;
@@ -22,11 +22,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
             this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
         }
 
-        #region Overrides of AsyncRequestHandler<CreateCatalogCommand>
+        #region Overrides of IRequestHandler<CreateCatalogCommand>
 
-        protected override async Task Handle(CreateCatalogCommand request, CancellationToken cancellationToken)
+        public async Task Handle(CreateCatalogCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var catalog = Catalog.Create(request.CatalogName);
 

@@ -8,7 +8,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryD
         public GetCategoryDetailRequestValidator()
         {
             RuleFor(x => x.CategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEqual(CategoryId.Empty);
         }

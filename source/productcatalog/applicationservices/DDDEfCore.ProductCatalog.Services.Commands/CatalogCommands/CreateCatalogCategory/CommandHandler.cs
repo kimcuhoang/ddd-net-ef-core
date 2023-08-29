@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory
 {
-    public class CommandHandler : AsyncRequestHandler<CreateCatalogCategoryCommand>
+    public class CommandHandler : IRequestHandler<CreateCatalogCategoryCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog, CatalogId> _repository;
@@ -26,11 +26,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatal
             this._validator = validator;
         }
 
-        #region Overrides of AsyncRequestHandler<CreateCatalogCategoryCommand>
+        #region Overrides of IRequestHandler<CreateCatalogCategoryCommand>
 
-        protected override async Task Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
+        public async Task Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories));

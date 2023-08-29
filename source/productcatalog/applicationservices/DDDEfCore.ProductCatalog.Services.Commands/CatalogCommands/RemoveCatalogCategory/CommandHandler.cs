@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatalogCategory
 {
-    public class CommandHandler : AsyncRequestHandler<RemoveCatalogCategoryCommand>
+    public class CommandHandler : IRequestHandler<RemoveCatalogCategoryCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog, CatalogId> _repository;
@@ -25,11 +25,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatal
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        #region Overrides of AsyncRequestHandler<RemoveCatalogCategoryCommand>
+        #region Overrides of IRequestHandler<RemoveCatalogCategoryCommand>
 
-        protected override async Task Handle(RemoveCatalogCategoryCommand request, CancellationToken cancellationToken)
+        public async Task Handle(RemoveCatalogCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories));

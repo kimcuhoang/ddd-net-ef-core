@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProduct
 {
-    public class CommandHandler : AsyncRequestHandler<CreateProductCommand>
+    public class CommandHandler : IRequestHandler<CreateProductCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Product, ProductId> _repository;
@@ -21,11 +21,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProdu
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        #region Overrides of AsyncRequestHandler<CreateProductCommand>
+        #region Overrides of IRequestHandler<CreateProductCommand>
 
-        protected override async Task Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var product = Product.Create(request.ProductName);
 

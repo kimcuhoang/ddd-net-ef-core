@@ -16,9 +16,15 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure
         {
             var assembly = Assembly.GetExecutingAssembly();
             services.AddEfCoreSqlServerDb(configuration);
-            services.AddMediatR(assembly);
+            services.AddMediatR(mediatR =>
+            {
+                mediatR
+                    .RegisterServicesFromAssembly(assembly)
+                    .AddOpenBehavior(typeof(EndRequestPipelineBehavior<,>));
+            });
+
+            ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
             services.AddValidatorsFromAssembly(assembly);
-            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(EndRequestPipelineBehavior<,>));
 
             StronglyTypedIdTypeDescriptor.AddStronglyTypedIdConverter((idType) =>
             {

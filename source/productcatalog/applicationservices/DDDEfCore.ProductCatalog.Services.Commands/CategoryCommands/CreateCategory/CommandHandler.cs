@@ -8,7 +8,7 @@ using FluentValidation;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory
 {
-    public class CommandHandler : AsyncRequestHandler<CreateCategoryCommand>
+    public class CommandHandler : IRequestHandler<CreateCategoryCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
 
@@ -23,11 +23,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCate
             this._validator = validator;
         }
 
-        #region Overrides of AsyncRequestHandler<CreateCategoryCommand>
+        #region Overrides of IRequestHandler<CreateCategoryCommand>
 
-        protected override async Task Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var category = Category.Create(request.CategoryName);
 

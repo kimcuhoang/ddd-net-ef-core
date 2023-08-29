@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
+﻿using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.Infrastructures.EfCore.Common.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

@@ -9,7 +9,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
         public UpdateCategoryCommandValidator(IRepositoryFactory repositoryFactory)
         {
             RuleFor(x => x.CategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull();
 
             When(x => x.CategoryId != null, () =>
@@ -27,7 +27,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCate
             });
 
             RuleFor(x => x.CategoryName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEmpty();
         }

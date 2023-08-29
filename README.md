@@ -3,8 +3,7 @@
 [![Build Status](https://kimcu.visualstudio.com/ddd-net-ef-core/_apis/build/status/kimcu-on-thenet.ddd-net-ef-core?branchName=master)](https://kimcu.visualstudio.com/ddd-net-ef-core/_build/latest?definitionId=8&branchName=master)
 
 - Domain Driven Design (aka DDD)
-- .NET Core 3.1
-- EntityFramework Core 3.1
+- .NET 7.0.400
 
 ## Overview
 

@@ -8,7 +8,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogProductQueries.GetCat
         public GetCatalogProductDetailRequestValidator()
         {
             RuleFor(x => x.CatalogProductId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEqual(CatalogProductId.Empty);
         }

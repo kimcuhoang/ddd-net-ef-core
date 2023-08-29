@@ -1,9 +1,7 @@
-﻿using System;
-using Dapper;
+﻿using Dapper;
 using DDDEfCore.ProductCatalog.Core.DomainModels;
 using DDDEfCore.ProductCatalog.Services.Queries.Db;
 using FluentValidation;
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +17,13 @@ namespace DDDEfCore.ProductCatalog.Services.Queries
                 var connectionString = configuration.GetConnectionString("DefaultDb");
                 return new SqlServerDbConnectionFactory(connectionString);
             });
-            services.AddMediatR(typeof(SqlServerDbConnectionFactory).Assembly);
+
+            services.AddMediatR(mediatR =>
+            {
+                mediatR.RegisterServicesFromAssembly(typeof(SqlServerDbConnectionFactory).Assembly);
+            });
+
+            ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
             services.AddValidatorsFromAssembly(typeof(SqlServerDbConnectionFactory).Assembly);
 
             StronglyTypedIdTypeDescriptor.AddStronglyTypedIdConverter((idType) =>

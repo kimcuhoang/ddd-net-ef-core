@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProduct
 {
-    public class CommandHandler : AsyncRequestHandler<UpdateProductCommand>
+    public class CommandHandler : IRequestHandler<UpdateProductCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Product, ProductId> _repository;
@@ -21,11 +21,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProdu
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        #region Overrides of AsyncRequestHandler<UpdateProductCommand>
+        #region Overrides of IRequestHandler<UpdateProductCommand>
 
-        protected override async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
             
             var product = await this._repository.FindOneAsync(x => x.Id == request.ProductId);
             product.ChangeName(request.ProductName);

@@ -14,15 +14,15 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
         public CreateCatalogProductCommandValidator(IRepositoryFactory repositoryFactory)
         {
             RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull();
 
             RuleFor(x => x.CatalogCategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull();
 
             RuleFor(x => x.ProductId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .Must(x => this.ProductMustExist(repositoryFactory, x))
                 .WithMessage(x => $"Product#{x.ProductId} could not be found.");
@@ -63,7 +63,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Cre
             });
 
             RuleFor(x => x.DisplayName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEmpty();
         }

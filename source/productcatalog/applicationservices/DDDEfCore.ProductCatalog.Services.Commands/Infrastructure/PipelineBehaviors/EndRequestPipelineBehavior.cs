@@ -1,28 +1,23 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using DDDEfCore.Core.Common;
+﻿using DDDEfCore.Core.Common;
 using MediatR;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure.PipelineBehaviors
+namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure.PipelineBehaviors;
+
+public class EndRequestPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : notnull, IRequest<TResponse>
+        where TResponse : notnull
 {
-    public sealed class EndRequestPipelineBehavior<TRequest,TResponse> : IPipelineBehavior<TRequest,TResponse>
+    private readonly IRepositoryFactory _repositoryFactory;
+
+    public EndRequestPipelineBehavior(IRepositoryFactory repositoryFactory)
+        => this._repositoryFactory = repositoryFactory;
+
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        private readonly IRepositoryFactory _repositoryFactory;
-
-        public EndRequestPipelineBehavior(IRepositoryFactory repositoryFactory)
-            => this._repositoryFactory = repositoryFactory;
-
-        #region Implementation of IPipelineBehavior<in TRequest,TResponse>
-
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        using (this._repositoryFactory)
         {
-            using (this._repositoryFactory)
-            {
-                var response = await next();
-                return response;
-            }
+            var response = await next();
+            return response;
         }
-
-        #endregion
     }
 }

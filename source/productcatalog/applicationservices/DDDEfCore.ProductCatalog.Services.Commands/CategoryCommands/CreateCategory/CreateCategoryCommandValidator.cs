@@ -7,7 +7,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCate
         public CreateCategoryCommandValidator()
         {
             RuleFor(command => command.CategoryName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEmpty();
         }

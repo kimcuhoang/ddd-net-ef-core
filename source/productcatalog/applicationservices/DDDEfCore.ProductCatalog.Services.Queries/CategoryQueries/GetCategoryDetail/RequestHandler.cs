@@ -28,7 +28,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryD
 
         public async Task<GetCategoryDetailResult> Handle(GetCategoryDetailRequest request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var sqlClauses = new List<string>
             {

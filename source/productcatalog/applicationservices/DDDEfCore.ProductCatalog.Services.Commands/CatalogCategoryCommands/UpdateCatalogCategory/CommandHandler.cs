@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.UpdateCatalogCategory
 {
-    public class CommandHandler : AsyncRequestHandler<UpdateCatalogCategoryCommand>
+    public class CommandHandler : IRequestHandler<UpdateCatalogCategoryCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog, CatalogId> _repository;
@@ -25,11 +25,11 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Upd
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        #region Overrides of AsyncRequestHandler<UpdateCatalogCategoryCommand>
+        #region Overrides of IRequestHandler<UpdateCatalogCategoryCommand>
 
-        protected override async Task Handle(UpdateCatalogCategoryCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateCatalogCategoryCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
             
             var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories));

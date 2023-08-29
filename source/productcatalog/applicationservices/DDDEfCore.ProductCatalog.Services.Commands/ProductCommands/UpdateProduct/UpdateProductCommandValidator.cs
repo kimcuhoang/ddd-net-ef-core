@@ -9,13 +9,13 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProdu
         public UpdateProductCommandValidator(IRepositoryFactory repositoryFactory)
         {
             RuleFor(x => x.ProductId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .Must(x => this.ProductMustExist(repositoryFactory, x))
                 .WithMessage(x => $"Product#{x.ProductId} could not be found.");
 
             RuleFor(x => x.ProductName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .NotNull()
                 .NotEmpty();
         }

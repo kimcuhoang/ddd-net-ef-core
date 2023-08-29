@@ -4,14 +4,10 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.RemoveCatalogProduct
 {
-    public class CommandHandler : AsyncRequestHandler<RemoveCatalogProductCommand>
+    public class CommandHandler : IRequestHandler<RemoveCatalogProductCommand>
     {
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Catalog, CatalogId> _repository;
@@ -25,11 +21,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
             this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        #region Overrides of AsyncRequestHandler<RemoveCatalogProductCommand>
-
-        protected override async Task Handle(RemoveCatalogProductCommand request, CancellationToken cancellationToken)
+        public async Task Handle(RemoveCatalogProductCommand request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
                 x => x.Include(c => c.Categories).ThenInclude(c => c.Products));
@@ -44,7 +38,5 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.Rem
 
             await this._repository.UpdateAsync(catalog);
         }
-
-        #endregion
     }
 }
