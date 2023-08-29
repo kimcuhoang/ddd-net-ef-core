@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
