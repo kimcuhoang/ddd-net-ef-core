@@ -12,12 +12,13 @@ public class EndRequestPipelineBehavior<TRequest, TResponse> : IPipelineBehavior
     public EndRequestPipelineBehavior(IRepositoryFactory repositoryFactory)
         => this._repositoryFactory = repositoryFactory;
 
+
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        using (this._repositoryFactory)
-        {
-            var response = await next();
-            return response;
-        }
+        var response = await next();
+
+        await this._repositoryFactory.Commit();
+
+        return response;
     }
 }

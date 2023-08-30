@@ -4,30 +4,25 @@ using DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 
-namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore
+namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore;
+
+public static class InfrastructureRegistration
 {
-    public static class InfrastructureRegistration
+    public static IServiceCollection AddEfCoreSqlServerDb(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddEfCoreSqlServerDb(this IServiceCollection services, IConfiguration configuration)
+        services.AddDbContext<DbContext, ProductCatalogDbContext>((serviceProvider, dbContextOptions) =>
         {
-            services.AddDbContext<DbContext, ProductCatalogDbContext>((serviceProvider, dbContextOptions) =>
+            dbContextOptions.UseSqlServer(configuration.GetConnectionString("DefaultDb"), opts =>
             {
-                dbContextOptions.UseSqlServer(configuration.GetConnectionString("DefaultDb"), opts =>
-                {
-                    opts.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                });
-                
+                opts.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
             });
+            
+        });
 
-            services.Replace(
-                ServiceDescriptor.Scoped<
-                    IRepositoryFactory,
-                    DefaultRepositoryFactory>());
+        services.AddScoped<IRepositoryFactory, DefaultRepositoryFactory>();
 
-            return services;
-        }
+        return services;
     }
 }
