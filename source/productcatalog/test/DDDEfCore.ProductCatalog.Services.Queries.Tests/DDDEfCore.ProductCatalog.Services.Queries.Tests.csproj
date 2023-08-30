@@ -22,9 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\applicationcore\DDDEfCore.ProductCatalog.Core.DomainModels\DDDEfCore.ProductCatalog.Core.DomainModels.csproj" />
-    <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Queries\DDDEfCore.ProductCatalog.Services.Queries.csproj" />
-    <ProjectReference Include="..\..\infrastructures\DDDEfCore.ProductCatalog.Infrastructure.EfCore\DDDEfCore.ProductCatalog.Infrastructure.EfCore.csproj" />
     <ProjectReference Include="..\..\webapi\DDDEfCore.ProductCatalog.WebApi\DDDEfCore.ProductCatalog.WebApi.csproj" />
   </ItemGroup>
 

@@ -21,8 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Commands\DDDEfCore.ProductCatalog.Services.Commands.csproj" />
-    <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Queries\DDDEfCore.ProductCatalog.Services.Queries.csproj" />
     <ProjectReference Include="..\..\webapi\DDDEfCore.ProductCatalog.WebApi\DDDEfCore.ProductCatalog.WebApi.csproj" />
   </ItemGroup>
 
