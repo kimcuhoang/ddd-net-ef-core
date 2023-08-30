@@ -2,81 +2,77 @@
 using DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductDetail;
 using FluentValidation;
 using Shouldly;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries
+namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestProductQueries;
+
+public class TestGetProductDetail : TestBase<TestProductsFixture>
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestGetProductDetail : IClassFixture<TestProductsFixture>
+    public TestGetProductDetail(ITestOutputHelper testOutput, TestProductsFixture fixture) : base(testOutput, fixture)
     {
-        private readonly TestProductsFixture _testProductsFixture;
+    }
 
-        public TestGetProductDetail(TestProductsFixture testProductsFixture)
-            => this._testProductsFixture = testProductsFixture;
+    [Fact(DisplayName = "Should get ProductDetail Correctly")]
+    public async Task Should_Get_ProductDetail_Correctly()
+    {
+        var product = this._fixture.Product;
 
-        [Fact(DisplayName = "Should get ProductDetail Correctly")]
-        public async Task Should_Get_ProductDetail_Correctly()
+        var request = new GetProductDetailRequest
         {
-            var product = this._testProductsFixture.Product;
+            ProductId = product.Id
+        };
 
-            var request = new GetProductDetailRequest
-            {
-                ProductId = product.Id
-            };
-
-            await this._testProductsFixture.ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result =>
-            {
-                result.ShouldNotBeNull();
-
-                var productDetail = result.Product;
-                productDetail.ShouldNotBeNull();
-                productDetail.Id.ShouldBe(product.Id);
-                productDetail.Name.ShouldBe(product.Name);
-
-                result.CatalogCategories.ShouldHaveSingleItem();
-                var catalogCategory = result.CatalogCategories.FirstOrDefault();
-                catalogCategory.CatalogCategoryId.ShouldBe(this._testProductsFixture.CatalogCategory.Id);
-                catalogCategory.CatalogCategoryName.ShouldBe(this._testProductsFixture.CatalogCategory.DisplayName);
-                catalogCategory.CatalogId.ShouldBe(this._testProductsFixture.Catalog.Id);
-                catalogCategory.CatalogName.ShouldBe(this._testProductsFixture.Catalog.DisplayName);
-                catalogCategory.ProductDisplayName.ShouldBe(this._testProductsFixture.CatalogProduct.DisplayName);
-            });
-        }
-
-        [Fact(DisplayName = "Not Found Product Should Return Empty")]
-        public async Task NotFound_Product_Should_Return_Empty()
+        await this._fixture.ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result =>
         {
-            var request = new GetProductDetailRequest {ProductId = ProductId.New};
-            await this._testProductsFixture.ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result =>
-            {
-                result.ShouldNotBeNull(); 
+            result.ShouldNotBeNull();
 
-                result.Product.ShouldNotBeNull();
-                result.Product.Id.ShouldBeNull();
-                result.Product.Name.ShouldBeNullOrWhiteSpace();
+            var productDetail = result.Product;
+            productDetail.ShouldNotBeNull();
+            productDetail.Id.ShouldBe(product.Id);
+            productDetail.Name.ShouldBe(product.Name);
 
-                result.CatalogCategories.ShouldBeEmpty();
-            });
-        }
+            result.CatalogCategories.ShouldHaveSingleItem();
+            var catalogCategory = result.CatalogCategories.FirstOrDefault();
+            catalogCategory.CatalogCategoryId.ShouldBe(this._fixture.CatalogCategory.Id);
+            catalogCategory.CatalogCategoryName.ShouldBe(this._fixture.CatalogCategory.DisplayName);
+            catalogCategory.CatalogId.ShouldBe(this._fixture.Catalog.Id);
+            catalogCategory.CatalogName.ShouldBe(this._fixture.Catalog.DisplayName);
+            catalogCategory.ProductDisplayName.ShouldBe(this._fixture.CatalogProduct.DisplayName);
+        });
+    }
 
-        [Fact(DisplayName = "Invalid Request Should Throw ValidationException")]
-        public async Task Invalid_Request_Should_Throw_ValidationException()
+    [Fact(DisplayName = "Not Found Product Should Return Empty")]
+    public async Task NotFound_Product_Should_Return_Empty()
+    {
+        var request = new GetProductDetailRequest {ProductId = ProductId.New};
+        await this._fixture.ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result =>
         {
-            var request = new GetProductDetailRequest{ProductId = ProductId.Empty};
+            result.ShouldNotBeNull(); 
 
-            await Should.ThrowAsync<ValidationException>(async ()=>
-                await this._testProductsFixture
-                    .ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result => { }));
-        }
+            result.Product.ShouldNotBeNull();
+            result.Product.Id.ShouldBeNull();
+            result.Product.Name.ShouldBeNullOrWhiteSpace();
 
-        [Fact(DisplayName = "Invalid Request Should Fail Validation")]
-        public async Task Invalid_Request_Should_Fail_Validation()
-        {
-            var request = new GetProductDetailRequest { ProductId = ProductId.Empty };
-            await this._testProductsFixture
-                .ExecuteValidationTest(request, result => { result.ShouldHaveValidationErrorFor(x => x.ProductId); });
-        }
+            result.CatalogCategories.ShouldBeEmpty();
+        });
+    }
+
+    [Fact(DisplayName = "Invalid Request Should Throw ValidationException")]
+    public async Task Invalid_Request_Should_Throw_ValidationException()
+    {
+        var request = new GetProductDetailRequest{ProductId = ProductId.Empty};
+
+        await Should.ThrowAsync<ValidationException>(async ()=>
+            await this._fixture
+                .ExecuteTestRequestHandler<GetProductDetailRequest, GetProductDetailResult>(request, result => { }));
+    }
+
+    [Fact(DisplayName = "Invalid Request Should Fail Validation")]
+    public async Task Invalid_Request_Should_Fail_Validation()
+    {
+        var request = new GetProductDetailRequest { ProductId = ProductId.Empty };
+        await this._fixture
+            .ExecuteValidationTest(request, result => { result.ShouldHaveValidationErrorFor(x => x.ProductId); });
     }
 }

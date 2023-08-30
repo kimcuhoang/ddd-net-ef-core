@@ -2,13 +2,15 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogQueries
 {
-    public class TestGetCatalogFixture : SharedFixture
+    public class TestGetCatalogFixture : DefaultTestFixture
     {
+        public TestGetCatalogFixture(DefaultWebApplicationFactory factory) : base(factory)
+        {
+        }
+
         public List<Catalog> Catalogs { get; private set; }
         public Catalog CatalogHasCatalogCategory { get; private set; }
         public Category Category { get; private set; }
