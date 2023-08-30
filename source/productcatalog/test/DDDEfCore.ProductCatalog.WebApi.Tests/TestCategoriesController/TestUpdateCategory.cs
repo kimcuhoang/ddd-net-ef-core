@@ -2,45 +2,41 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
+namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController;
+
+public class TestUpdateCategory : TestBase<TestCategoryControllerFixture>
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestUpdateCategory : IClassFixture<TestCategoryControllerFixture>
+    public TestUpdateCategory(ITestOutputHelper testOutput, TestCategoryControllerFixture fixture) : base(testOutput, fixture)
     {
-        private readonly TestCategoryControllerFixture _testCategoryControllerFixture;
+    }
 
-        public TestUpdateCategory(TestCategoryControllerFixture testCategoryControllerFixture)
-            => this._testCategoryControllerFixture = testCategoryControllerFixture;
+    private Category Category => this._fixture.Category;
+    public string ApiUrl => $"{this._fixture.BaseUrl}/{(Guid)this.Category.Id}";
 
-        private Category Category => this._testCategoryControllerFixture.Category;
-        public string ApiUrl => $"{this._testCategoryControllerFixture.BaseUrl}/{(Guid)this.Category.Id}";
-
-        [Theory(DisplayName = "Update Category Successfully Should Return HttpStatusCode204")]
-        [AutoData]
-        public async Task Update_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
+    [Theory(DisplayName = "Update Category Successfully Should Return HttpStatusCode204")]
+    [AutoData]
+    public async Task Update_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
+    {
+        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
-            {
-                var content = categoryName.ToStringContent();
-                var response = await client.PutAsync(this.ApiUrl, content);
-                response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-            });
-        }
+            var content = categoryName.ToStringContent();
+            var response = await client.PutAsync(this.ApiUrl, content);
+            response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        });
+    }
 
-        [Fact(DisplayName = "Update Category with Empty Name Should Return HttpStatusCode400")]
-        public async Task Update_Category_With_Empty_Name_Should_Return_HttpStatusCode400()
+    [Fact(DisplayName = "Update Category with Empty Name Should Return HttpStatusCode400")]
+    public async Task Update_Category_With_Empty_Name_Should_Return_HttpStatusCode400()
+    {
+        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
-            {
-                var content = string.Empty.ToStringContent();
-                var response = await client.PutAsync(this.ApiUrl, content);
-                response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-            });
-        }
+            var content = string.Empty.ToStringContent();
+            var response = await client.PutAsync(this.ApiUrl, content);
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        });
     }
 }

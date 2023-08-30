@@ -2,43 +2,42 @@
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
 using System.Net;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController
+namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCategoriesController;
+
+public class TestCreateCategory : TestBase<TestCategoryControllerFixture>
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestCreateCategory : IClassFixture<TestCategoryControllerFixture>
+    public TestCreateCategory(ITestOutputHelper testOutput, TestCategoryControllerFixture fixture) 
+        : base(testOutput, fixture)
     {
-        private readonly TestCategoryControllerFixture _testCategoryControllerFixture;
-        private string ApiUrl => $"{this._testCategoryControllerFixture.BaseUrl}/create";
+    }
 
-        public TestCreateCategory(TestCategoryControllerFixture testCategoryControllerFixture)
-        {
-            this._testCategoryControllerFixture = testCategoryControllerFixture;
-        }
+    private string ApiUrl => $"{this._fixture.BaseUrl}/create";
 
-        [Theory(DisplayName = "Create Category Successfully Should Return HttpStatusCode204")]
-        [AutoData]
-        public async Task Create_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
-        {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
-            {
-                var content = new {CategoryName = categoryName}.ToStringContent(jsonSerializeOptions);
-                var response = await client.PostAsync(this.ApiUrl, content);
-                response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-            });
-        }
+    
 
-        [Fact(DisplayName = "Create Category With Empty Name Should Return HttpStatusCode400")]
-        public async Task Create_Category_With_EmptyName_Should_Return_HttpStatusCode400()
+    [Theory(DisplayName = "Create Category Successfully Should Return HttpStatusCode204")]
+    [AutoData]
+    public async Task Create_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
+    {
+        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
         {
-            await this._testCategoryControllerFixture.DoTest(async (client, jsonSerializeOptions) =>
-            {
-                var content = string.Empty.ToStringContent();
-                var response = await client.PostAsync(this.ApiUrl, content);
-                response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-            });
-        }
+            var content = new {CategoryName = categoryName}.ToStringContent(jsonSerializeOptions);
+            var response = await client.PostAsync(this.ApiUrl, content);
+            response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        });
+    }
+
+    [Fact(DisplayName = "Create Category With Empty Name Should Return HttpStatusCode400")]
+    public async Task Create_Category_With_EmptyName_Should_Return_HttpStatusCode400()
+    {
+        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
+        {
+            var content = string.Empty.ToStringContent();
+            var response = await client.PostAsync(this.ApiUrl, content);
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        });
     }
 }

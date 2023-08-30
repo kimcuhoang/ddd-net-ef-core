@@ -3,56 +3,55 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Shouldly;
-using System;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController
+namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController;
+
+public class TestUpdateCatalog : TestBase<TestCatalogsControllerFixture>
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestUpdateCatalog : IClassFixture<TestCatalogsControllerFixture>
+    public TestUpdateCatalog(ITestOutputHelper testOutput, TestCatalogsControllerFixture fixture) 
+        : base(testOutput, fixture)
     {
-        private readonly TestCatalogsControllerFixture _testCatalogsControllerFixture;
+    }
 
-        private Catalog Catalog => this._testCatalogsControllerFixture.Catalog;
+    private Catalog Catalog => this._fixture.Catalog;
 
-        private string ApiUrl => $"{this._testCatalogsControllerFixture.BaseUrl}/{(Guid) this.Catalog.Id}";
+    private string ApiUrl => $"{this._fixture.BaseUrl}/{(Guid) this.Catalog.Id}";
 
-        public TestUpdateCatalog(TestCatalogsControllerFixture testCatalogsControllerFixture)
-            => this._testCatalogsControllerFixture = testCatalogsControllerFixture;
+    
 
-        [Theory(DisplayName = "Update Catalog Successfully Should Return HttpStatusCode204")]
-        [AutoData]
-        public async Task Update_Catalog_Successfully_Should_Return_HttpStatusCode204(string catalogName)
+    [Theory(DisplayName = "Update Catalog Successfully Should Return HttpStatusCode204")]
+    [AutoData]
+    public async Task Update_Catalog_Successfully_Should_Return_HttpStatusCode204(string catalogName)
+    {
+        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
-            {
-                var content = catalogName.ToStringContent();
-                var response = await client.PutAsync(this.ApiUrl, content);
-                response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-            });
-        }
+            var content = catalogName.ToStringContent();
+            var response = await client.PutAsync(this.ApiUrl, content);
+            response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        });
+    }
 
-        [Fact(DisplayName = "Update Catalog With Empty Name Should Return HttpStatusCode400")]
-        public async Task Update_Catalog_With_Empty_Name_Should_Return_HttpStatusCode400()
+    [Fact(DisplayName = "Update Catalog With Empty Name Should Return HttpStatusCode400")]
+    public async Task Update_Catalog_With_Empty_Name_Should_Return_HttpStatusCode400()
+    {
+        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
         {
-            await this._testCatalogsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
-            {
-                var content = string.Empty.ToStringContent();
-                var response = await client.PutAsync(this.ApiUrl, content);
-                response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+            var content = string.Empty.ToStringContent();
+            var response = await client.PutAsync(this.ApiUrl, content);
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
-                var result = await response.Content.ReadAsStringAsync();
-                var errorResponse =
-                    JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result,
-                        jsonSerializationOptions);
+            var result = await response.Content.ReadAsStringAsync();
+            var errorResponse =
+                JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result,
+                    jsonSerializerOptions);
 
-                errorResponse.ShouldNotBeNull();
-                errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);
-                errorResponse.ErrorMessages.ShouldNotBeEmpty();
-            });
-        }
+            errorResponse.ShouldNotBeNull();
+            errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);
+            errorResponse.ErrorMessages.ShouldNotBeEmpty();
+        });
     }
 }
