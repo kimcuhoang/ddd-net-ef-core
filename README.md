@@ -165,7 +165,8 @@ For every test project, I use the following packages
 
 - [Shoudly](https://github.com/shouldly/shouldly): Should testing for .NET - the way Asserting *Should* be! 
 - [AutoFixture](https://github.com/AutoFixture/AutoFixture): AutoFixture is an open source library for .NET designed to minimize the 'Arrange' phase of your unit tests in order to maximize maintainability. Its primary goal is to allow developers to focus on what is being tested rather than how to setup the test scenario, by making it easier to create object graphs containing test data.
-- [Respawn](https://github.com/jbogard/Respawn): Intelligent database cleaner for integration tests
+- [MSSQL TestContainer](https://testcontainers.com/modules/mssql/) to isolating database from integration test with others environment
+- [Memory Configuration Provider](https://learn.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#memory-configuration-provider) to override the settings for testing, i.e - `connection-string`
 
 
 ## How to run
