@@ -1,9 +1,8 @@
 ﻿using MediatR;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProduct
+namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProduct;
+
+public class CreateProductCommand : IRequest
 {
-    public class CreateProductCommand : IRequest
-    {
-        public string ProductName { get; set; }
-    }
+    public string ProductName { get; set; }
 }

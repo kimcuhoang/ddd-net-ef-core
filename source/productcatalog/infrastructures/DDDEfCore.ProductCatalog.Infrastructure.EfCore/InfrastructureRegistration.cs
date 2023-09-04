@@ -4,7 +4,6 @@ using DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore;
 
@@ -16,12 +15,13 @@ public static class InfrastructureRegistration
         {
             dbContextOptions.UseSqlServer(configuration.GetConnectionString("DefaultDb"), opts =>
             {
-                opts.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                opts.EnableRetryOnFailure(maxRetryCount: 3);
             });
-            
         });
 
-        services.AddScoped<IRepositoryFactory, DefaultRepositoryFactory>();
+        services
+            .AddScoped(typeof(IRepository<,>), typeof(DefaultRepositoryAsync<,>))
+            .AddScoped<IRepositoryFactory, DefaultRepositoryFactory>();
 
         return services;
     }

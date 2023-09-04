@@ -1,6 +1,7 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.Core.Common.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Concurrent;
 
 namespace DDDEfCore.Infrastructures.EfCore.Common.Repositories;
@@ -32,7 +33,23 @@ public class DefaultRepositoryFactory : IRepositoryFactory
 
     public async Task Commit(CancellationToken cancellationToken = default)
     {
-        await this._dbContext?.SaveChangesAsync(cancellationToken);
+        var strategy = this._dbContext.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            // Achieving atomicity
+            await using var transaction = await this._dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await this._dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        });
     }
 
     #endregion

@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Shouldly;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands
@@ -53,8 +51,8 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
                 .Setup(x => x.Set<Product>())
                 .ReturnsDbSet(new List<Product> {this._product});
 
-            this._validator = new CreateCatalogProductCommandValidator(this.MockRepositoryFactory.Object);
-            this._requestHandler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
+            this._validator = new CreateCatalogProductCommandValidator(catalogRepository, productRepository);
+            this._requestHandler = new CommandHandler(catalogRepository, this._validator);
 
             return Task.CompletedTask;
         }
@@ -95,7 +93,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         }
 
         [Fact(DisplayName = "Empty Command Should Be Invalid")]
-        public void Empty_Command_ShouldBe_Invalid()
+        public async Task Empty_Command_ShouldBe_Invalid()
         {
             var command = new CreateCatalogProductCommand
             {
@@ -105,7 +103,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
                 DisplayName = string.Empty
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CatalogId);
             result.ShouldHaveValidationErrorFor(x => x.ProductId);
@@ -113,7 +111,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         }
 
         [Fact(DisplayName = "Catalog Not Found Should Be Invalid")]
-        public void Catalog_NotFound_ShouldBe_Invalid()
+        public async Task Catalog_NotFound_ShouldBe_Invalid()
         {
             var command = new CreateCatalogProductCommand
             {
@@ -123,7 +121,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
                 DisplayName = this._product.Name
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CatalogId);
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
@@ -132,7 +130,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         }
 
         [Fact(DisplayName = "CatalogCategory Not Found Should Be Invalid")]
-        public void CatalogCategory_NotFound_ShouldBe_Invalid()
+        public async Task CatalogCategory_NotFound_ShouldBe_Invalid()
         {
             var command = new CreateCatalogProductCommand
             {
@@ -142,7 +140,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
                 DisplayName = this._product.Name
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
@@ -151,7 +149,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         }
 
         [Fact(DisplayName = "Product Not Found Should Be Invalid")]
-        public void Product_NotFound_ShouldBe_Invalid()
+        public async Task Product_NotFound_ShouldBe_Invalid()
         {
             var command = new CreateCatalogProductCommand
             {
@@ -161,7 +159,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
                 DisplayName = this._product.Name
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.ProductId);
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
@@ -170,7 +168,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
         }
 
         [Fact(DisplayName = "Duplicate Product Should Be Invalid")]
-        public void Duplicate_Product_ShouldBe_Invalid()
+        public async Task Duplicate_Product_ShouldBe_Invalid()
         {
             var catalogProduct =
                 this._catalogCategory.CreateCatalogProduct(this._product.Id, this._product.Name);
@@ -183,7 +181,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCo
                 DisplayName = this._product.Name
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.ProductId);
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);

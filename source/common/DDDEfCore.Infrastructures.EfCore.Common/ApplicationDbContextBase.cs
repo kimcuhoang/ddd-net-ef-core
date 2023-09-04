@@ -1,33 +1,28 @@
-﻿using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
-using DDDEfCore.Infrastructures.EfCore.Common.Helpers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
-namespace DDDEfCore.Infrastructures.EfCore.Common
+namespace DDDEfCore.Infrastructures.EfCore.Common;
+
+public abstract class ApplicationDbContextBase : DbContext
 {
-    public abstract class ApplicationDbContextBase : DbContext
+    protected ApplicationDbContextBase(DbContextOptions dbContextOptions)
+        : base(dbContextOptions)
     {
-        private readonly IConfiguration _configuration;
-
-        protected ApplicationDbContextBase(DbContextOptions dbContextOptions, IConfiguration configuration)
-            : base(dbContextOptions)
-        {
-            this._configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        }
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-
-            var qualifiedAssemblyPattern = this._configuration.GetValue<string>("QualifiedAssemblyPattern");
-
-            var assemblies = AssemblyHelpers.LoadFromSearchPatterns(qualifiedAssemblyPattern);
-
-            builder.Register(assemblies);
-
-            this.RegisterConventions(builder);
-        }
-
-        protected virtual void RegisterConventions(ModelBuilder builder) { }
     }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.ApplyConfigurationsFromAssembly(this.AssemblyContainsConfigurations);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+    }
+
+    protected abstract Assembly AssemblyContainsConfigurations { get; }
+
+    protected virtual void RegisterDefaultSchema() { }
 }

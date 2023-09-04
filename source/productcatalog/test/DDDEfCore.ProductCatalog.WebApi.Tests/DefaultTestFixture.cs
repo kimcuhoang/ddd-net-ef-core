@@ -50,17 +50,23 @@ public class DefaultTestFixture : IAsyncLifetime
         {
             var dbContext = serviceProvider.GetRequiredService<DbContext>();
 
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
-            try
+            var strategy = dbContext.Database.CreateExecutionStrategy();
+
+            await strategy.ExecuteAsync(async () =>
             {
-                await func.Invoke(dbContext);
-                await transaction.CommitAsync();
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+                // Achieving atomicity
+                await using var transaction = await dbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    await func.Invoke(dbContext);
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         });
     }
 
@@ -100,20 +106,10 @@ public class DefaultTestFixture : IAsyncLifetime
     {
         if (entities == null || !entities.Any()) return;
 
-        await this.ExecuteDbContextAsync(async dbContext =>
+        await this.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
-            try
-            {
-                await dbContext.Set<TAggregate>().AddRangeAsync(entities);
-                await dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            dbContext.Set<TAggregate>().AddRange(entities);
+            await dbContext.SaveChangesAsync();
         });
     }
 

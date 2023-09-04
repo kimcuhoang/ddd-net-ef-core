@@ -2,33 +2,27 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog;
+
+public class UpdateCatalogCommandValidator : AbstractValidator<UpdateCatalogCommand>
 {
-    public class UpdateCatalogCommandValidator : AbstractValidator<UpdateCatalogCommand>
+    public UpdateCatalogCommandValidator(IRepository<Catalog, CatalogId> catalogRepository)
     {
-        public UpdateCatalogCommandValidator(IRepositoryFactory repositoryFactory)
+        RuleFor(x => x.CatalogId).NotNull();
+
+        When(x => x.CatalogId != null, () =>
         {
-            RuleFor(x => x.CatalogId)
-                
-                .NotNull();
-
-            When(x => x.CatalogId != null, () =>
+            RuleFor(command => command).CustomAsync(async (command, context, token) =>
             {
-                RuleFor(command => command).Custom((command, context) =>
+                var catalog = await catalogRepository.FindOneAsync(x => x.Id == command.CatalogId);
+
+                if (catalog == null)
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-                    var catalog = repository.FindOneAsync(x => x.Id == command.CatalogId).Result;
-
-                    if (catalog == null)
-                    {
-                        context.AddFailure(nameof(command.CatalogId),
-                            $"Catalog#{command.CatalogId} could not be found.");
-                    }
-                });
+                    context.AddFailure(nameof(command.CatalogId), $"Catalog#{command.CatalogId} could not be found.");
+                }
             });
+        });
 
-            RuleFor(x => x.CatalogName)
-                .NotNull().NotEmpty();
-        }
+        RuleFor(x => x.CatalogName).NotNull().NotEmpty();
     }
 }

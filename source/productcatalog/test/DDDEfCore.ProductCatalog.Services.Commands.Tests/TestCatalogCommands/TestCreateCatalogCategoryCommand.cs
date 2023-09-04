@@ -48,8 +48,9 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
             this._mockDbContext.Setup(x => x.Set<Category>())
                 .ReturnsDbSet(new List<Category> { this._category });
 
-            this._validator = new CreateCatalogCategoryCommandValidator(this.MockRepositoryFactory.Object);
-            this._requestHandler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
+            this._validator = new CreateCatalogCategoryCommandValidator(catalogRepository, categoryRepository);
+
+            this._requestHandler = new CommandHandler(catalogRepository, this._validator);
 
             return Task.CompletedTask;
         }
@@ -111,7 +112,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         }
 
         [Fact(DisplayName = "Command With Empty Values Should Be Invalid")]
-        public void Command_With_Empty_Values_ShouldBeInvalid()
+        public async Task Command_With_Empty_Values_ShouldBeInvalid()
         {
             var command = new CreateCatalogCategoryCommand
             {
@@ -120,7 +121,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
                 DisplayName = string.Empty
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CatalogId);
             result.ShouldHaveValidationErrorFor(x => x.CategoryId);
@@ -128,7 +129,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         }
 
         [Fact(DisplayName = "Command With Not Found Catalog Should Be Invalid")]
-        public void Command_With_NotFound_Catalog_ShouldBeInvalid()
+        public async Task Command_With_NotFound_Catalog_ShouldBeInvalid()
         {
             var command = new CreateCatalogCategoryCommand
             {
@@ -137,7 +138,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
                 DisplayName = this._category.DisplayName
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CatalogId);
             result.ShouldNotHaveValidationErrorFor(x => x.CategoryId);
@@ -145,7 +146,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         }
 
         [Fact(DisplayName = "Command With Not Found Category Should Be Invalid")]
-        public void Command_With_NotFound_Category_ShouldBeInvalid()
+        public async Task Command_With_NotFound_Category_ShouldBeInvalid()
         {
             var command = new CreateCatalogCategoryCommand
             {
@@ -154,7 +155,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
                 DisplayName = this.Fixture.Create<string>()
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.CategoryId);
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
@@ -162,7 +163,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
         }
 
         [Fact(DisplayName = "Command With Invalid ParentCatalogCategoryId Should Be Invalid")]
-        public void Command_With_Invalid_ParentCatalogCategoryId_ShouldBeInvalid()
+        public async Task Command_With_Invalid_ParentCatalogCategoryId_ShouldBeInvalid()
         {
 
             var command = new CreateCatalogCategoryCommand
@@ -173,7 +174,7 @@ namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
                 ParentCatalogCategoryId = CatalogCategoryId.New
             };
 
-            var result = this._validator.TestValidate(command);
+            var result = await this._validator.TestValidateAsync(command);
 
             result.ShouldNotHaveValidationErrorFor(x => x.CategoryId);
             result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);

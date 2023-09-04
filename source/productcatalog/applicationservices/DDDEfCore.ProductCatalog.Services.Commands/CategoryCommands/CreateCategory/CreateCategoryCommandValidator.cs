@@ -1,15 +1,13 @@
 ﻿using FluentValidation;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory;
+
+public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
 {
-    public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
+    public CreateCategoryCommandValidator()
     {
-        public CreateCategoryCommandValidator()
-        {
-            RuleFor(command => command.CategoryName)
-                
-                .NotNull()
-                .NotEmpty();
-        }
+        RuleFor(command => command.CategoryName)
+            .NotNull()
+            .NotEmpty();
     }
 }

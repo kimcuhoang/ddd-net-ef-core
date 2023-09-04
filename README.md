@@ -173,8 +173,6 @@ For every test project, I use the following packages
 
 ### Run Test Projects
 
-- In every integration test project, there are `appsettings.json` files that store `connectstrings` value. You have to change these values before running.
-
 ![Test Results](docs/images/test-result.png)
 
 ### Run via swagger from Visual Studio

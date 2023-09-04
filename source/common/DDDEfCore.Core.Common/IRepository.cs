@@ -12,4 +12,6 @@ public interface IRepository<TAggregate, TIdentity>
     Task AddAsync(TAggregate aggregate);
     Task UpdateAsync(TAggregate aggregate);
     Task RemoveAsync(TAggregate aggregate);
+
+    void Add(TAggregate aggregate);
 }

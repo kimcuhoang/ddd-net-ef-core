@@ -1,42 +1,50 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.RemoveCatalogProduct
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.RemoveCatalogProduct;
+
+public class CommandHandler : IRequestHandler<RemoveCatalogProductCommand>
 {
-    public class CommandHandler : IRequestHandler<RemoveCatalogProductCommand>
+    private readonly IRepository<Catalog, CatalogId> _repository;
+    private readonly IValidator<RemoveCatalogProductCommand> _validator;
+
+    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<RemoveCatalogProductCommand> validator)
     {
-        private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog, CatalogId> _repository;
-        private readonly IValidator<RemoveCatalogProductCommand> _validator;
+        this._repository = repository;
+        this._validator = validator;
+    }
 
-        public CommandHandler(IRepositoryFactory repositoryFactory,
-            IValidator<RemoveCatalogProductCommand> validator)
-        {
-            this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-            this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
-        }
+    public async Task Handle(RemoveCatalogProductCommand request, CancellationToken cancellationToken)
+    {
+        await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
-        public async Task Handle(RemoveCatalogProductCommand request, CancellationToken cancellationToken)
-        {
-            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
+        var catalogs = this._repository.AsQueryable();
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
-                x => x.Include(c => c.Categories).ThenInclude(c => c.Products));
+        var query =
+            from c in catalogs
+            from c1 in c.Categories.Where(_ => _.Id == request.CatalogCategoryId)
+            from p in c1.Products.Where(_ => _.Id == request.CatalogProductId)
+            where c.Id == request.CatalogId
+            select new
+            {
+                Catalog = c,
+                CatalogCategory = c1,
+                CatalogProduct = p
+            };
 
-            var catalogCategory =
-                catalog.Categories.SingleOrDefault(x => x.Id == request.CatalogCategoryId);
+        var result = await query.FirstOrDefaultAsync(cancellationToken);
 
-            var catalogProduct =
-                catalogCategory.Products.SingleOrDefault(x => x.Id == request.CatalogProductId);
+        var catalog = result.Catalog;
 
-            catalogCategory.RemoveCatalogProduct(catalogProduct);
+        var catalogCategory = result.CatalogCategory;
 
-            await this._repository.UpdateAsync(catalog);
-        }
+        var catalogProduct = result.CatalogProduct;
+
+        catalogCategory.RemoveCatalogProduct(catalogProduct);
+
+        await this._repository.UpdateAsync(catalog);
     }
 }

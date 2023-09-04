@@ -23,16 +23,7 @@ public class TestCreateCatalogCommand : UnitTestBase
     {
         this._mockCategoryRepository = new Mock<IRepository<Category, CategoryId>>();
         this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
-
-        this.MockRepositoryFactory
-            .Setup(_ => _.CreateRepository<Catalog, CatalogId>())
-            .Returns(this._mockCatalogRepository.Object);
-
-        this.MockRepositoryFactory
-            .Setup(_ => _.CreateRepository<Category, CategoryId>())
-            .Returns(this._mockCategoryRepository.Object);
-
-        this._validator = new CreateCatalogCommandValidator(this.MockRepositoryFactory.Object);
+        this._validator = new CreateCatalogCommandValidator(this._mockCategoryRepository.Object);
     }
 
     [Theory(DisplayName = "Create Catalog Without CatalogCategory Successfully")]
@@ -44,11 +35,11 @@ public class TestCreateCatalogCommand : UnitTestBase
             CatalogName = catalogName
         };
 
-        var handler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
+        var handler = new CommandHandler(this._mockCatalogRepository.Object, this._validator);
 
         await handler.Handle(command, this.CancellationToken);
 
-        this._mockCatalogRepository.Verify(x => x.AddAsync(It.IsAny<Catalog>()), Times.Once);
+        this._mockCatalogRepository.Verify(x => x.Add(It.IsAny<Catalog>()), Times.Once);
     }
 
     [Theory(DisplayName = "Create Catalog With CatalogCategories Successfully")]
@@ -72,11 +63,11 @@ public class TestCreateCatalogCommand : UnitTestBase
                 .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
                 .ReturnsAsync(categories.First());
 
-        var handler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
+        var handler = new CommandHandler(this._mockCatalogRepository.Object, this._validator);
 
         await handler.Handle(command, this.CancellationToken);
 
-        this._mockCatalogRepository.Verify(x => x.AddAsync(It.IsAny<Catalog>()), Times.Once);
+        this._mockCatalogRepository.Verify(x => x.Add(It.IsAny<Catalog>()), Times.Once);
     }
 
     [Fact(DisplayName = "Create Catalog With Invalid Command Should Throw Exception")]
@@ -85,7 +76,7 @@ public class TestCreateCatalogCommand : UnitTestBase
         var command = new CreateCatalogCommand();
         command.AddCategory(CategoryId.Empty, string.Empty);
 
-        var handler = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
+        var handler = new CommandHandler(this._mockCatalogRepository.Object, this._validator);
 
         await Should.ThrowAsync<ValidationException>(async () =>
             await handler.Handle(command, this.CancellationToken));

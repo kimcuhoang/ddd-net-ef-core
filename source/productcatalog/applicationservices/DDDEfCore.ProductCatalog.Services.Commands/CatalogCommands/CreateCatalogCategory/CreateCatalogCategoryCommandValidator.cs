@@ -4,72 +4,64 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory;
+
+public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCatalogCategoryCommand>
 {
-    public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCatalogCategoryCommand>
+    public CreateCatalogCategoryCommandValidator(IRepository<Catalog, CatalogId> catalogRepository,
+                                                IRepository<Category, CategoryId> categoryRespository)
     {
-        public CreateCatalogCategoryCommandValidator(IRepositoryFactory repositoryFactory)
+        RuleFor(x => x.CatalogId)
+            .NotNull()
+            .MustAsync(async (x, token) => await this.CatalogIsExisting(catalogRepository, x))
+            .WithMessage(x => $"Catalog#{x.CatalogId} could not be found.");
+
+        RuleFor(x => x.CategoryId)
+            .NotNull()
+            .MustAsync(async (x, token) => await this.CategoryIsExisting(categoryRespository, x))
+            .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
+
+        RuleFor(x => x.DisplayName)
+            .NotNull()
+            .NotEmpty();
+
+        When(x => x.ParentCatalogCategoryId != null, () =>
         {
-            RuleFor(x => x.CatalogId)
-                
-                .NotNull()
-                .Must(x => this.CatalogIsExisting(repositoryFactory, x))
-                .WithMessage(x => $"Catalog#{x.CatalogId} could not be found.");
-
-            RuleFor(x => x.CategoryId)
-                
-                .NotNull()
-                .Must(x => this.CategoryIsExisting(repositoryFactory, x))
-                .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
-
-            RuleFor(x => x.DisplayName)
-                
-                .NotNull()
-                .NotEmpty();
+            RuleFor(x => x.ParentCatalogCategoryId).NotNull();
 
             When(x => x.ParentCatalogCategoryId != null, () =>
             {
-                RuleFor(x => x.ParentCatalogCategoryId)
-                    
-                    .NotNull();
-
-                When(x => x.ParentCatalogCategoryId != null, () =>
+                RuleFor(x => x).CustomAsync(async (x, context, token) =>
                 {
-                    RuleFor(x => x).Custom((x, context) =>
+                    var categoryWasAdded = await this.CatalogCategoryIsExistingInCatalog(catalogRepository, x.CatalogId, x.ParentCatalogCategoryId);
+
+                    if (!categoryWasAdded)
                     {
-                        if (!this.CatalogCategoryIsExistingInCatalog(repositoryFactory, x.CatalogId,
-                            x.ParentCatalogCategoryId))
-                        {
-                            context.AddFailure(nameof(CreateCatalogCategoryCommand.ParentCatalogCategoryId),
-                                $"Could not found in Catalog#{x.CatalogId}");
-                        }
-                    });
+                        context.AddFailure(nameof(CreateCatalogCategoryCommand.ParentCatalogCategoryId), $"Could not found in Catalog#{x.CatalogId}");
+                    }
                 });
             });
-        }
+        });
+    }
 
-        private bool CatalogIsExisting(IRepositoryFactory repositoryFactory, CatalogId catalogId)
-        {
-            var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-            var catalog = repository.FindOneAsync(x => x.Id == catalogId).GetAwaiter().GetResult();
-            return catalog != null;
-        }
+    private async Task<bool> CatalogIsExisting(IRepository<Catalog, CatalogId> catalogRepository, CatalogId catalogId)
+    {
+        var catalog = await catalogRepository.FindOneAsync(x => x.Id == catalogId);
+        return catalog != null;
+    }
 
-        private bool CategoryIsExisting(IRepositoryFactory repositoryFactory, CategoryId categoryId)
-        {
-            var repository = repositoryFactory.CreateRepository<Category, CategoryId>();
-            var category = repository.FindOneAsync(x => x.Id == categoryId).GetAwaiter().GetResult();
-            return category != null;
-        }
+    private async Task<bool> CategoryIsExisting(IRepository<Category, CategoryId> categoryRepository, CategoryId categoryId)
+    {
+        var category = await categoryRepository.FindOneAsync(x => x.Id == categoryId);
+        return category != null;
+    }
 
-        private bool CatalogCategoryIsExistingInCatalog(IRepositoryFactory repositoryFactory, CatalogId catalogId, CatalogCategoryId catalogCategoryId)
-        {
-            var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-            var catalog = repository.FindOneWithIncludeAsync(x => x.Id == catalogId,
-                x => x.Include(c => c.Categories)).GetAwaiter().GetResult();
-            return catalog != null && catalog.Categories.Any(x => x.Id == catalogCategoryId);
-        }
+    private async Task<bool> CatalogCategoryIsExistingInCatalog(IRepository<Catalog, CatalogId> catalogRepository, CatalogId catalogId, CatalogCategoryId catalogCategoryId)
+    {
+        var catalog = await catalogRepository
+                .FindOneWithIncludeAsync(x => x.Id == catalogId, x => x.Include(c => c.Categories));
+
+        return catalog != null && catalog.Categories.Any(x => x.Id == catalogCategoryId);
     }
 }
