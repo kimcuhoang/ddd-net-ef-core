@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\common\DDDEfCore.Infrastructures.EfCore.Common\DDDEfCore.Infrastructures.EfCore.Common.csproj" />
-    <ProjectReference Include="..\..\applicationcore\DDDEfCore.ProductCatalog.Core.DomainModels\DDDEfCore.ProductCatalog.Core.DomainModels.csproj" />
+    <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Commands\DDDEfCore.ProductCatalog.Services.Commands.csproj" />
   </ItemGroup>
 
 </Project>

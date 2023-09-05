@@ -1,11 +1,14 @@
 ﻿using AutoFixture.Xunit2;
+using DDDEfCore.Core.Common;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using System.Net;
-using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -24,9 +27,9 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
 
     
 
-    [Theory(DisplayName = "Create Catalog Successfully Should Return HttpStatusCode204")]
+    [Theory(DisplayName = "Create Catalog Successfully")]
     [AutoData]
-    public async Task Create_Catalog_Successfully_Should_Return_HttpStatusCode204(string catalogName)
+    public async Task Create_Catalog_Successfully(string catalogName)
     {
         await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
         {
@@ -37,13 +40,21 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
 
             var content = command.ToStringContent();
             var response = await client.PostAsync(this.ApiUrl, content);
-            response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            var model = this._fixture.Parse<CreateCatalogResult>(result);
+
+            model.ShouldNotBeNull();
+            model.CatalogId.ShouldNotBeNull();
+            model.CatalogId.ShouldNotBe(CatalogId.Empty);
         });
     }
 
-    [Theory(DisplayName = "Create Catalog Within CatalogCategory Successfully Should Return HttpStatusCode204")]
+    [Theory(DisplayName = "Create Catalog Within CatalogCategory Successfully")]
     [AutoData]
-    public async Task Create_Catalog_Within_CatalogCategory_Successfully_Should_Return_HttpStatusCode204(string catalogName)
+    public async Task Create_Catalog_Within_CatalogCategory_Successfully(string catalogName)
     {
         await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
         {
@@ -55,7 +66,38 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
 
             var content = command.ToStringContent(jsonSerializerOptions);
             var response = await client.PostAsync(this.ApiUrl, content);
-            response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            var model = this._fixture.Parse<CreateCatalogResult>(result);
+
+            model.ShouldNotBeNull();
+            model.CatalogId.ShouldNotBeNull();
+            model.CatalogId.ShouldNotBe(CatalogId.Empty);
+
+            await this._fixture.ExecuteServiceAsync(async serviceProvider =>
+            {
+                var repository = serviceProvider.GetRequiredService<IRepository<Catalog, CatalogId>>();
+
+                var catalogs = repository.AsQueryable();
+
+                var query =
+                    from c in catalogs
+                    from c1 in c.Categories.Where(_ => _.CategoryId == this.Category.Id)
+                    where c.Id == model.CatalogId
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1
+                    };
+
+                var queryResult = await query.FirstOrDefaultAsync();
+
+                queryResult.ShouldNotBeNull();
+                queryResult.Catalog.ShouldNotBeNull();
+                queryResult.CatalogCategory.ShouldNotBeNull();
+            });
         });
     }
 
@@ -71,13 +113,6 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
             var response = await httpClient.PostAsync(this.ApiUrl, content);
 
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-
-            var result = await response.Content.ReadAsStringAsync();
-            var errorResponse = this._fixture.Parse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result);
-
-            errorResponse.ShouldNotBeNull();
-            errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);
-            errorResponse.ErrorMessages.ShouldNotBeEmpty();
         });
     }
 
@@ -98,9 +133,7 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
             var result = await response.Content.ReadAsStringAsync();
-            var errorResponse =
-                JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result,
-                    jsonSerializerOptions);
+            var errorResponse = this._fixture.Parse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result);
 
             errorResponse.ShouldNotBeNull();
             errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);

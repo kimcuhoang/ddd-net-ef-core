@@ -13,10 +13,10 @@ namespace DDDEfCore.ProductCatalog.WebApi.Controllers;
 [ApiController]
 public class CatalogsController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly ISender _sender;
 
-    public CatalogsController(IMediator mediator)
-        => this._mediator = mediator;
+    public CatalogsController(ISender sender)
+        => this._sender = sender;
 
     /// <summary>
     /// Create new Catalog
@@ -24,13 +24,13 @@ public class CatalogsController : ControllerBase
     /// <param name="command"></param>
     /// <returns></returns>
     [HttpPost("create")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody] CreateCatalogCommand command)
     {
-        await this._mediator.Send(command);
-        return NoContent();
+        var response = await this._sender.Send(command);
+        return Ok(response);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class CatalogsController : ControllerBase
             CatalogId = catalogId,
             CatalogName = catalogName
         };
-        await this._mediator.Send(command);
+        await this._sender.Send(command);
         return NoContent();
     }
 
@@ -72,7 +72,7 @@ public class CatalogsController : ControllerBase
             PageSize = pageSize,
             PageIndex = pageIndex
         };
-        var result = await this._mediator.Send(request);
+        var result = await this._sender.Send(request);
         return Ok(result);
     }
 
@@ -87,7 +87,7 @@ public class CatalogsController : ControllerBase
     [ProducesResponseType(typeof(GlobalExceptionHandlerMiddleware.ExceptionResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SearchSpecificCatalogByCatalogId(GetCatalogDetailRequest request)
     {
-        var result = await this._mediator.Send(request);
+        var result = await this._sender.Send(request);
         return Ok(result);
     }
 }

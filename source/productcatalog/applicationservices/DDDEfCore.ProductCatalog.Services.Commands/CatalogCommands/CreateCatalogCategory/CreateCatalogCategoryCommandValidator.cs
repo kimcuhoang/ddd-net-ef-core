@@ -1,5 +1,4 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
@@ -28,19 +27,14 @@ public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCat
 
         When(x => x.ParentCatalogCategoryId != null, () =>
         {
-            RuleFor(x => x.ParentCatalogCategoryId).NotNull();
-
-            When(x => x.ParentCatalogCategoryId != null, () =>
+            RuleFor(x => x).CustomAsync(async (x, context, token) =>
             {
-                RuleFor(x => x).CustomAsync(async (x, context, token) =>
-                {
-                    var categoryWasAdded = await this.CatalogCategoryIsExistingInCatalog(catalogRepository, x.CatalogId, x.ParentCatalogCategoryId);
+                var categoryWasAdded = await this.CatalogCategoryIsExistingInCatalog(catalogRepository, x.CatalogId, x.ParentCatalogCategoryId);
 
-                    if (!categoryWasAdded)
-                    {
-                        context.AddFailure(nameof(CreateCatalogCategoryCommand.ParentCatalogCategoryId), $"Could not found in Catalog#{x.CatalogId}");
-                    }
-                });
+                if (!categoryWasAdded)
+                {
+                    context.AddFailure(nameof(CreateCatalogCategoryCommand.ParentCatalogCategoryId), $"Could not found in Catalog#{x.CatalogId}");
+                }
             });
         });
     }
@@ -59,9 +53,20 @@ public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCat
 
     private async Task<bool> CatalogCategoryIsExistingInCatalog(IRepository<Catalog, CatalogId> catalogRepository, CatalogId catalogId, CatalogCategoryId catalogCategoryId)
     {
-        var catalog = await catalogRepository
-                .FindOneWithIncludeAsync(x => x.Id == catalogId, x => x.Include(c => c.Categories));
+        var catalogs = catalogRepository.AsQueryable();
 
-        return catalog != null && catalog.Categories.Any(x => x.Id == catalogCategoryId);
+        var query =
+            from c in catalogs
+            from c1 in c.Categories.Where(_ => _.Id == catalogCategoryId)
+            where c.Id == catalogId
+            select new
+            {
+                Catalog = c,
+                CatalogCategory = c1
+            };
+
+        var result = await query.FirstOrDefaultAsync();
+
+        return result != null;
     }
 }

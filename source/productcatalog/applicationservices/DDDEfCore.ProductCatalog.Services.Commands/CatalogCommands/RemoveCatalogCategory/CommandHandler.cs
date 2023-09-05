@@ -1,5 +1,4 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using MediatR;
@@ -24,9 +23,23 @@ public class CommandHandler : IRequestHandler<RemoveCatalogCategoryCommand>
     {
         await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
-        var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId, x => x.Include(c => c.Categories));
+        var catalogs = this._repository.AsQueryable();
 
-        var catalogCategory = catalog.Categories.SingleOrDefault(x => x.Id == request.CatalogCategoryId);
+        var query =
+               from c in catalogs
+               from c1 in c.Categories.Where(_ => _.Id == request.CatalogCategoryId)
+               where c.Id == request.CatalogId
+               select new
+               {
+                   Catalog = c,
+                   CatalogCategory = c1
+               };
+
+        var result = await query.FirstOrDefaultAsync(cancellationToken);
+
+        var catalog = result.Catalog;
+
+        var catalogCategory = result.CatalogCategory;
 
         catalog.RemoveCatalogCategoryWithDescendants(catalogCategory);
 

@@ -1,27 +1,20 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
-using FluentValidation;
 using MediatR;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
 
-public class CommandHandler : IRequestHandler<CreateCatalogCommand>
+public class CommandHandler : IRequestHandler<CreateCatalogCommand, CreateCatalogResult>
 {
     private readonly IRepository<Catalog, CatalogId> _repository;
-    private readonly IValidator<CreateCatalogCommand> _validator;
 
-    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<CreateCatalogCommand> validator)
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
         this._repository = repository;
-        this._validator = validator;
     }
 
-    #region Overrides of IRequestHandler<CreateCatalogCommand>
-
-    public async Task Handle(CreateCatalogCommand request, CancellationToken cancellationToken)
+    public async Task<CreateCatalogResult> Handle(CreateCatalogCommand request, CancellationToken cancellationToken)
     {
-        await this._validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var catalog = Catalog.Create(request.CatalogName);
 
         foreach (var category in request.Categories)
@@ -30,7 +23,9 @@ public class CommandHandler : IRequestHandler<CreateCatalogCommand>
         }
 
         this._repository.Add(catalog);
-    }
 
-    #endregion
+        await Task.Yield();
+
+        return new CreateCatalogResult { CatalogId = catalog.Id };
+    }
 }

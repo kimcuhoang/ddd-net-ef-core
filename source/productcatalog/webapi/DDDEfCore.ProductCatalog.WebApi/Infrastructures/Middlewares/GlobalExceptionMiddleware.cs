@@ -36,12 +36,18 @@ public class GlobalExceptionHandlerMiddleware
         
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        exceptionResponse.ErrorMessages = new List<string> {exception.Message};
+        exceptionResponse.ErrorMessages = new List<string> 
+        {
+            exception.Message
+        };
 
         if (exception is ValidationException validationException)
         {
+            var jsonSerializerOptions = this._jsonOptions.SerializerOptions;
+
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            exceptionResponse.ErrorMessages = validationException.Errors.Select(x => x.ErrorMessage).ToList();
+
+            exceptionResponse.ErrorMessages = JsonSerializer.Deserialize<List<string>>(validationException.Message, jsonSerializerOptions);
         }
 
         exceptionResponse.Status = context.Response.StatusCode;

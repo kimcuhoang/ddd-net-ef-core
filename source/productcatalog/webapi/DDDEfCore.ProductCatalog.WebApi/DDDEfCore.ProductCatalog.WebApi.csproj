@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Commands\DDDEfCore.ProductCatalog.Services.Commands.csproj" />
     <ProjectReference Include="..\..\applicationservices\DDDEfCore.ProductCatalog.Services.Queries\DDDEfCore.ProductCatalog.Services.Queries.csproj" />
+    <ProjectReference Include="..\..\infrastructures\DDDEfCore.ProductCatalog.Infrastructure.EfCore\DDDEfCore.ProductCatalog.Infrastructure.EfCore.csproj" />
   </ItemGroup>
 
 </Project>

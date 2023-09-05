@@ -1,13 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.7.1" />
-    <PackageReference Include="MediatR" Version="12.1.1" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<ContainerImageTags>alpine-7.0.302</ContainerImageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\applicationcore\DDDEfCore.ProductCatalog.Core.DomainModels\DDDEfCore.ProductCatalog.Core.DomainModels.csproj" />
-    <ProjectReference Include="..\..\infrastructures\DDDEfCore.ProductCatalog.Infrastructure.EfCore\DDDEfCore.ProductCatalog.Infrastructure.EfCore.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.7.1" />
+		<PackageReference Include="MediatR" Version="12.1.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\applicationcore\DDDEfCore.ProductCatalog.Core.DomainModels\DDDEfCore.ProductCatalog.Core.DomainModels.csproj" />
+	</ItemGroup>
 
 </Project>

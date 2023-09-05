@@ -1,5 +1,4 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -25,32 +24,35 @@ public class CreateCatalogProductCommandValidator : AbstractValidator<CreateCata
         {
             RuleFor(command => command).CustomAsync(async (command, context, token) =>
             {
-                var catalog = await catalogRepository.FindOneWithIncludeAsync(x => x.Id == command.CatalogId,
-                    x => x.Include(c => c.Categories)
-                        .ThenInclude(c => c.Products));
+                var catalogs = catalogRepository.AsQueryable();
 
-                if (catalog == null)
+                var query =
+                    from c in catalogs
+                    from c1 in c.Categories.Where(_ => _.Id == command.CatalogCategoryId).DefaultIfEmpty()
+                    let p = c1.Products.FirstOrDefault(_ => _.Id == command.ProductId)
+                    where c.Id == command.CatalogId
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1,
+                        CatalogProduct = p
+                    };
+
+                var result = await query.FirstOrDefaultAsync(token);
+
+                if (result == null)
                 {
                     context.AddFailure($"{nameof(command.CatalogId)}", $"Catalog#{command.CatalogId} could not be found.");
                 }
-                else
+                else if (result.CatalogCategory == null)
                 {
-                    var catalogCategory =
-                        catalog.Categories.SingleOrDefault(x => x.Id == command.CatalogCategoryId);
-
-                    if (catalogCategory == null)
-                    {
-                        context.AddFailure($"{nameof(command.CatalogCategoryId)}", 
-                            $"CatalogCategory#{command.CatalogCategoryId} could not be found in Catalog#{command.CatalogId}.");
-                    }
-                    else
-                    {
-                        if (catalogCategory.Products.Any(x => x.ProductId == command.ProductId))
-                        {
-                            context.AddFailure($"{nameof(command.ProductId)}",
-                                $"Product#{command.ProductId} is existing in CatalogCategory#{command.CatalogCategoryId}.");
-                        }
-                    }
+                    context.AddFailure($"{nameof(command.CatalogCategoryId)}",
+                        $"CatalogCategory#{command.CatalogCategoryId} could not be found in Catalog#{command.CatalogId}.");
+                }
+                else if (result.CatalogProduct == null)
+                {
+                    context.AddFailure($"{nameof(command.ProductId)}",
+                            $"Product#{command.ProductId} is existing in CatalogCategory#{command.CatalogCategoryId}.");
                 }
             });
         });

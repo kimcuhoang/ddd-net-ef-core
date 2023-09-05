@@ -1,5 +1,4 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -18,18 +17,27 @@ public class RemoveCatalogCategoryCommandValidator : AbstractValidator<RemoveCat
         {
             RuleFor(x => x).CustomAsync(async (command, context, token) =>
             {
-                var catalog = await catalogRepository.FindOneWithIncludeAsync(x => x.Id == command.CatalogId, x => x.Include(c => c.Categories));
+                var catalogs = catalogRepository.AsQueryable();
+
+                var query =
+                    from c in catalogs
+                    from c1 in c.Categories.Where(_ => _.Id == command.CatalogCategoryId).DefaultIfEmpty()
+                    where c.Id == command.CatalogId
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1
+                    };
+
+                var result = await query.FirstOrDefaultAsync(token);
                 
-                if (catalog == null)
+                if (result == null)
                 {
                     context.AddFailure(nameof(command.CatalogId), $"Could not found Catalog#{command.CatalogId}");
                 }
-                else
+                else if (result.CatalogCategory == null)
                 {
-                    if (catalog.Categories.All(x => x.Id != command.CatalogCategoryId))
-                    {
-                        context.AddFailure(nameof(command.CatalogCategoryId), $"Could not found CatalogCategory#{command.CatalogCategoryId} in Catalog#{command.CatalogId}");
-                    }
+                    context.AddFailure(nameof(command.CatalogCategoryId), $"Could not found CatalogCategory#{command.CatalogCategoryId} in Catalog#{command.CatalogId}");
                 }
             });
         });

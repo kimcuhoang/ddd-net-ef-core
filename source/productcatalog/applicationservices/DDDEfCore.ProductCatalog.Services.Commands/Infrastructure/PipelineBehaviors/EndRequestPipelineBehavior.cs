@@ -1,5 +1,6 @@
 ﻿using DDDEfCore.Core.Common;
 using MediatR;
+using System.Text.Json;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure.PipelineBehaviors;
 

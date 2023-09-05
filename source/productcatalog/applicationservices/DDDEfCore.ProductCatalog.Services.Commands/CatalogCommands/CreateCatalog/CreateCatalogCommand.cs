@@ -1,11 +1,10 @@
 ﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-using MediatR;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
 
-public sealed class CreateCatalogCommand : IRequest
+public sealed class CreateCatalogCommand : ITransactionCommand<CreateCatalogResult>
 {
-    public string CatalogName { get; set; }
+    public string CatalogName { get; init; }
 
     public List<CategoryInCatalog> Categories { get; set; } = new List<CategoryInCatalog>();
 
@@ -22,8 +21,8 @@ public sealed class CreateCatalogCommand : IRequest
 
     public class CategoryInCatalog
     {
-        public CategoryId CategoryId { get; set; }
+        public CategoryId CategoryId { get; set; } = default!;
 
-        public string DisplayName { get; set; }
+        public string DisplayName { get; set; } = default!;
     }
 }

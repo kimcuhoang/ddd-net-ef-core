@@ -7,6 +7,7 @@ using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
 
 namespace DDDEfCore.ProductCatalog.WebApi;
 
@@ -41,8 +42,11 @@ public class Startup
             this.ConfigureJsonSerializerOptions(json.SerializerOptions);
         });
 
-        services.AddApplicationCommands(this.Configuration);
+        services.AddApplicationCommands();
         services.AddApplicationQueries();
+
+        services.AddInfrastructureLayer(this.Configuration);
+
         services.AddSwaggerConfig();
         services.AddHostedService<DbMigratorHostedService>();
     }

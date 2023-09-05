@@ -4,7 +4,6 @@ using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
-using FluentValidation;
 using FluentValidation.TestHelper;
 using Moq;
 using Shouldly;
@@ -13,17 +12,19 @@ using Xunit;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands;
 
-public class TestCreateCatalogCommand : UnitTestBase
+public class TestCreateCatalogCommand
 {
     private readonly CreateCatalogCommandValidator _validator;
     private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
     private readonly Mock<IRepository<Category, CategoryId>> _mockCategoryRepository;
+    private readonly IFixture _fixture;
 
     public TestCreateCatalogCommand() : base()
     {
         this._mockCategoryRepository = new Mock<IRepository<Category, CategoryId>>();
         this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
         this._validator = new CreateCatalogCommandValidator(this._mockCategoryRepository.Object);
+        this._fixture = new Fixture();
     }
 
     [Theory(DisplayName = "Create Catalog Without CatalogCategory Successfully")]
@@ -35,11 +36,15 @@ public class TestCreateCatalogCommand : UnitTestBase
             CatalogName = catalogName
         };
 
-        var handler = new CommandHandler(this._mockCatalogRepository.Object, this._validator);
+        var handler = new CommandHandler(this._mockCatalogRepository.Object);
 
-        await handler.Handle(command, this.CancellationToken);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         this._mockCatalogRepository.Verify(x => x.Add(It.IsAny<Catalog>()), Times.Once);
+
+        result.ShouldNotBeNull();
+        result.CatalogId.ShouldNotBeNull();
+        result.CatalogId.ShouldNotBe(CatalogId.Empty);
     }
 
     [Theory(DisplayName = "Create Catalog With CatalogCategories Successfully")]
@@ -47,7 +52,7 @@ public class TestCreateCatalogCommand : UnitTestBase
     public async Task Create_Catalog_With_CatalogCategories_Successfully(string catalogName)
     {
         var categories = Enumerable.Range(0, 4)
-            .Select(idx => Category.Create(this.Fixture.Create<string>()))
+            .Select(idx => Category.Create(this._fixture.Create<string>()))
             .ToList();
 
         var command = new CreateCatalogCommand
@@ -56,16 +61,16 @@ public class TestCreateCatalogCommand : UnitTestBase
         };
         foreach (var category in categories)
         {
-            command.AddCategory(category.Id, this.Fixture.Create<string>());
+            command.AddCategory(category.Id, this._fixture.Create<string>());
         }
 
         this._mockCategoryRepository
                 .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
                 .ReturnsAsync(categories.First());
 
-        var handler = new CommandHandler(this._mockCatalogRepository.Object, this._validator);
+        var handler = new CommandHandler(this._mockCatalogRepository.Object);
 
-        await handler.Handle(command, this.CancellationToken);
+        await handler.Handle(command, CancellationToken.None);
 
         this._mockCatalogRepository.Verify(x => x.Add(It.IsAny<Catalog>()), Times.Once);
     }
@@ -76,10 +81,17 @@ public class TestCreateCatalogCommand : UnitTestBase
         var command = new CreateCatalogCommand();
         command.AddCategory(CategoryId.Empty, string.Empty);
 
-        var handler = new CommandHandler(this._mockCatalogRepository.Object, this._validator);
+        var result = await this._validator.TestValidateAsync(command);
 
-        await Should.ThrowAsync<ValidationException>(async () =>
-            await handler.Handle(command, this.CancellationToken));
+        result.ShouldHaveValidationErrorFor(x => x.CatalogName);
+
+        for (var i = 0; i < command.Categories.Count; i++)
+        {
+            result.ShouldHaveValidationErrorFor(
+                $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
+            result.ShouldHaveValidationErrorFor(
+                $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
+        }
     }
 
     [Fact(DisplayName = "CreateCatalogCommand With Empty CatalogName Should Be Invalid")]
@@ -102,7 +114,7 @@ public class TestCreateCatalogCommand : UnitTestBase
     {
         var command = new CreateCatalogCommand
         {
-            CatalogName = this.Fixture.Create<string>()
+            CatalogName = this._fixture.Create<string>()
         };
         command.AddCategory(CategoryId.Empty, string.Empty);
 
