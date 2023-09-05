@@ -9,11 +9,11 @@ public class RemoveCatalogProductCommandValidator : AbstractValidator<RemoveCata
 {
     public RemoveCatalogProductCommandValidator(IRepository<Catalog, CatalogId> catalogRepository)
     {
-        RuleFor(x => x.CatalogId).NotNull().Must(_ => _ != CatalogId.Empty);
+        RuleFor(x => x.CatalogId).NotNull().NotEqual(CatalogId.Empty);
 
-        RuleFor(x => x.CatalogCategoryId).NotNull().Must(_ => _ != CatalogCategoryId.Empty);
+        RuleFor(x => x.CatalogCategoryId).NotNull().NotEqual(CatalogCategoryId.Empty);
 
-        RuleFor(x => x.CatalogProductId).NotNull().Must(_ => _ != CatalogProductId.Empty);
+        RuleFor(x => x.CatalogProductId).NotNull().NotEqual(CatalogProductId.Empty);
 
         When(CommandIsValid, () =>
         {
@@ -26,7 +26,7 @@ public class RemoveCatalogProductCommandValidator : AbstractValidator<RemoveCata
                     from c1 in c.Categories
                                 .Where(_ => _.Id == command.CatalogCategoryId)
                                 .DefaultIfEmpty()
-                    let p = c1 != null 
+                    let p = c1 != null
                             ? c1.Products.Where(_ => _.Id == command.CatalogProductId).FirstOrDefault()
                             : null
                     where c.Id == command.CatalogId
@@ -44,11 +44,11 @@ public class RemoveCatalogProductCommandValidator : AbstractValidator<RemoveCata
                 {
                     context.AddFailure(nameof(command.CatalogId), $"Catalog#{command.CatalogId} could not be found.");
                 }
-                else if (result.CatalogCategory == null)
+                else if (result.CatalogCategory is null)
                 {
                     context.AddFailure(nameof(command.CatalogCategoryId), $"CatalogCategory#{command.CatalogCategoryId} could not be found in Catalog#{command.CatalogId}");
                 }
-                else if (result.CatalogProduct == null)
+                else if (result.CatalogProduct is null)
                 {
                     context.AddFailure(nameof(command.CatalogProductId), $"CatalogProduct#{command.CatalogProductId} could not be found in CatalogCategory#{command.CatalogCategoryId} of Catalog#{command.CatalogId}");
                 }
@@ -58,8 +58,8 @@ public class RemoveCatalogProductCommandValidator : AbstractValidator<RemoveCata
 
     private bool CommandIsValid(RemoveCatalogProductCommand command)
     {
-        return command.CatalogId != null && command.CatalogId != CatalogId.Empty
-            && command.CatalogCategoryId != null && command.CatalogCategoryId != CatalogCategoryId.Empty
-            && command.CatalogProductId != null && command.CatalogProductId != CatalogProductId.Empty;
+        return command.CatalogId is not null && command.CatalogId != CatalogId.Empty
+            && command.CatalogCategoryId is not null && command.CatalogCategoryId != CatalogCategoryId.Empty
+            && command.CatalogProductId is not null && command.CatalogProductId != CatalogProductId.Empty;
     }
 }

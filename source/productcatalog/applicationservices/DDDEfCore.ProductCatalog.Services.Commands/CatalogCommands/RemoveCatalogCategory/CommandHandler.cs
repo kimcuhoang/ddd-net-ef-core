@@ -6,23 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatalogCategory;
 
-public class CommandHandler : IRequestHandler<RemoveCatalogCategoryCommand>
+public class CommandHandler : IRequestHandler<RemoveCatalogCategoryCommand, RemoveCatalogCategoryResult>
 {
     private readonly IRepository<Catalog, CatalogId> _repository;
-    private readonly IValidator<RemoveCatalogCategoryCommand> _validator;
 
-    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<RemoveCatalogCategoryCommand> validator)
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
         this._repository = repository;
-        this._validator = validator;
     }
 
-    #region Overrides of IRequestHandler<RemoveCatalogCategoryCommand>
-
-    public async Task Handle(RemoveCatalogCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<RemoveCatalogCategoryResult> Handle(RemoveCatalogCategoryCommand request, CancellationToken cancellationToken)
     {
-        await this._validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var catalogs = this._repository.AsQueryable();
 
         var query =
@@ -43,8 +37,6 @@ public class CommandHandler : IRequestHandler<RemoveCatalogCategoryCommand>
 
         catalog.RemoveCatalogCategoryWithDescendants(catalogCategory);
 
-        await this._repository.UpdateAsync(catalog);
+        return RemoveCatalogCategoryResult.Instance(request);
     }
-
-    #endregion
 }

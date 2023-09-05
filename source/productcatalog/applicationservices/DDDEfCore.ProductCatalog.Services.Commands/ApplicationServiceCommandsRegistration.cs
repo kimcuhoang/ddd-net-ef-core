@@ -2,7 +2,7 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Infrastructure;
+namespace DDDEfCore.ProductCatalog.Services.Commands;
 
 public static class ApplicationServiceCommandsRegistration
 {

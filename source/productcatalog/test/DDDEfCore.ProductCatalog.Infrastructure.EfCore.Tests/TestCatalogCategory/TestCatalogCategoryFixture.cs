@@ -48,10 +48,8 @@ public class TestCatalogCategoryFixture : DefaultTestFixture
     {
         await this.RepositoryExecute<Catalog, CatalogId>(async repository =>
         {
-            var catalog = await repository
-                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                    x => x.Include(c => c.Categories)
-                        .ThenInclude(c => c.Products));
+            var catalog = await repository.FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
+                    x => x.Include(c => c.Categories).ThenInclude(c => c.Products));
 
             var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
 
@@ -65,10 +63,8 @@ public class TestCatalogCategoryFixture : DefaultTestFixture
     {
         await this.RepositoryExecute<Catalog, CatalogId>(async repository =>
         {
-            var catalog = await repository
-                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                    x => x.Include(c => c.Categories)
-                        .ThenInclude(c => c.Products));
+            var catalog = await repository.FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
+                    x => x.Include(c => c.Categories).ThenInclude(c => c.Products));
 
             var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
 

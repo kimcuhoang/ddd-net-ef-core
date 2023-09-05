@@ -1,9 +1,7 @@
-﻿using AutoFixture;
+﻿
 using DDDEfCore.Core.Common;
 using DDDEfCore.Core.Common.Models;
 using Moq;
-using System.Security.Principal;
-using System.Threading;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests;
 

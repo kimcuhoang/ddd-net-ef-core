@@ -8,7 +8,7 @@ public interface IRepository<TAggregate, TIdentity>
         where TIdentity : IdentityBase
 {
     IQueryable<TAggregate> AsQueryable();
-    Task<TAggregate> FindOneAsync(Expression<Func<TAggregate, bool>> predicate);
+    Task<TAggregate?> FindOneAsync(Expression<Func<TAggregate, bool>> predicate);
     Task AddAsync(TAggregate aggregate);
     Task UpdateAsync(TAggregate aggregate);
     Task RemoveAsync(TAggregate aggregate);

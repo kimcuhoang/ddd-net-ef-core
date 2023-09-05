@@ -1,5 +1,7 @@
 ﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
+using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
@@ -39,36 +41,124 @@ public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
     [AutoData]
     public async Task CatalogCategory_Create_CatalogProduct_Successfully(string catalogProductDisplayName)
     {
-        CatalogProduct catalogProduct = null;
+        var product = Product.Create("Product");
 
-        await this._fixture.DoActionWithCatalogCategory(catalogCategory =>
+        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            catalogProduct =
-                catalogCategory.CreateCatalogProduct(this._fixture.Product.Id, catalogProductDisplayName);
+            dbContext.Add(product);
+            await dbContext.SaveChangesAsync();
         });
 
-        await this._fixture.DoAssertForCatalogCategory(catalogCategory =>
+        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            catalogCategory.Products.ShouldNotBeNull();
-            catalogCategory.Products.ShouldHaveSingleItem();
-            catalogCategory.Products.ShouldContain(catalogProduct);
+            var catalogs = dbContext.Set<Catalog>();
+
+            var query =
+                    from c in catalogs
+                    from c1 in c.Categories
+                    where c.Id == this._fixture.Catalog.Id && c1.Id == this._fixture.CatalogCategory.Id
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1
+                    };
+
+            this._testOutput.WriteLine(query.ToQueryString());
+
+            var result = await query.FirstOrDefaultAsync();
+
+            result.ShouldNotBeNull();
+
+            var catalog = result.Catalog;
+            var catalogCategory = result.CatalogCategory;
+            var catalogProduct = catalogCategory.CreateCatalogProduct(product.Id, catalogProductDisplayName);
+
+            await dbContext.SaveChangesAsync();
+        });
+
+        await this._fixture.ExecuteDbContextAsync(async dbContext =>
+        {
+            var query = dbContext.Set<Catalog>()
+                        .Where(_ => _.Id == this._fixture.Catalog.Id)
+                        .SelectMany(_ => _.Categories)
+                        .Where(_ => _.Id == this._fixture.CatalogCategory.Id)
+                        .SelectMany(_ => _.Products)
+                        .Where(_ => _.ProductId == product.Id);
+
+            this._testOutput.WriteLine(query.ToQueryString());
+
+            var catalogProduct = await query.FirstOrDefaultAsync();
+
+            catalogProduct.ShouldNotBeNull();
         });
     }
 
     [Fact(DisplayName = "CatalogCategory Remove CatalogProduct Successfully")]
     public async Task CatalogCategory_Remove_CatalogProduct_Successfully()
     {
-        await this._fixture.DoActionWithCatalogCategory(catalogCategory =>
+        var product = Product.Create("Product");
+
+        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            var catalogProduct =
-                catalogCategory.Products.SingleOrDefault(x => x == this._fixture.CatalogProduct);
-            catalogCategory.RemoveCatalogProduct(catalogProduct);
+            dbContext.Add(product);
+            await dbContext.SaveChangesAsync();
         });
 
-        await this._fixture.DoAssertForCatalogCategory(catalogCategory =>
+        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            catalogCategory.ShouldNotBeNull();
-            catalogCategory.Products.ShouldBeEmpty();
+            var catalogs = dbContext.Set<Catalog>();
+
+            var query =
+                    from c in catalogs
+                    from c1 in c.Categories
+                    where c.Id == this._fixture.Catalog.Id && c1.Id == this._fixture.CatalogCategory.Id
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1
+                    };
+
+            this._testOutput.WriteLine(query.ToQueryString());
+
+            var result = await query.FirstOrDefaultAsync();
+
+            result.ShouldNotBeNull();
+
+            var catalog = result.Catalog;
+            var catalogCategory = result.CatalogCategory;
+            var catalogProduct = catalogCategory.CreateCatalogProduct(product.Id, "Catalog-Product");
+
+            await dbContext.SaveChangesAsync();
+        });
+
+        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
+        {
+            var query = dbContext.Set<Catalog>()
+                        .Where(_ => _.Id == this._fixture.Catalog.Id)
+                        .SelectMany(_ => _.Categories)
+                        .Where(_ => _.Id == this._fixture.CatalogCategory.Id)
+                        .SelectMany(_ => _.Products)
+                        .Where(_ => _.ProductId == product.Id);
+
+            var result = await query.ExecuteDeleteAsync();
+
+            result.ShouldBe(1);
+        });
+
+        await this._fixture.ExecuteDbContextAsync(async dbContext =>
+        {
+            var query = dbContext.Set<Catalog>()
+                        .Where(_ => _.Id == this._fixture.Catalog.Id)
+                        .SelectMany(_ => _.Categories)
+                        .Where(_ => _.Id == this._fixture.CatalogCategory.Id)
+                        .SelectMany(_ => _.Products)
+                        .Where(_ => _.ProductId == product.Id);
+
+            this._testOutput.WriteLine(query.ToQueryString());
+
+            var catalogProduct = await query.FirstOrDefaultAsync();
+
+            catalogProduct.ShouldBeNull();
         });
     }
     #endregion

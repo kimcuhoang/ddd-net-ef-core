@@ -11,14 +11,18 @@ public class CreateCatalogProductCommandValidator : AbstractValidator<CreateCata
     public CreateCatalogProductCommandValidator(IRepository<Catalog, CatalogId> catalogRepository,
                                                 IRepository<Product, ProductId> productRepository)
     {
-        RuleFor(x => x.CatalogId).NotNull();
+        RuleFor(x => x.CatalogId).NotNull().NotEqual(CatalogId.Empty);
 
-        RuleFor(x => x.CatalogCategoryId).NotNull();
+        RuleFor(x => x.CatalogCategoryId).NotNull().NotEqual(CatalogCategoryId.Empty);
 
         RuleFor(x => x.ProductId)
-            .NotNull()
+            .NotNull().NotEqual(ProductId.Empty)
             .MustAsync(async (x, token) => await this.ProductMustExist(productRepository, x))
             .WithMessage(x => $"Product#{x.ProductId} could not be found.");
+
+        RuleFor(x => x.DisplayName)
+            .NotNull()
+            .NotEmpty();
 
         When(this.CommandIsValid, () =>
         {
@@ -29,7 +33,9 @@ public class CreateCatalogProductCommandValidator : AbstractValidator<CreateCata
                 var query =
                     from c in catalogs
                     from c1 in c.Categories.Where(_ => _.Id == command.CatalogCategoryId).DefaultIfEmpty()
-                    let p = c1.Products.FirstOrDefault(_ => _.Id == command.ProductId)
+                    let p = c1 != null
+                                ? c1.Products.FirstOrDefault(_ => _.ProductId == command.ProductId)
+                                : null
                     where c.Id == command.CatalogId
                     select new
                     {
@@ -44,12 +50,12 @@ public class CreateCatalogProductCommandValidator : AbstractValidator<CreateCata
                 {
                     context.AddFailure($"{nameof(command.CatalogId)}", $"Catalog#{command.CatalogId} could not be found.");
                 }
-                else if (result.CatalogCategory == null)
+                else if (result.CatalogCategory is null)
                 {
                     context.AddFailure($"{nameof(command.CatalogCategoryId)}",
                         $"CatalogCategory#{command.CatalogCategoryId} could not be found in Catalog#{command.CatalogId}.");
                 }
-                else if (result.CatalogProduct == null)
+                else if (result.CatalogProduct is not null)
                 {
                     context.AddFailure($"{nameof(command.ProductId)}",
                             $"Product#{command.ProductId} is existing in CatalogCategory#{command.CatalogCategoryId}.");
@@ -57,19 +63,19 @@ public class CreateCatalogProductCommandValidator : AbstractValidator<CreateCata
             });
         });
 
-        RuleFor(x => x.DisplayName)
-            .NotNull()
-            .NotEmpty();
+        
     }
 
     private bool CommandIsValid(CreateCatalogProductCommand command)
     {
-        return command.CatalogId != null && command.CatalogCategoryId != null && command.ProductId != null;
+        return command.CatalogId is not null && command.CatalogId != CatalogId.Empty
+            && command.CatalogCategoryId is not null && command.CatalogCategoryId != CatalogCategoryId.Empty 
+            && command.ProductId is not null && command.ProductId != ProductId.Empty;
     }
 
     private async Task<bool> ProductMustExist(IRepository<Product, ProductId> productRepository, ProductId productId)
     {
         var product = await productRepository.FindOneAsync(x => x.Id == productId);
-        return product != null;
+        return product is not null;
     }
 }

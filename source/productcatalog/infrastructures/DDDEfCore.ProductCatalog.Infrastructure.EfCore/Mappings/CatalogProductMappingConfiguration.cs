@@ -11,9 +11,10 @@ namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Mappings
 
         public void Configure(EntityTypeBuilder<CatalogProduct> builder)
         {
+            builder.HasKey(_ => _.Id);
+
             builder
                 .Property(x => x.Id)
-                .UsePropertyAccessMode(PropertyAccessMode.Field)
                 .HasConversion(x => x.Id, id => CatalogProductId.Of(id));
 
             builder

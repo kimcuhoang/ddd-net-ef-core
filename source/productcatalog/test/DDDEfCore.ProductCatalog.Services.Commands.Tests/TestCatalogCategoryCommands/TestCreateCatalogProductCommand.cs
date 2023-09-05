@@ -1,192 +1,182 @@
-﻿//using AutoFixture;
-//using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
-//using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
-//using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-//using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
-//using DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogProduct;
-//using FluentValidation;
-//using FluentValidation.TestHelper;
-//using MediatR;
-//using Microsoft.EntityFrameworkCore;
-//using Moq;
-//using Moq.EntityFrameworkCore;
-//using Shouldly;
-//using Xunit;
+﻿using DDDEfCore.Core.Common;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
+using DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogProduct;
+using FluentValidation.TestHelper;
+using MockQueryable.Moq;
+using Moq;
+using System.Linq.Expressions;
 
-//namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands
-//{
-//    public class TestCreateCatalogProductCommand : UnitTestBase<Catalog, CatalogId>, IAsyncLifetime
-//    {
-//        private Mock<DbContext> _mockDbContext;
-//        private CreateCatalogProductCommandValidator _validator;
-//        private IRequestHandler<CreateCatalogProductCommand> _requestHandler;
+namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands;
 
-//        private Catalog _catalog;
-//        private Category _category;
-//        private Product _product;
-//        private CatalogCategory _catalogCategory;
+public class TestCreateCatalogProductCommand
+{
+    private Catalog _catalog;
+    private Category _category;
+    private Product _product;
+    private CatalogCategory _catalogCategory;
 
-//        #region Implementation of IAsyncLifetime
+    private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
+    private readonly Mock<IRepository<Product, ProductId>> _mockProductRepository;
 
-//        public Task InitializeAsync()
-//        {
-//            this._mockDbContext = new Mock<DbContext>();
-//            var catalogRepository = new DefaultRepositoryAsync<Catalog, CatalogId>(this._mockDbContext.Object);
-//            var productRepository = new DefaultRepositoryAsync<Product, ProductId>(this._mockDbContext.Object);
+    public TestCreateCatalogProductCommand()
+    {
+        this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
+        this._mockProductRepository = new Mock<IRepository<Product, ProductId>>();
 
-//            this.MockRepositoryFactory
-//                .Setup(x => x.CreateRepository<Catalog, CatalogId>()).Returns(catalogRepository);
-//            this.MockRepositoryFactory
-//                .Setup(x => x.CreateRepository<Product, ProductId>()).Returns(productRepository);
+        this._catalog = Catalog.Create("Catalog");
+        this._category = Category.Create("Category");
+        this._product = Product.Create("Product");
 
-//            this._catalog = Catalog.Create(this.Fixture.Create<string>());
-//            this._category = Category.Create(this.Fixture.Create<string>());
-//            this._product = Product.Create(this.Fixture.Create<string>());
-//            this._catalogCategory = this._catalog.AddCategory(this._category.Id, this._category.DisplayName);
+        this._catalogCategory = this._catalog.AddCategory(this._category.Id, "Catalog-Category");
 
-//            this._mockDbContext
-//                .Setup(x => x.Set<Catalog>())
-//                .ReturnsDbSet(new List<Catalog> {this._catalog});
-//            this._mockDbContext
-//                .Setup(x => x.Set<Product>())
-//                .ReturnsDbSet(new List<Product> {this._product});
+        this._mockCatalogRepository
+            .Setup(_ => _.AsQueryable())
+            .Returns(new List<Catalog> { this._catalog }.BuildMock());
 
-//            this._validator = new CreateCatalogProductCommandValidator(catalogRepository, productRepository);
-//            this._requestHandler = new CommandHandler(catalogRepository, this._validator);
+        this._mockProductRepository
+            .Setup(_ => _.AsQueryable())
+            .Returns(new List<Product> { this._product }.BuildMock());
+    }
 
-//            return Task.CompletedTask;
-//        }
 
-//        public Task DisposeAsync() => Task.CompletedTask;
 
-//        #endregion
+    [Fact(DisplayName = "Create CatalogProduct Successfully")]
+    public async Task Create_CatalogProduct_Successfully()
+    {
+        var command = new CreateCatalogProductCommand
+        {
+            CatalogId = this._catalog.Id,
+            CatalogCategoryId = this._catalogCategory.Id,
+            ProductId = this._product.Id,
+            DisplayName = this._product.Name
+        };
 
-//        [Fact(DisplayName = "Create CatalogProduct Successfully")]
-//        public async Task Create_CatalogProduct_Successfully()
-//        {
-//            var command = new CreateCatalogProductCommand
-//            {
-//                CatalogId = this._catalog.Id,
-//                CatalogCategoryId = this._catalogCategory.Id,
-//                ProductId = this._product.Id,
-//                DisplayName = this._product.Name
-//            };
+        var commandHandler = new CommandHandler(this._mockCatalogRepository.Object);
 
-//            await this._requestHandler.Handle(command, this.CancellationToken);
+        var result = await commandHandler.Handle(command, CancellationToken.None);
 
-//            this._mockDbContext.Verify(x => x.Update(this._catalog), Times.Once);
-//        }
+        result.ShouldNotBeNull();
+        result.CatalogProductId.ShouldNotBeNull().ShouldNotBe(CatalogProductId.Empty);
+    }
 
-//        [Fact(DisplayName = "Invalid Command Should Throw ValidationException")]
-//        public async Task Invalid_Command_ShouldThrow_ValidationException()
-//        {
-//            var command = new CreateCatalogProductCommand
-//            {
-//                CatalogId = CatalogId.Empty,
-//                CatalogCategoryId = CatalogCategoryId.Empty,
-//                ProductId = ProductId.Empty,
-//                DisplayName = string.Empty
-//            };
 
-//            await Should.ThrowAsync<ValidationException>(async () =>
-//                await this._requestHandler.Handle(command, this.CancellationToken));
-//        }
+    [Fact(DisplayName = "Empty Command Should Be Invalid")]
+    public async Task Empty_Command_ShouldBe_Invalid()
+    {
+        var command = new CreateCatalogProductCommand
+        {
+            CatalogId = CatalogId.Empty,
+            CatalogCategoryId = CatalogCategoryId.Empty,
+            ProductId = ProductId.Empty,
+            DisplayName = string.Empty
+        };
 
-//        [Fact(DisplayName = "Empty Command Should Be Invalid")]
-//        public async Task Empty_Command_ShouldBe_Invalid()
-//        {
-//            var command = new CreateCatalogProductCommand
-//            {
-//                CatalogId = CatalogId.Empty,
-//                CatalogCategoryId = CatalogCategoryId.Empty,
-//                ProductId = ProductId.Empty,
-//                DisplayName = string.Empty
-//            };
+        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
 
-//            var result = await this._validator.TestValidateAsync(command);
+        var result = await validator.TestValidateAsync(command);
 
-//            result.ShouldHaveValidationErrorFor(x => x.CatalogId);
-//            result.ShouldHaveValidationErrorFor(x => x.ProductId);
-//            result.ShouldHaveValidationErrorFor(x => x.DisplayName);
-//        }
+        result.ShouldHaveValidationErrorFor(x => x.CatalogId);
+        result.ShouldHaveValidationErrorFor(x => x.ProductId);
+        result.ShouldHaveValidationErrorFor(x => x.DisplayName);
+    }
 
-//        [Fact(DisplayName = "Catalog Not Found Should Be Invalid")]
-//        public async Task Catalog_NotFound_ShouldBe_Invalid()
-//        {
-//            var command = new CreateCatalogProductCommand
-//            {
-//                CatalogId = CatalogId.New,
-//                CatalogCategoryId = CatalogCategoryId.New,
-//                ProductId = this._product.Id,
-//                DisplayName = this._product.Name
-//            };
+    [Fact(DisplayName = "Catalog Not Found Should Be Invalid")]
+    public async Task Catalog_NotFound_ShouldBe_Invalid()
+    {
+        var command = new CreateCatalogProductCommand
+        {
+            CatalogId = CatalogId.New,
+            CatalogCategoryId = CatalogCategoryId.New,
+            ProductId = this._product.Id,
+            DisplayName = this._product.Name
+        };
 
-//            var result = await this._validator.TestValidateAsync(command);
+        this._mockProductRepository
+            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Product, bool>>>()))
+            .ReturnsAsync(this._product);
 
-//            result.ShouldHaveValidationErrorFor(x => x.CatalogId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.ProductId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
-//        }
+        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
 
-//        [Fact(DisplayName = "CatalogCategory Not Found Should Be Invalid")]
-//        public async Task CatalogCategory_NotFound_ShouldBe_Invalid()
-//        {
-//            var command = new CreateCatalogProductCommand
-//            {
-//                CatalogId = this._catalog.Id,
-//                CatalogCategoryId = CatalogCategoryId.New,
-//                ProductId = this._product.Id,
-//                DisplayName = this._product.Name
-//            };
+        var result = await validator.TestValidateAsync(command);
 
-//            var result = await this._validator.TestValidateAsync(command);
+        result.ShouldHaveValidationErrorFor(x => x.CatalogId);
+        result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
+        result.ShouldNotHaveValidationErrorFor(x => x.ProductId);
+        result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
+    }
 
-//            result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.ProductId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
-//        }
+    [Fact(DisplayName = "CatalogCategory Not Found Should Be Invalid")]
+    public async Task CatalogCategory_NotFound_ShouldBe_Invalid()
+    {
+        var command = new CreateCatalogProductCommand
+        {
+            CatalogId = this._catalog.Id,
+            CatalogCategoryId = CatalogCategoryId.New,
+            ProductId = this._product.Id,
+            DisplayName = this._product.Name
+        };
 
-//        [Fact(DisplayName = "Product Not Found Should Be Invalid")]
-//        public async Task Product_NotFound_ShouldBe_Invalid()
-//        {
-//            var command = new CreateCatalogProductCommand
-//            {
-//                CatalogId = this._catalog.Id,
-//                CatalogCategoryId = this._catalogCategory.Id,
-//                ProductId = ProductId.New,
-//                DisplayName = this._product.Name
-//            };
+        this._mockProductRepository
+            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Product, bool>>>()))
+            .ReturnsAsync(this._product);
 
-//            var result = await this._validator.TestValidateAsync(command);
+        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
 
-//            result.ShouldHaveValidationErrorFor(x => x.ProductId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
-//        }
+        var result = await validator.TestValidateAsync(command);
 
-//        [Fact(DisplayName = "Duplicate Product Should Be Invalid")]
-//        public async Task Duplicate_Product_ShouldBe_Invalid()
-//        {
-//            var catalogProduct =
-//                this._catalogCategory.CreateCatalogProduct(this._product.Id, this._product.Name);
+        result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
+        result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
+        result.ShouldNotHaveValidationErrorFor(x => x.ProductId);
+        result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
+    }
 
-//            var command = new CreateCatalogProductCommand
-//            {
-//                CatalogId = this._catalog.Id,
-//                CatalogCategoryId = this._catalogCategory.Id,
-//                ProductId = this._product.Id,
-//                DisplayName = this._product.Name
-//            };
+    [Fact(DisplayName = "Product Not Found Should Be Invalid")]
+    public async Task Product_NotFound_ShouldBe_Invalid()
+    {
+        var command = new CreateCatalogProductCommand
+        {
+            CatalogId = this._catalog.Id,
+            CatalogCategoryId = this._catalogCategory.Id,
+            ProductId = ProductId.New,
+            DisplayName = this._product.Name
+        };
 
-//            var result = await this._validator.TestValidateAsync(command);
+        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
 
-//            result.ShouldHaveValidationErrorFor(x => x.ProductId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
-//            result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
-//        }
-//    }
-//}
+        var result = await validator.TestValidateAsync(command);
+
+        result.ShouldHaveValidationErrorFor(x => x.ProductId);
+        result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
+        result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
+        result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
+    }
+
+    [Fact(DisplayName = "Duplicate Product Should Be Invalid")]
+    public async Task Duplicate_Product_ShouldBe_Invalid()
+    {
+        var catalogProduct = this._catalogCategory.CreateCatalogProduct(this._product.Id, this._product.Name);
+
+        var command = new CreateCatalogProductCommand
+        {
+            CatalogId = this._catalog.Id,
+            CatalogCategoryId = this._catalogCategory.Id,
+            ProductId = this._product.Id,
+            DisplayName = this._product.Name
+        };
+
+        this._mockProductRepository
+            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Product, bool>>>()))
+            .ReturnsAsync(this._product);
+
+        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
+
+        var result = await validator.TestValidateAsync(command);
+
+        result.ShouldHaveValidationErrorFor(x => x.ProductId);
+        result.ShouldNotHaveValidationErrorFor(x => x.CatalogId);
+        result.ShouldNotHaveValidationErrorFor(x => x.CatalogCategoryId);
+        result.ShouldNotHaveValidationErrorFor(x => x.DisplayName);
+    }
+}

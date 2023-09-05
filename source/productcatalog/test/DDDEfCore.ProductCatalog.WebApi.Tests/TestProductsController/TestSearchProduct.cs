@@ -1,15 +1,10 @@
 ﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductCollection;
-using DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using Shouldly;
 using System.Net;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Unicode;
 using System.Web;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController;
@@ -116,6 +111,9 @@ public class TestSearchProduct : TestBase<TestProductsControllerFixture>
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
             var result = await response.Content.ReadAsStringAsync();
+
+            this._testOutput.WriteLine(result);
+
             var searchResult =
                 JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result, jsonSerializerOptions);
             searchResult.Status.ShouldBe((int)HttpStatusCode.BadRequest);

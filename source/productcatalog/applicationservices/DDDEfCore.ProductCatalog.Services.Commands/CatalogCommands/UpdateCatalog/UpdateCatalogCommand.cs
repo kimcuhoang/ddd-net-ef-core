@@ -3,7 +3,7 @@ using MediatR;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog;
 
-public class UpdateCatalogCommand : IRequest
+public class UpdateCatalogCommand : ITransactionCommand<UpdateCatalogResult>
 {
     public CatalogId CatalogId { get; set; }
     public string CatalogName { get; set; }

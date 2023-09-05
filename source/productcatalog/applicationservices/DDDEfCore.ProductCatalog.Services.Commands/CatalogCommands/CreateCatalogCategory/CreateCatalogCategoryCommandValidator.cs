@@ -12,12 +12,12 @@ public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCat
                                                 IRepository<Category, CategoryId> categoryRespository)
     {
         RuleFor(x => x.CatalogId)
-            .NotNull()
+            .NotNull().NotEqual(CatalogId.Empty)
             .MustAsync(async (x, token) => await this.CatalogIsExisting(catalogRepository, x))
             .WithMessage(x => $"Catalog#{x.CatalogId} could not be found.");
 
         RuleFor(x => x.CategoryId)
-            .NotNull()
+            .NotNull().NotEqual(CategoryId.Empty)
             .MustAsync(async (x, token) => await this.CategoryIsExisting(categoryRespository, x))
             .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
 
@@ -25,7 +25,7 @@ public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCat
             .NotNull()
             .NotEmpty();
 
-        When(x => x.ParentCatalogCategoryId != null, () =>
+        When(x => x.ParentCatalogCategoryId is not null, () =>
         {
             RuleFor(x => x).CustomAsync(async (x, context, token) =>
             {
@@ -42,13 +42,13 @@ public class CreateCatalogCategoryCommandValidator : AbstractValidator<CreateCat
     private async Task<bool> CatalogIsExisting(IRepository<Catalog, CatalogId> catalogRepository, CatalogId catalogId)
     {
         var catalog = await catalogRepository.FindOneAsync(x => x.Id == catalogId);
-        return catalog != null;
+        return catalog is not null;
     }
 
     private async Task<bool> CategoryIsExisting(IRepository<Category, CategoryId> categoryRepository, CategoryId categoryId)
     {
         var category = await categoryRepository.FindOneAsync(x => x.Id == categoryId);
-        return category != null;
+        return category is not null;
     }
 
     private async Task<bool> CatalogCategoryIsExistingInCatalog(IRepository<Catalog, CatalogId> catalogRepository, CatalogId catalogId, CatalogCategoryId catalogCategoryId)

@@ -2,10 +2,8 @@
 using DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDetail;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
-using Shouldly;
 using System.Net;
 using System.Text.Json;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController;
@@ -30,14 +28,19 @@ public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
         {
             var request = new GetCatalogDetailRequest
             {
-                CatalogId = this.Catalog.Id
+                CatalogId = this.Catalog.Id,
+                SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest()
             };
 
             var content = request.ToStringContent(jsonSerializerOptions);
             var response = await client.PostAsync(this.ApiUrl, content);
+            
+            var result = await response.Content.ReadAsStringAsync();
+
+            this._testOutput.WriteLine(result);
 
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var result = await response.Content.ReadAsStringAsync();
+
             var catalogDetailResult =
                 JsonSerializer.Deserialize<GetCatalogDetailResult>(result, jsonSerializerOptions);
 

@@ -1,35 +1,28 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
-using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory;
 
-public class CommandHandler : IRequestHandler<CreateCatalogCategoryCommand>
+public class CommandHandler : IRequestHandler<CreateCatalogCategoryCommand, CreateCatalogCategoryResult>
 {
     private readonly IRepository<Catalog, CatalogId> _repository;
-    private readonly IValidator<CreateCatalogCategoryCommand> _validator;
 
-    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<CreateCatalogCategoryCommand> validator)
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
         this._repository = repository;
-        this._validator = validator;
     }
 
-    #region Overrides of IRequestHandler<CreateCatalogCategoryCommand>
-
-    public async Task Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<CreateCatalogCategoryResult> Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
     {
-        await this._validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var catalogs = this._repository.AsQueryable();
 
         var query =
                 from c in catalogs
-                from c1 in c.Categories
-                        .Where(_ => request.ParentCatalogCategoryId != null && _.Id == request.ParentCatalogCategoryId)
-                        .DefaultIfEmpty()
+                let c1 = request.ParentCatalogCategoryId != null
+                            ? c.Categories.FirstOrDefault(_ => _.Id == request.ParentCatalogCategoryId)
+                            : null
                 where c.Id == request.CatalogId
                 select new
                 {
@@ -41,12 +34,8 @@ public class CommandHandler : IRequestHandler<CreateCatalogCategoryCommand>
 
         var catalog = result.Catalog;
 
-        CatalogCategory parent = result.CatalogCategory;
+        var catalogCategory = catalog.AddCategory(request.CategoryId, request.DisplayName, result.CatalogCategory);
 
-        catalog.AddCategory(request.CategoryId, request.DisplayName, parent);
-
-        await this._repository.UpdateAsync(catalog);
+        return CreateCatalogCategoryResult.Instance(request, catalogCategory.Id);
     }
-
-    #endregion
 }

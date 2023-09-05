@@ -7,9 +7,7 @@ using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Shouldly;
 using System.Net;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestCatalogsController;
@@ -31,14 +29,16 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
     [AutoData]
     public async Task Create_Catalog_Successfully(string catalogName)
     {
+        var command = new CreateCatalogCommand
+        {
+            CatalogName = catalogName
+        };
+
         await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
         {
-            var command = new CreateCatalogCommand
-            {
-                CatalogName = catalogName
-            };
+            
 
-            var content = command.ToStringContent();
+            var content = command.ToStringContent(jsonSerializerOptions);
             var response = await client.PostAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 

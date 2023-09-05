@@ -9,11 +9,11 @@ public class UpdateCatalogCategoryCommandValidator : AbstractValidator<UpdateCat
 {
     public UpdateCatalogCategoryCommandValidator(IRepository<Catalog, CatalogId> catalogRepository)
     {
-        RuleFor(x => x.CatalogId).NotNull();
+        RuleFor(x => x.CatalogId).NotNull().NotEqual(CatalogId.Empty);
 
-        RuleFor(x => x.CatalogCategoryId).NotNull();
+        RuleFor(x => x.CatalogCategoryId).NotNull().NotEqual(CatalogCategoryId.Empty);
 
-        When(x => x.CatalogId != null && x.CatalogCategoryId != null, () =>
+        When(x => x.CatalogId is not null && x.CatalogId != CatalogId.Empty && x.CatalogCategoryId is not null && x.CatalogCategoryId != CatalogCategoryId.Empty, () =>
         {
             RuleFor(x => x).CustomAsync(async (x, context, token) =>
             {
@@ -35,7 +35,7 @@ public class UpdateCatalogCategoryCommandValidator : AbstractValidator<UpdateCat
                 {
                     context.AddFailure(nameof(x.CatalogId), $"Catalog#{x.CatalogId} could not be found");
                 }
-                else if(result.CatalogCategory == null)
+                else if(result.CatalogCategory is null)
                 {
                     context.AddFailure(nameof(x.CatalogCategoryId),
                         $"CatalogCategory#{x.CatalogCategoryId} could not be found in Catalog#{x.CatalogId}");

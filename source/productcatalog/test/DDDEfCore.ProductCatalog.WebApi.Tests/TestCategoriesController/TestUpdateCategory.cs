@@ -1,6 +1,7 @@
 ﻿using AutoFixture.Xunit2;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using System.Net;
 using Xunit;
@@ -23,9 +24,17 @@ public class TestUpdateCategory : TestBase<TestCategoryControllerFixture>
     {
         await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
         {
-            var content = categoryName.ToStringContent();
+            var content = categoryName.ToStringContent(jsonSerializeOptions);
             var response = await client.PutAsync(this.ApiUrl, content);
-            response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            await this._fixture.ExecuteDbContextAsync(async dbContext =>
+            {
+                var category = await dbContext.Set<Category>().FirstOrDefaultAsync(_ => _.Id == this._fixture.Category.Id);
+
+                category.ShouldNotBeNull();
+                category.DisplayName.ShouldBe(categoryName);
+            });
         });
     }
 

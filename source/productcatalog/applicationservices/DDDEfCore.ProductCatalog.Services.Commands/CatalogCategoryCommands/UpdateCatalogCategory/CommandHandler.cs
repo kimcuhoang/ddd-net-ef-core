@@ -6,24 +6,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.UpdateCatalogCategory;
 
-public class CommandHandler : IRequestHandler<UpdateCatalogCategoryCommand>
+public class CommandHandler : IRequestHandler<UpdateCatalogCategoryCommand, UpdateCatalogCategoryResult>
 {
     private readonly IRepository<Catalog, CatalogId> _repository;
-    private readonly IValidator<UpdateCatalogCategoryCommand> _validator;
 
-    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<UpdateCatalogCategoryCommand> validator)
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
         this._repository = repository;
-        this._validator = validator;
     }
 
 
     #region Overrides of IRequestHandler<UpdateCatalogCategoryCommand>
 
-    public async Task Handle(UpdateCatalogCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<UpdateCatalogCategoryResult> Handle(UpdateCatalogCategoryCommand request, CancellationToken cancellationToken)
     {
-        await this._validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var catalogs = this._repository.AsQueryable();
 
         var query =
@@ -44,7 +40,7 @@ public class CommandHandler : IRequestHandler<UpdateCatalogCategoryCommand>
 
         catalogCategory.ChangeDisplayName(request.DisplayName);
 
-        await this._repository.UpdateAsync(catalog);
+        return UpdateCatalogCategoryResult.Instance(request);
     }
 
     #endregion

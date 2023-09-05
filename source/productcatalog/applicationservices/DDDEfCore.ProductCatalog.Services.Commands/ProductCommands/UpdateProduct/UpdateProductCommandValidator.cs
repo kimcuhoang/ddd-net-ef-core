@@ -21,6 +21,6 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
     private async Task<bool> ProductMustExist(IRepository<Product, ProductId> productRepository, ProductId productId)
     {
         var product = await productRepository.FindOneAsync(x => x.Id == productId);
-        return product != null;
+        return product is not null;
     }
 }

@@ -6,21 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.RemoveCatalogProduct;
 
-public class CommandHandler : IRequestHandler<RemoveCatalogProductCommand>
+public class CommandHandler : IRequestHandler<RemoveCatalogProductCommand, RemoveCatalogProductResult>
 {
     private readonly IRepository<Catalog, CatalogId> _repository;
-    private readonly IValidator<RemoveCatalogProductCommand> _validator;
 
-    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<RemoveCatalogProductCommand> validator)
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
         this._repository = repository;
-        this._validator = validator;
     }
 
-    public async Task Handle(RemoveCatalogProductCommand request, CancellationToken cancellationToken)
+    public async Task<RemoveCatalogProductResult> Handle(RemoveCatalogProductCommand request, CancellationToken cancellationToken)
     {
-        await this._validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var catalogs = this._repository.AsQueryable();
 
         var query =
@@ -45,6 +41,6 @@ public class CommandHandler : IRequestHandler<RemoveCatalogProductCommand>
 
         catalogCategory.RemoveCatalogProduct(catalogProduct);
 
-        await this._repository.UpdateAsync(catalog);
+        return RemoveCatalogProductResult.Instance(request);
     }
 }

@@ -40,7 +40,6 @@ public class CatalogsController : ControllerBase
     /// <param name="catalogName"></param>
     /// <returns></returns>
     [HttpPut("{catalogId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update(CatalogId catalogId, [FromBody] string catalogName)
@@ -50,8 +49,8 @@ public class CatalogsController : ControllerBase
             CatalogId = catalogId,
             CatalogName = catalogName
         };
-        await this._sender.Send(command);
-        return NoContent();
+        var result = await this._sender.Send(command);
+        return Ok(result);
     }
 
     /// <summary>

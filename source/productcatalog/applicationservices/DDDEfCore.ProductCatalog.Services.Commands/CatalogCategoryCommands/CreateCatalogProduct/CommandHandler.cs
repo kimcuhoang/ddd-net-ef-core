@@ -6,21 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogProduct;
 
-public class CommandHandler : IRequestHandler<CreateCatalogProductCommand>
+public class CommandHandler : IRequestHandler<CreateCatalogProductCommand, CreateCatalogProductResult>
 {
     private readonly IRepository<Catalog, CatalogId> _repository;
-    private readonly IValidator<CreateCatalogProductCommand> _validator;
 
-    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<CreateCatalogProductCommand> validator)
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
         this._repository = repository;
-        this._validator = validator;
     }
 
-    public async Task Handle(CreateCatalogProductCommand request, CancellationToken cancellationToken)
+    public async Task<CreateCatalogProductResult> Handle(CreateCatalogProductCommand request, CancellationToken cancellationToken)
     {
-        await this._validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var catalogs = this._repository.AsQueryable();
 
         var query =
@@ -39,8 +35,8 @@ public class CommandHandler : IRequestHandler<CreateCatalogProductCommand>
 
         var catalogCategory = result.CatalogCategory;
 
-        catalogCategory.CreateCatalogProduct(request.ProductId, request.DisplayName);
+        var catalogProduct = catalogCategory.CreateCatalogProduct(request.ProductId, request.DisplayName);
 
-        await this._repository.UpdateAsync(catalog);
+        return CreateCatalogProductResult.Instance(request, catalogProduct.Id);
     }
 }

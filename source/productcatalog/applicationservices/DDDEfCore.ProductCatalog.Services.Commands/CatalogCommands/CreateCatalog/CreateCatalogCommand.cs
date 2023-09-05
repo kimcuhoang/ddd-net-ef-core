@@ -2,9 +2,9 @@
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
 
-public sealed class CreateCatalogCommand : ITransactionCommand<CreateCatalogResult>
+public class CreateCatalogCommand : ITransactionCommand<CreateCatalogResult>
 {
-    public string CatalogName { get; init; }
+    public string CatalogName { get; set; }
 
     public List<CategoryInCatalog> Categories { get; set; } = new List<CategoryInCatalog>();
 
@@ -15,7 +15,9 @@ public sealed class CreateCatalogCommand : ITransactionCommand<CreateCatalogResu
             CategoryId = categoryId,
             DisplayName = displayName
         };
+
         this.Categories.Add(category);
+
         return this;
     }
 

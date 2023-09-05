@@ -21,7 +21,7 @@ public class DefaultRepositoryAsync<TAggregate, TIdentity> : IRepository<TAggreg
         return this._dbContext.Set<TAggregate>();
     }
 
-    public async Task<TAggregate> FindOneAsync(Expression<Func<TAggregate, bool>> predicate)
+    public async Task<TAggregate?> FindOneAsync(Expression<Func<TAggregate, bool>> predicate)
     {
         return await this._dbContext.Set<TAggregate>().FirstOrDefaultAsync(predicate);
     }

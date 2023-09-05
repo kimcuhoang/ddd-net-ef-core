@@ -1,5 +1,4 @@
-﻿using DDDEfCore.ProductCatalog.Services.Commands.Infrastructure;
-using DDDEfCore.ProductCatalog.Services.Queries;
+﻿using DDDEfCore.ProductCatalog.Services.Queries;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.HostedServices;
 using DDDEfCore.ProductCatalog.WebApi.Infrastructures.JsonConverters;
@@ -8,6 +7,9 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 using DDDEfCore.ProductCatalog.Infrastructure.EfCore;
+using DDDEfCore.ProductCatalog.Services.Commands;
+using DDDEfCore.ProductCatalog.Infrastructure.EfCore.MediatR.Pipelines;
+using FluentValidation;
 
 namespace DDDEfCore.ProductCatalog.WebApi;
 
@@ -45,7 +47,24 @@ public class Startup
         services.AddApplicationCommands();
         services.AddApplicationQueries();
 
-        services.AddInfrastructureLayer(this.Configuration);
+        var assemblies = new[]
+        {
+            typeof(ITransactionCommand<>).Assembly,
+            typeof(IRequestQuery<>).Assembly
+        };
+
+        services.AddEfCoreSqlServerDb(this.Configuration);
+        services.AddMediatR(mediatR =>
+        {
+            mediatR
+                .RegisterServicesFromAssemblies(assemblies)
+                .AddOpenBehavior(typeof(RequestValidatorPipelineBehavior<,>))
+                .AddOpenBehavior(typeof(CommandTransactionPipelineBehavior<,>));
+        });
+
+        ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
+        services.AddValidatorsFromAssemblies(assemblies);
+
 
         services.AddSwaggerConfig();
         services.AddHostedService<DbMigratorHostedService>();
