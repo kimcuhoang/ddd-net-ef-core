@@ -34,6 +34,7 @@ public class TestGetProductDetail : TestBase<TestProductsFixture>
 
             result.CatalogCategories.ShouldHaveSingleItem();
             var catalogCategory = result.CatalogCategories.FirstOrDefault();
+            catalogCategory.ShouldNotBeNull();
             catalogCategory.CatalogCategoryId.ShouldBe(this._fixture.CatalogCategory.Id);
             catalogCategory.CatalogCategoryName.ShouldBe(this._fixture.CatalogCategory.DisplayName);
             catalogCategory.CatalogId.ShouldBe(this._fixture.Catalog.Id);

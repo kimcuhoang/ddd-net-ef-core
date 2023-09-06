@@ -2,7 +2,6 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
-using System.Threading.Tasks;
 
 namespace DDDEfCore.ProductCatalog.Services.Queries.Tests.TestCatalogCategoryQueries;
 
@@ -12,11 +11,11 @@ public class TestCatalogCategoryFixture : DefaultTestFixture
     {
     }
 
-    public Catalog Catalog { get; private set; }
-    public Category Category { get; private set; }
-    public Product Product { get; private set; }
-    public CatalogCategory CatalogCategory { get; private set; }
-    public CatalogProduct CatalogProduct { get; private set; }
+    public Catalog Catalog { get; private set; } = default!;
+    public Category Category { get; private set; } = default!;
+    public Product Product { get; private set; } = default!;
+    public CatalogCategory CatalogCategory { get; private set; } = default!;
+    public CatalogProduct CatalogProduct { get; private set; } = default!;
 
     public override async Task InitializeAsync()
     {

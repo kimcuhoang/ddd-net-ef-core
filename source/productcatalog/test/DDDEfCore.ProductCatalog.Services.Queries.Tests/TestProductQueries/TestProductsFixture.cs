@@ -11,11 +11,11 @@ public class TestProductsFixture : DefaultTestFixture
     {
     }
 
-    public Product Product { get; private set; }
-    public Category Category { get; private set; }
-    public Catalog Catalog { get; private set; }
-    public CatalogCategory CatalogCategory { get; private set; }
-    public CatalogProduct CatalogProduct { get; private set; }
+    public Product Product { get; private set; } = default!;
+    public Category Category { get; private set; } = default!;
+    public Catalog Catalog { get; private set; } = default!;
+    public CatalogCategory CatalogCategory { get; private set; } = default!;
+    public CatalogProduct CatalogProduct { get; private set; } = default!;
 
     #region Overrides of SharedFixture
 

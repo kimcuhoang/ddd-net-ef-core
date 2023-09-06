@@ -62,7 +62,7 @@ public class ProductsController : ControllerBase
     [HttpGet("search")]
     [ProducesResponseType(typeof(GetProductCollectionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SearchProducts(string? searchTerm, int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> SearchProducts(string? searchTerm = null, int pageIndex = 1, int pageSize = 10)
     {
         var request = new GetProductCollectionRequest
         {

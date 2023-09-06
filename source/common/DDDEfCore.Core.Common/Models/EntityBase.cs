@@ -1,65 +1,61 @@
-﻿using System;
+﻿
+namespace DDDEfCore.Core.Common.Models;
 
-namespace DDDEfCore.Core.Common.Models
+public abstract class EntityBase<TIdentity> : IEquatable<EntityBase<TIdentity>> where TIdentity : IdentityBase
 {
-    public abstract class EntityBase<TIdentity> : IEquatable<EntityBase<TIdentity>> where TIdentity : IdentityBase
+    public TIdentity Id { get; private set; }
+
+    #region Constructors
+
+    protected EntityBase(TIdentity id) => this.Id = id;
+
+    #endregion
+
+    #region Implementation of IEquatable<Entity>
+
+    public bool Equals(EntityBase<TIdentity>? other)
     {
-        public TIdentity Id { get; protected set; }
+        if (ReferenceEquals(null, other)) return false;
 
-        #region Constructors
+        if (ReferenceEquals(this, other)) return true;
 
-        protected EntityBase(TIdentity id) => this.Id = id;
+        return Equals(Id, other.Id);
+    }
 
-        protected EntityBase() { }
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
 
-        #endregion
+        if (ReferenceEquals(this, obj)) return true;
 
-        #region Implementation of IEquatable<Entity>
+        if (obj.GetType() != this.GetType()) return false;
 
-        public bool Equals(EntityBase<TIdentity> other)
-        {
-            if (ReferenceEquals(null, other)) return false;
+        return Equals((EntityBase<TIdentity>)obj);
+    }
 
-            if (ReferenceEquals(this, other)) return true;
+    public override int GetHashCode() => this.GetType().GetHashCode() * 907 + this.Id.GetHashCode();
 
-            return Equals(Id, other.Id);
-        }
+    #endregion
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
+    #region Overrides of Object
 
-            if (ReferenceEquals(this, obj)) return true;
+    public override string ToString() => $"{this.GetType().Name}#[Identity={this.Id}]";
 
-            if (obj.GetType() != this.GetType()) return false;
+    #endregion
 
-            return Equals((EntityBase<TIdentity>)obj);
-        }
+    public static bool operator ==(EntityBase<TIdentity> a, EntityBase<TIdentity> b)
+    {
+        if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
+            return true;
 
-        public override int GetHashCode() => this.GetType().GetHashCode() * 907 + this.Id.GetHashCode();
+        if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+            return false;
 
-        #endregion
+        return a.Equals(b);
+    }
 
-        #region Overrides of Object
-
-        public override string ToString() => $"{this.GetType().Name}#[Identity={this.Id}]";
-
-        #endregion
-
-        public static bool operator ==(EntityBase<TIdentity> a, EntityBase<TIdentity> b)
-        {
-            if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
-                return true;
-
-            if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
-                return false;
-
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(EntityBase<TIdentity> a, EntityBase<TIdentity> b)
-        {
-            return !(a == b);
-        }
+    public static bool operator !=(EntityBase<TIdentity> a, EntityBase<TIdentity> b)
+    {
+        return !(a == b);
     }
 }

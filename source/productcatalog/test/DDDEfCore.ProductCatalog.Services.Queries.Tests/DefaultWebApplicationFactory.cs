@@ -39,7 +39,7 @@ public class DefaultWebApplicationFactory : WebApplicationFactory<Startup>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        var settingsInMemory = new Dictionary<string, string>
+        var settingsInMemory = new Dictionary<string, string?>
         {
             ["ConnectionStrings:DefaultDb"] = this._container.GetConnectionString()
         };

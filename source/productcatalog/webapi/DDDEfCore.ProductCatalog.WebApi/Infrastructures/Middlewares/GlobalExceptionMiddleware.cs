@@ -4,6 +4,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
 
+#nullable disable
+
 namespace DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 public class GlobalExceptionHandlerMiddleware
