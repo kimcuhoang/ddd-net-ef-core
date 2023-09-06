@@ -27,7 +27,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryC
 
         public async Task<GetCategoryCollectionResult> Handle(GetCategoryCollectionRequest request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var parameters = new
             {

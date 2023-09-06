@@ -1,18 +1,16 @@
 ﻿using DDDEfCore.Core.Common.Models;
-using System;
 
-namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products
+namespace DDDEfCore.ProductCatalog.Core.DomainModels.Products;
+
+public class ProductId : IdentityBase
 {
-    public class ProductId : IdentityBase
-    {
-        #region Constructors
+    #region Constructors
 
-        private ProductId(Guid id) : base(id) { }
+    private ProductId(Guid id) : base(id) { }
 
-        #endregion
+    #endregion
 
-        public static ProductId New => new ProductId(Guid.NewGuid());
-        public static ProductId Of(Guid id) => new ProductId(id);
-        public static ProductId Empty => new ProductId(Guid.Empty);
-    }
+    public static ProductId New => new(Guid.NewGuid());
+    public static ProductId Of(Guid id) => new(id);
+    public static ProductId Empty => new(Guid.Empty);
 }

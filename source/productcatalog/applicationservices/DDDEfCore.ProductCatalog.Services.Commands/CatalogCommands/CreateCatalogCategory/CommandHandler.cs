@@ -1,52 +1,41 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
-using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory;
+
+public class CommandHandler : IRequestHandler<CreateCatalogCategoryCommand, CreateCatalogCategoryResult>
 {
-    public class CommandHandler : AsyncRequestHandler<CreateCatalogCategoryCommand>
+    private readonly IRepository<Catalog, CatalogId> _repository;
+
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
-        private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog, CatalogId> _repository;
-        private readonly IValidator<CreateCatalogCategoryCommand> _validator;
+        this._repository = repository;
+    }
 
-        public CommandHandler(IRepositoryFactory repositoryFactory,
-            IValidator<CreateCatalogCategoryCommand> validator)
-        {
-            this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
-            this._validator = validator;
-        }
+    public async Task<CreateCatalogCategoryResult> Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
+    {
+        var catalogs = this._repository.AsQueryable();
 
-        #region Overrides of AsyncRequestHandler<CreateCatalogCategoryCommand>
+        var query =
+                from c in catalogs
+                let c1 = request.ParentCatalogCategoryId != null
+                            ? c.Categories.FirstOrDefault(_ => _.Id == request.ParentCatalogCategoryId)
+                            : null
+                where c.Id == request.CatalogId
+                select new
+                {
+                    Catalog = c,
+                    CatalogCategory = c1
+                };
 
-        protected override async Task Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
-        {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+        var result = await query.FirstOrDefaultAsync(cancellationToken);
 
-            var catalog = await this._repository.FindOneWithIncludeAsync(x => x.Id == request.CatalogId,
-                x => x.Include(c => c.Categories));
+        var catalog = result.Catalog;
 
-            CatalogCategory parent = null;
+        var catalogCategory = catalog.AddCategory(request.CategoryId, request.DisplayName, result.CatalogCategory);
 
-            if (request.ParentCatalogCategoryId != null)
-            {
-                parent = catalog.Categories.SingleOrDefault(x => x.Id == request.ParentCatalogCategoryId);
-            }
-
-            catalog.AddCategory(request.CategoryId, request.DisplayName, parent);
-
-            await this._repository.UpdateAsync(catalog);
-        }
-
-        #endregion
+        return CreateCatalogCategoryResult.Instance(request, catalogCategory.Id);
     }
 }

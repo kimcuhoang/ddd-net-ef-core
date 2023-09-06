@@ -1,41 +1,27 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-using FluentValidation;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory;
+
+public class CommandHandler : IRequestHandler<UpdateCategoryCommand, UpdateCategoryResult>
 {
-    public class CommandHandler : AsyncRequestHandler<UpdateCategoryCommand>
+    private readonly IRepository<Category, CategoryId> _repository;
+
+    public CommandHandler(IRepository<Category, CategoryId> repository)
     {
-        private readonly IRepositoryFactory _repositoryFactory;
+        this._repository = repository;
+    }
 
-        private readonly IRepository<Category, CategoryId> _repository;
+    public async Task<UpdateCategoryResult> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+    {
+        var category = await this._repository.FindOneAsync(x => x.Id == request.CategoryId);
 
-        private readonly IValidator<UpdateCategoryCommand> _validator;
+        category.ChangeDisplayName(request.CategoryName);
 
-        public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<UpdateCategoryCommand> validator)
+        return new UpdateCategoryResult
         {
-            this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Category, CategoryId>();
-            this._validator = validator;
-        }
-
-        #region Overrides of AsyncRequestHandler<UpdateCategoryCommand>
-
-        protected override async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
-        {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
-
-            var category = await this._repository.FindOneAsync(x => x.Id == request.CategoryId);
-            
-            category.ChangeDisplayName(request.CategoryName);
-
-            await this._repository.UpdateAsync(category);
-        }
-
-        #endregion
+            CategoryId = request.CategoryId
+        };
     }
 }

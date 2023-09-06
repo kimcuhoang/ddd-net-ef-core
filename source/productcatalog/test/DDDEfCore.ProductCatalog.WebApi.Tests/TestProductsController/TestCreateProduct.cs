@@ -1,62 +1,66 @@
 ﻿using AutoFixture.Xunit2;
+using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.CreateProduct;
-using DDDEfCore.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDDEfCore.ProductCatalog.WebApi.Tests.Helpers;
-using Shouldly;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Xunit;
+using Xunit.Abstractions;
 
-namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController
+namespace DDDEfCore.ProductCatalog.WebApi.Tests.TestProductsController;
+
+public class TestCreateProduct : TestBase<TestProductsControllerFixture>
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestCreateProduct : IClassFixture<TestProductsControllerFixture>
+    public TestCreateProduct(ITestOutputHelper testOutput, TestProductsControllerFixture fixture) : base(testOutput, fixture)
     {
-        private readonly TestProductsControllerFixture _testProductsControllerFixture;
+    }
 
-        private string ApiUrl => this._testProductsControllerFixture.BaseUrl;
+    private string ApiUrl => this._fixture.BaseUrl;
 
-        public TestCreateProduct(TestProductsControllerFixture testProductsControllerFixture)
-            => this._testProductsControllerFixture = testProductsControllerFixture;
+    
 
-        [Theory(DisplayName = "Create Product Successfully Should Return HttpStatusCode204")]
-        [AutoData]
-        public async Task Create_Product_Successfully_Should_Return_HttpStatusCode204(string productName)
+    [Theory(DisplayName = "Create Product Successfully Should Return HttpStatusCode204")]
+    [AutoData]
+    public async Task Create_Product_Successfully_Should_Return_HttpStatusCode204(string productName)
+    {
+        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
+            var command = new CreateProductCommand
             {
-                var command = new CreateProductCommand
-                {
-                    ProductName = productName
-                };
+                ProductName = productName
+            };
 
-                var content = command.ToStringContent();
-                var response = await client.PostAsync(this.ApiUrl, content);
+            var content = command.ToStringContent();
+            var response = await client.PostAsync(this.ApiUrl, content);
 
-                response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            var result = await response.Content.ReadAsStringAsync();
+            var model = this._fixture.Parse<CreateProductResult>(result);
+
+            model.ShouldNotBeNull();
+            model.ProductId.ShouldNotBeNull().ShouldNotBe(ProductId.Empty);
+
+            await this._fixture.ExecuteDbContextAsync(async dbContext =>
+            {
+                var product = await dbContext.Set<Product>().FirstOrDefaultAsync(_ => _.Id == model.ProductId);
+
+                product.ShouldNotBeNull();
             });
-        }
+        });
+    }
 
-        [Fact(DisplayName = "Create Product With Invalid Request Should Return HttpStatusCode400")]
-        public async Task Create_Product_With_Invalid_Request_Should_Return_HttpStatusCode400()
+    [Fact(DisplayName = "Create Product With Invalid Request Should Return HttpStatusCode400")]
+    public async Task Create_Product_With_Invalid_Request_Should_Return_HttpStatusCode400()
+    {
+        await this._fixture.ExecuteHttpClientAsync(async httpClient =>
         {
-            await this._testProductsControllerFixture.DoTest(async (client, jsonSerializationOptions) =>
-            {
-                var command = new CreateProductCommand();
+            var command = new CreateProductCommand();
 
-                var content = command.ToStringContent();
-                var response = await client.PostAsync(this.ApiUrl, content);
-                response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+            var content = this.ConvertToStringContent(command);
 
-                var result = await response.Content.ReadAsStringAsync();
-                var errorResponse =
-                    JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result,
-                        jsonSerializationOptions);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
 
-                errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);
-                errorResponse.ErrorMessages.ShouldNotBeEmpty();
-            });
-        }
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        });
     }
 }

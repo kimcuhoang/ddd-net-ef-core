@@ -29,7 +29,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CatalogQueries.GetCatalogDet
 
         public async Task<GetCatalogDetailResult> Handle(GetCatalogDetailRequest request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             using var connection = await this._dbConnectionFactory.GetConnection(cancellationToken);
 

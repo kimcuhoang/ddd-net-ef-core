@@ -1,40 +1,28 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
-using FluentValidation;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog;
+
+public class CommandHandler : IRequestHandler<UpdateCatalogCommand, UpdateCatalogResult>
 {
-    public class CommandHandler : AsyncRequestHandler<UpdateCatalogCommand>
+    private readonly IRepository<Catalog, CatalogId> _repository;
+
+    public CommandHandler(IRepository<Catalog, CatalogId> repository)
     {
-        private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Catalog, CatalogId> _repository;
-        private readonly IValidator<UpdateCatalogCommand> _validator;
+        this._repository = repository;
+    }
 
-        public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<UpdateCatalogCommand> validator)
+    public async Task<UpdateCatalogResult> Handle(UpdateCatalogCommand request, CancellationToken cancellationToken)
+    {
+        var catalog = await this._repository.FindOneAsync(x => x.Id == request.CatalogId);
+
+        catalog.ChangeDisplayName(request.CatalogName);
+
+        return new UpdateCatalogResult
         {
-            this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Catalog, CatalogId>();
-            this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
-        }
-
-        #region Overrides of AsyncRequestHandler<UpdateCatalogCommand>
-
-        protected override async Task Handle(UpdateCatalogCommand request, CancellationToken cancellationToken)
-        {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
-
-            var catalog = await this._repository.FindOneAsync(x => x.Id == request.CatalogId);
-
-            catalog.ChangeDisplayName(request.CatalogName);
-
-            await this._repository.UpdateAsync(catalog);
-        }
-
-        #endregion
+            CatalogId = catalog.Id,
+            Success = true
+        };
     }
 }
-//TODO: Missing UnitTest

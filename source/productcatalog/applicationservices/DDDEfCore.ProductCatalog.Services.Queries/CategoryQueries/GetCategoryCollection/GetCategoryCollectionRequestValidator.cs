@@ -7,12 +7,12 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.CategoryQueries.GetCategoryC
         public GetCategoryCollectionRequestValidator()
         {
             RuleFor(x => x.PageIndex)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .GreaterThan(0)
                 .LessThan(int.MaxValue);
 
             RuleFor(x => x.PageSize)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                
                 .GreaterThan(0)
                 .LessThan(int.MaxValue);
         }

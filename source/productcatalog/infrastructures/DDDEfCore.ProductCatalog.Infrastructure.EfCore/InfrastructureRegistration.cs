@@ -1,33 +1,38 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
 using DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db;
+using DDDEfCore.ProductCatalog.Infrastructure.EfCore.MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Reflection;
 
-namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore
+namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore;
+
+public static class InfrastructureRegistration
 {
-    public static class InfrastructureRegistration
+    public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddEfCoreSqlServerDb(this IServiceCollection services, IConfiguration configuration)
+        services
+            .AddEfCoreSqlServerDb(configuration)
+            .AddCustomMediatR();
+
+        return services;
+    }
+
+    public static IServiceCollection AddEfCoreSqlServerDb(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<DbContext, ProductCatalogDbContext>((serviceProvider, dbContextOptions) =>
         {
-            services.AddDbContext<DbContext, ProductCatalogDbContext>((serviceProvider, dbContextOptions) =>
+            dbContextOptions.UseSqlServer(configuration.GetConnectionString("DefaultDb"), opts =>
             {
-                dbContextOptions.UseSqlServer(configuration.GetConnectionString("DefaultDb"), opts =>
-                {
-                    opts.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                });
-                
+                opts.EnableRetryOnFailure(maxRetryCount: 3);
             });
+        });
 
-            services.Replace(
-                ServiceDescriptor.Scoped<
-                    IRepositoryFactory,
-                    DefaultRepositoryFactory>());
+        services
+            .AddScoped(typeof(IRepository<,>), typeof(DefaultRepositoryAsync<,>));
 
-            return services;
-        }
+
+        return services;
     }
 }

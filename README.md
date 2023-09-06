@@ -1,10 +1,9 @@
-# An Example of using DDD with .NET Core 3.1
+# An Example of using DDD with .NET 7
 
-[![Build Status](https://kimcu.visualstudio.com/ddd-net-ef-core/_apis/build/status/kimcu-on-thenet.ddd-net-ef-core?branchName=master)](https://kimcu.visualstudio.com/ddd-net-ef-core/_build/latest?definitionId=8&branchName=master)
+[![Build Status](https://kimcu.visualstudio.com/ddd-net-ef-core/_apis/build/status/kimcuhoang.ddd-net-ef-core?branchName=master)](https://kimcu.visualstudio.com/ddd-net-ef-core/_build/latest?definitionId=8&branchName=master)
 
 - Domain Driven Design (aka DDD)
-- .NET Core 3.1
-- EntityFramework Core 3.1
+- .NET 7.0.400
 
 ## Overview
 
@@ -152,7 +151,7 @@ I want to use Strongly-Typed Ids for all models (i.e. `CatalogId`, `CatalogCateg
 
 3. `DDDEfCore.ProductCatalog.Services.Commands.Tests`
     - Unit Test of Command Handlers.
-    - Use [Moq.EntityFrameworkCore](https://github.com/MichalJankowskii/Moq.EntityFrameworkCore) to mock `DbSet`.
+    - Use [MockQueryable.FakeItEasy](https://github.com/romantitov/MockQueryable) to mock `DbSet`.
 
 4. `DDDEfCore.ProductCatalog.Services.Queries.Tests`
     - Integration Test with [Dapper](https://github.com/StackExchange/Dapper) and SqlServer for Query Handlers.
@@ -166,14 +165,13 @@ For every test project, I use the following packages
 
 - [Shoudly](https://github.com/shouldly/shouldly): Should testing for .NET - the way Asserting *Should* be! 
 - [AutoFixture](https://github.com/AutoFixture/AutoFixture): AutoFixture is an open source library for .NET designed to minimize the 'Arrange' phase of your unit tests in order to maximize maintainability. Its primary goal is to allow developers to focus on what is being tested rather than how to setup the test scenario, by making it easier to create object graphs containing test data.
-- [Respawn](https://github.com/jbogard/Respawn): Intelligent database cleaner for integration tests
+- [MSSQL TestContainer](https://testcontainers.com/modules/mssql/) to isolating database from integration test with others environment
+- [Memory Configuration Provider](https://learn.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#memory-configuration-provider) to override the settings for testing, i.e - `connection-string`
 
 
 ## How to run
 
 ### Run Test Projects
-
-- In every integration test project, there are `appsettings.json` files that store `connectstrings` value. You have to change these values before running.
 
 ![Test Results](docs/images/test-result.png)
 

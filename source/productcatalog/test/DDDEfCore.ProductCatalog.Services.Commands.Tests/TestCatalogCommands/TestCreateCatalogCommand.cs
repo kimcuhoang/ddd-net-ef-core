@@ -1,131 +1,133 @@
-﻿using AutoFixture;
-using AutoFixture.Xunit2;
-using DDDEfCore.Infrastructures.EfCore.Common.Repositories;
+﻿using AutoFixture.Xunit2;
+using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
-using FluentValidation;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using Moq.EntityFrameworkCore;
-using Shouldly;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands;
+
+public class TestCreateCatalogCommand
 {
-    public class TestCreateCatalogCommand : UnitTestBase<Catalog, CatalogId>
+    private readonly CreateCatalogCommandValidator _validator;
+    private readonly IRepository<Catalog, CatalogId> _catalogRepository;
+    private readonly IRepository<Category, CategoryId> _categoryRepository;
+    private readonly IFixture _fixture;
+
+    public TestCreateCatalogCommand() : base()
     {
-        private readonly CreateCatalogCommandValidator _validator;
+        this._categoryRepository = A.Fake<IRepository<Category, CategoryId>>();
+        this._catalogRepository = A.Fake<IRepository<Catalog, CatalogId>>();
+        this._validator = new CreateCatalogCommandValidator(this._categoryRepository);
+        this._fixture = new Fixture();
+    }
 
-        public TestCreateCatalogCommand() : base()
+    [Theory(DisplayName = "Create Catalog Without CatalogCategory Successfully")]
+    [AutoData]
+    public async Task Create_Catalog_Without_CatalogCategory_Successfully(string catalogName)
+    {
+        var command = new CreateCatalogCommand
         {
-            this._validator = new CreateCatalogCommandValidator(this.MockRepositoryFactory.Object);
+            CatalogName = catalogName
+        };
+
+        var handler = new CommandHandler(this._catalogRepository);
+
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        A.CallTo(() => this._catalogRepository.Add(default!))
+            .WhenArgumentsMatch(args => args.First() is Catalog)
+            .MustHaveHappenedOnceExactly();
+
+        result.ShouldNotBeNull();
+        result.CatalogId.ShouldNotBeNull();
+        result.CatalogId.ShouldNotBe(CatalogId.Empty);
+    }
+
+    [Theory(DisplayName = "Create Catalog With CatalogCategories Successfully")]
+    [AutoData]
+    public async Task Create_Catalog_With_CatalogCategories_Successfully(string catalogName)
+    {
+        var categories = Enumerable.Range(0, 4)
+            .Select(idx => Category.Create(this._fixture.Create<string>()))
+            .ToList();
+
+        var command = new CreateCatalogCommand
+        {
+            CatalogName = catalogName
+        };
+        foreach (var category in categories)
+        {
+            command.AddCategory(category.Id, this._fixture.Create<string>());
         }
 
-        [Theory(DisplayName = "Create Catalog Without CatalogCategory Successfully")]
-        [AutoData]
-        public async Task Create_Catalog_Without_CatalogCategory_Successfully(string catalogName)
+        A.CallTo(() => this._categoryRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Category?)categories.First()));
+
+        var handler = new CommandHandler(this._catalogRepository);
+
+        await handler.Handle(command, CancellationToken.None);
+
+        A.CallTo(() => this._catalogRepository.Add(default!))
+            .WhenArgumentsMatch(args => args.First() is Catalog)
+            .MustHaveHappenedOnceExactly();
+    }
+
+    [Fact(DisplayName = "Create Catalog With Invalid Command Should Throw Exception")]
+    public async Task Create_Catalog_With_Invalid_Command_ShouldThrowException()
+    {
+        var command = new CreateCatalogCommand();
+        command.AddCategory(CategoryId.Empty, string.Empty);
+
+        var result = await this._validator.TestValidateAsync(command);
+
+        result.ShouldHaveValidationErrorFor(x => x.CatalogName);
+
+        for (var i = 0; i < command.Categories.Count; i++)
         {
-            var command = new CreateCatalogCommand
-            {
-                CatalogName = catalogName
-            };
-
-            IRequestHandler<CreateCatalogCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
-
-            await handler.Handle(command, this.CancellationToken);
-
-            this.MockRepository.Verify(x => x.AddAsync(It.IsAny<Catalog>()), Times.Once);
+            result.ShouldHaveValidationErrorFor(
+                $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
+            result.ShouldHaveValidationErrorFor(
+                $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
         }
+    }
 
-        [Theory(DisplayName = "Create Catalog With CatalogCategories Successfully")]
-        [AutoData]
-        public async Task Create_Catalog_With_CatalogCategories_Successfully(string catalogName)
+    [Fact(DisplayName = "CreateCatalogCommand With Empty CatalogName Should Be Invalid")]
+    public async Task CreateCatalogCommand_With_Empty_CatalogName_ShouldBeInvalid()
+    {
+        var command = new CreateCatalogCommand();
+
+        var result = await this._validator.TestValidateAsync(command);
+
+        result.ShouldHaveValidationErrorFor(x => x.CatalogName);
+
+        result.ShouldNotHaveValidationErrorFor(
+            $"{nameof(CreateCatalogCommand.Categories)}.{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
+        result.ShouldNotHaveValidationErrorFor(
+            $"{nameof(CreateCatalogCommand.Categories)}.{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
+    }
+
+    [Fact(DisplayName = "CreateCatalogCommand has Categories Without Id and DisplayName Should Be Invalid")]
+    public async Task CreateCatalogCommand_Has_Categories_With_Empty_Id_And_DisplayName_ShouldBeInvalid()
+    {
+        var command = new CreateCatalogCommand
         {
-            var mockDbContext = new Mock<DbContext>();
-            var categories = new List<Category>();
-            Enumerable.Range(0, 4).ToList().ForEach(idx =>
-            {
-                categories.Add(Category.Create(this.Fixture.Create<string>()));
-            });
+            CatalogName = this._fixture.Create<string>()
+        };
+        command.AddCategory(CategoryId.Empty, string.Empty);
 
-            mockDbContext.Setup(x => x.Set<Category>())
-                        .ReturnsDbSet(categories);
+        var result = await this._validator.TestValidateAsync(command);
 
-            var categoryRepository = new DefaultRepositoryAsync<Category, CategoryId>(mockDbContext.Object);
-            this.MockRepositoryFactory
-                .Setup(x => x.CreateRepository<Category, CategoryId>())
-                .Returns(categoryRepository);
+        result.ShouldNotHaveValidationErrorFor(x => x.CatalogName);
 
-            var command = new CreateCatalogCommand
-            {
-                CatalogName = catalogName
-            };
-            foreach (var category in categories)
-            {
-                command.AddCategory(category.Id, this.Fixture.Create<string>());
-            }
-
-            IRequestHandler<CreateCatalogCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
-
-            await handler.Handle(command, this.CancellationToken);
-
-            this.MockRepository.Verify(x => x.AddAsync(It.IsAny<Catalog>()), Times.Once);
-        }
-
-        [Fact(DisplayName = "Create Catalog With Invalid Command Should Throw Exception")]
-        public async Task Create_Catalog_With_Invalid_Command_ShouldThrowException()
+        for (var i = 0; i < command.Categories.Count; i++)
         {
-            var command = new CreateCatalogCommand();
-            command.AddCategory(CategoryId.Empty, string.Empty);
-
-            IRequestHandler<CreateCatalogCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
-
-            await Should.ThrowAsync<ValidationException>(async () =>
-                await handler.Handle(command, this.CancellationToken));
-        }
-
-        [Fact(DisplayName = "CreateCatalogCommand With Empty CatalogName Should Be Invalid")]
-        public void CreateCatalogCommand_With_Empty_CatalogName_ShouldBeInvalid()
-        {
-            var command = new CreateCatalogCommand();
-
-            var result = this._validator.TestValidate(command);
-            result.ShouldHaveValidationErrorFor(x => x.CatalogName);
-            result.ShouldNotHaveValidationErrorFor(
-                $"{nameof(CreateCatalogCommand.Categories)}.{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
-            result.ShouldNotHaveValidationErrorFor(
-                $"{nameof(CreateCatalogCommand.Categories)}.{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
-        }
-
-        [Fact(DisplayName = "CreateCatalogCommand has Categories Without Id and DisplayName Should Be Invalid")]
-        public void CreateCatalogCommand_Has_Categories_With_Empty_Id_And_DisplayName_ShouldBeInvalid()
-        {
-            var command = new CreateCatalogCommand
-            {
-                CatalogName = this.Fixture.Create<string>()
-            };
-            command.AddCategory(CategoryId.Empty, string.Empty);
-
-            var result = this._validator.TestValidate(command);
-
-            result.ShouldNotHaveValidationErrorFor(x => x.CatalogName);
-
-            for (var i = 0; i < command.Categories.Count; i++)
-            {
-                result.ShouldHaveValidationErrorFor(
-                    $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
-                result.ShouldHaveValidationErrorFor(
-                    $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
-            }
+            result.ShouldHaveValidationErrorFor(
+                $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.DisplayName)}");
+            result.ShouldHaveValidationErrorFor(
+                $"{nameof(CreateCatalogCommand.Categories)}[{i}].{nameof(CreateCatalogCommand.CategoryInCatalog.CategoryId)}");
         }
     }
 }

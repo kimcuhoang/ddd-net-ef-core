@@ -1,34 +1,25 @@
-﻿using System.Linq;
-using DDDEfCore.Infrastructures.EfCore.Common;
-using Humanizer;
+﻿using DDDEfCore.Infrastructures.EfCore.Common;
+using DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db.Conventions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.Reflection;
 
-namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db
+namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Db;
+
+public class ProductCatalogDbContext : ApplicationDbContextBase
 {
-    public class ProductCatalogDbContext : ApplicationDbContextBase
+    public ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> dbContextOptions) 
+        : base(dbContextOptions)
     {
-        public ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> dbContextOptions, IConfiguration configuration) 
-            : base(dbContextOptions, configuration)
-        {
-        }
+    }
 
-        #region Overrides of ApplicationDbContextBase
+    protected override Assembly AssemblyContainsConfigurations => Assembly.GetExecutingAssembly();
 
-        protected override void RegisterConventions(ModelBuilder builder)
-        {
-            //base.RegisterConventions(builder);
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
 
-            //var types = builder.Model
-            //    .GetEntityTypes()
-            //    .Where(entity => !string.IsNullOrWhiteSpace(entity.ClrType.Namespace));
-
-            //foreach (var entityType in types)
-            //{
-            //    builder.Entity(entityType.Name).ToTable(entityType.ClrType.Namespace.Pluralize());
-            //}
-        }
-
-        #endregion
+        configurationBuilder.Conventions.Remove(typeof(TableNameFromDbSetConvention));
+        configurationBuilder.Conventions.Add(_ => new TableNameConvention());
     }
 }

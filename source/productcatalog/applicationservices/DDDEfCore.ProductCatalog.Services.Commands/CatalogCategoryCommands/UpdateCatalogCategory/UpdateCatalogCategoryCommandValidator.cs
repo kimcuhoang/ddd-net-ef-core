@@ -1,52 +1,48 @@
 ﻿using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.UpdateCatalogCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.UpdateCatalogCategory;
+
+public class UpdateCatalogCategoryCommandValidator : AbstractValidator<UpdateCatalogCategoryCommand>
 {
-    public class UpdateCatalogCategoryCommandValidator : AbstractValidator<UpdateCatalogCategoryCommand>
+    public UpdateCatalogCategoryCommandValidator(IRepository<Catalog, CatalogId> catalogRepository)
     {
-        public UpdateCatalogCategoryCommandValidator(IRepositoryFactory repositoryFactory)
+        RuleFor(x => x.CatalogId).NotNull().NotEqual(CatalogId.Empty);
+
+        RuleFor(x => x.CatalogCategoryId).NotNull().NotEqual(CatalogCategoryId.Empty);
+
+        When(x => x.CatalogId is not null && x.CatalogId != CatalogId.Empty && x.CatalogCategoryId is not null && x.CatalogCategoryId != CatalogCategoryId.Empty, () =>
         {
-            RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull();
-
-            RuleFor(x => x.CatalogCategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull();
-
-            When(x => x.CatalogId != null && x.CatalogCategoryId != null, () =>
+            RuleFor(x => x).CustomAsync(async (x, context, token) =>
             {
-                RuleFor(x => x).Custom((x, context) =>
+                var catalogs = catalogRepository.AsQueryable();
+
+                var query =
+                    from c in catalogs
+                    from c1 in c.Categories.Where(_ => _.Id == x.CatalogCategoryId).DefaultIfEmpty()
+                    where c.Id == x.CatalogId
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1
+                    };
+
+                var result = await query.FirstOrDefaultAsync(token);
+
+                if (result == null)
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-
-                    var catalog = repository.FindOneWithIncludeAsync(c => c.Id == x.CatalogId,
-                        y => y.Include(c => c.Categories)).GetAwaiter().GetResult();
-
-                    if (catalog == null)
-                    {
-                        context.AddFailure(nameof(x.CatalogId), $"Catalog#{x.CatalogId} could not be found");
-                    }
-                    else
-                    {
-                        if (catalog.Categories.All(c => c.Id != x.CatalogCategoryId))
-                        {
-                            context.AddFailure(nameof(x.CatalogCategoryId),
-                                $"CatalogCategory#{x.CatalogCategoryId} could not be found in Catalog#{x.CatalogId}");
-                        }
-                    }
-                });
+                    context.AddFailure(nameof(x.CatalogId), $"Catalog#{x.CatalogId} could not be found");
+                }
+                else if(result.CatalogCategory is null)
+                {
+                    context.AddFailure(nameof(x.CatalogCategoryId),
+                        $"CatalogCategory#{x.CatalogCategoryId} could not be found in Catalog#{x.CatalogId}");
+                }
             });
+        });
 
-            RuleFor(x => x.DisplayName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .NotEmpty();
-        }
+        RuleFor(x => x.DisplayName).NotNull().NotEmpty();
     }
 }

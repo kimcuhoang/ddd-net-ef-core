@@ -1,39 +1,27 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
-using FluentValidation;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProduct
+namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProduct;
+
+public class CommandHandler : IRequestHandler<UpdateProductCommand, UpdateProductResult>
 {
-    public class CommandHandler : AsyncRequestHandler<UpdateProductCommand>
+    private readonly IRepository<Product, ProductId> _repository;
+
+    public CommandHandler(IRepository<Product, ProductId> repository)
     {
-        private readonly IRepositoryFactory _repositoryFactory;
-        private readonly IRepository<Product, ProductId> _repository;
-        private readonly IValidator<UpdateProductCommand> _validator;
+        this._repository = repository;
+    }
+    public async Task<UpdateProductResult> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+    {
+        var product = await this._repository.FindOneAsync(x => x.Id == request.ProductId);
 
-        public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<UpdateProductCommand> validator)
+        product.ChangeName(request.ProductName);
+
+        return new UpdateProductResult
         {
-            this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Product, ProductId>();
-            this._validator = validator ?? throw new ArgumentNullException(nameof(validator));
-        }
-
-        #region Overrides of AsyncRequestHandler<UpdateProductCommand>
-
-        protected override async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
-        {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
-            
-            var product = await this._repository.FindOneAsync(x => x.Id == request.ProductId);
-            product.ChangeName(request.ProductName);
-
-            await this._repository.UpdateAsync(product);
-        }
-
-        #endregion
+            ProductId = product.Id
+        };
     }
 }
 //TODO: Missing UnitTest

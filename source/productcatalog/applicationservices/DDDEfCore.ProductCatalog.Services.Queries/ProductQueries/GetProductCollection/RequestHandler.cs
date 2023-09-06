@@ -27,7 +27,7 @@ namespace DDDEfCore.ProductCatalog.Services.Queries.ProductQueries.GetProductCol
 
         public async Task<GetProductCollectionResult> Handle(GetProductCollectionRequest request, CancellationToken cancellationToken)
         {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
+            await this._validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var sqlClauses = new List<string>
             {

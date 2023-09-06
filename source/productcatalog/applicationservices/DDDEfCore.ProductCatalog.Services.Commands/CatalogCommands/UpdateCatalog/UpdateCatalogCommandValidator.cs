@@ -2,33 +2,37 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog;
+
+public class UpdateCatalogCommandValidator : AbstractValidator<UpdateCatalogCommand>
 {
-    public class UpdateCatalogCommandValidator : AbstractValidator<UpdateCatalogCommand>
+    public UpdateCatalogCommandValidator(IRepository<Catalog, CatalogId> catalogRepository)
     {
-        public UpdateCatalogCommandValidator(IRepositoryFactory repositoryFactory)
-        {
-            RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull();
-
-            When(x => x.CatalogId != null, () =>
+        RuleFor(x => x.CatalogId)
+            .NotNull().Must(_ => _ != CatalogId.Empty)
+            .CustomAsync(async (catalogId, context, token) =>
             {
-                RuleFor(command => command).Custom((command, context) =>
-                {
-                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-                    var catalog = repository.FindOneAsync(x => x.Id == command.CatalogId).Result;
+                var catalog = await catalogRepository.FindOneAsync(x => x.Id == catalogId);
 
-                    if (catalog == null)
-                    {
-                        context.AddFailure(nameof(command.CatalogId),
-                            $"Catalog#{command.CatalogId} could not be found.");
-                    }
-                });
+                if (catalog is null)
+                {
+                    context.AddFailure(nameof(CatalogId), $"Catalog#{catalogId} could not be found.");
+                }
             });
 
-            RuleFor(x => x.CatalogName).Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull().NotEmpty();
-        }
+        //When(x => x.CatalogId != null, () =>
+        //{
+        //    RuleFor(command => command).CustomAsync(async (command, context, token) =>
+        //    {
+        //        var catalog = await catalogRepository.FindOneAsync(x => x.Id == command.CatalogId);
+
+        //        if (catalog == null)
+        //        {
+        //            context.AddFailure(nameof(command.CatalogId), $"Catalog#{command.CatalogId} could not be found.");
+        //        }
+        //    });
+        //});
+
+        RuleFor(x => x.CatalogName).NotNull().NotEmpty();
     }
 }

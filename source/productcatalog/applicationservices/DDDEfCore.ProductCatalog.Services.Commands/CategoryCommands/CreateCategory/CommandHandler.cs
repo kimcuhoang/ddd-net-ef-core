@@ -1,39 +1,29 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory;
+
+public class CommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryResult>
 {
-    public class CommandHandler : AsyncRequestHandler<CreateCategoryCommand>
+    private readonly IRepository<Category, CategoryId> _repository;
+
+
+    public CommandHandler(IRepository<Category, CategoryId> repository)
     {
-        private readonly IRepositoryFactory _repositoryFactory;
+        this._repository = repository;
+    }
+    public async Task<CreateCategoryResult> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+    {
+        var category = Category.Create(request.CategoryName);
 
-        private readonly IRepository<Category, CategoryId> _repository;
+        await Task.Yield();
 
-        private readonly IValidator<CreateCategoryCommand> _validator;
+        this._repository.Add(category);
 
-        public CommandHandler(IRepositoryFactory repositoryFactory, IValidator<CreateCategoryCommand> validator)
+        return new CreateCategoryResult
         {
-            this._repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-            this._repository = this._repositoryFactory.CreateRepository<Category, CategoryId>();
-            this._validator = validator;
-        }
-
-        #region Overrides of AsyncRequestHandler<CreateCategoryCommand>
-
-        protected override async Task Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
-        {
-            await this._validator.ValidateAndThrowAsync(request, null, cancellationToken);
-
-            var category = Category.Create(request.CategoryName);
-
-            await this._repository.AddAsync(category);
-        }
-
-        #endregion
+            CategoryId = category.Id
+        };
     }
 }

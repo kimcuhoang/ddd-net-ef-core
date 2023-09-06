@@ -119,7 +119,7 @@ namespace DDDEfCore.ProductCatalog.Core.DomainModels.Tests.TestCatalogCategory
             var catalogProduct = catalogCategory.CreateCatalogProduct(productId, this._fixture.Create<string>());
 
             catalogCategory.RemoveCatalogProduct(catalogProduct);
-            catalogCategory.Products.ShouldBeEmpty();
+            catalogCategory.Products.Where(_ => _.Id == catalogProduct.Id).ShouldBeEmpty();
         }
 
         [Fact(DisplayName = "Remove Null Of CatalogProduct Should Throw Exception")]

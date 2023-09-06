@@ -1,83 +1,81 @@
-﻿using System;
-using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogProduct
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogProduct;
+
+public class CreateCatalogProductCommandValidator : AbstractValidator<CreateCatalogProductCommand>
 {
-    public class CreateCatalogProductCommandValidator : AbstractValidator<CreateCatalogProductCommand>
+    public CreateCatalogProductCommandValidator(IRepository<Catalog, CatalogId> catalogRepository,
+                                                IRepository<Product, ProductId> productRepository)
     {
-        public CreateCatalogProductCommandValidator(IRepositoryFactory repositoryFactory)
+        RuleFor(x => x.CatalogId).NotNull().NotEqual(CatalogId.Empty);
+
+        RuleFor(x => x.CatalogCategoryId).NotNull().NotEqual(CatalogCategoryId.Empty);
+
+        RuleFor(x => x.ProductId)
+            .NotNull().NotEqual(ProductId.Empty)
+            .MustAsync(async (x, token) => await this.ProductMustExist(productRepository, x))
+            .WithMessage(x => $"Product#{x.ProductId} could not be found.");
+
+        RuleFor(x => x.DisplayName)
+            .NotNull()
+            .NotEmpty();
+
+        When(this.CommandIsValid, () =>
         {
-            RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull();
-
-            RuleFor(x => x.CatalogCategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull();
-
-            RuleFor(x => x.ProductId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .Must(x => this.ProductMustExist(repositoryFactory, x))
-                .WithMessage(x => $"Product#{x.ProductId} could not be found.");
-
-            When(this.CommandIsValid, () =>
+            RuleFor(command => command).CustomAsync(async (command, context, token) =>
             {
-                RuleFor(command => command).Custom((command, context) =>
+                var catalogs = catalogRepository.AsQueryable();
+
+                var query =
+                    from c in catalogs
+                    from c1 in c.Categories.Where(_ => _.Id == command.CatalogCategoryId).DefaultIfEmpty()
+                    let p = c1 != null
+                                ? c1.Products.FirstOrDefault(_ => _.ProductId == command.ProductId)
+                                : null
+                    where c.Id == command.CatalogId
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1,
+                        CatalogProduct = p
+                    };
+
+                var result = await query.FirstOrDefaultAsync(token);
+
+                if (result == null)
                 {
-                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-                    var catalog = repository.FindOneWithIncludeAsync(x => x.Id == command.CatalogId,
-                        x => x.Include(c => c.Categories)
-                            .ThenInclude(c => c.Products)).GetAwaiter().GetResult();
-
-                    if (catalog == null)
-                    {
-                        context.AddFailure($"{nameof(command.CatalogId)}", $"Catalog#{command.CatalogId} could not be found.");
-                    }
-                    else
-                    {
-                        var catalogCategory =
-                            catalog.Categories.SingleOrDefault(x => x.Id == command.CatalogCategoryId);
-
-                        if (catalogCategory == null)
-                        {
-                            context.AddFailure($"{nameof(command.CatalogCategoryId)}", 
-                                $"CatalogCategory#{command.CatalogCategoryId} could not be found in Catalog#{command.CatalogId}.");
-                        }
-                        else
-                        {
-                            if (catalogCategory.Products.Any(x => x.ProductId == command.ProductId))
-                            {
-                                context.AddFailure($"{nameof(command.ProductId)}",
-                                    $"Product#{command.ProductId} is existing in CatalogCategory#{command.CatalogCategoryId}.");
-                            }
-                        }
-                    }
-                });
+                    context.AddFailure($"{nameof(command.CatalogId)}", $"Catalog#{command.CatalogId} could not be found.");
+                }
+                else if (result.CatalogCategory is null)
+                {
+                    context.AddFailure($"{nameof(command.CatalogCategoryId)}",
+                        $"CatalogCategory#{command.CatalogCategoryId} could not be found in Catalog#{command.CatalogId}.");
+                }
+                else if (result.CatalogProduct is not null)
+                {
+                    context.AddFailure($"{nameof(command.ProductId)}",
+                            $"Product#{command.ProductId} is existing in CatalogCategory#{command.CatalogCategoryId}.");
+                }
             });
+        });
 
-            RuleFor(x => x.DisplayName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .NotEmpty();
-        }
+        
+    }
 
-        private bool CommandIsValid(CreateCatalogProductCommand command)
-        {
-            return command.CatalogId != null && command.CatalogCategoryId != null && command.ProductId != null;
-        }
+    private bool CommandIsValid(CreateCatalogProductCommand command)
+    {
+        return command.CatalogId is not null && command.CatalogId != CatalogId.Empty
+            && command.CatalogCategoryId is not null && command.CatalogCategoryId != CatalogCategoryId.Empty 
+            && command.ProductId is not null && command.ProductId != ProductId.Empty;
+    }
 
-        private bool ProductMustExist(IRepositoryFactory repositoryFactory, ProductId productId)
-        {
-            var repository = repositoryFactory.CreateRepository<Product, ProductId>();
-            var product = repository.FindOneAsync(x => x.Id == productId).Result;
-            return product != null;
-        }
+    private async Task<bool> ProductMustExist(IRepository<Product, ProductId> productRepository, ProductId productId)
+    {
+        var product = await productRepository.FindOneAsync(x => x.Id == productId);
+        return product is not null;
     }
 }

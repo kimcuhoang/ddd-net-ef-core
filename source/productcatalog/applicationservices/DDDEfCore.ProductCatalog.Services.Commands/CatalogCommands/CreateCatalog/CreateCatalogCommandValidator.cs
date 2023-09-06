@@ -1,42 +1,36 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using FluentValidation;
-using System.Linq;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
+
+public class CreateCatalogCommandValidator : AbstractValidator<CreateCatalogCommand>
 {
-    public class CreateCatalogCommandValidator : AbstractValidator<CreateCatalogCommand>
+    public CreateCatalogCommandValidator(IRepository<Category, CategoryId> categoryRepository)
     {
-        public CreateCatalogCommandValidator(IRepositoryFactory repositoryFactory)
-        {
-            RuleFor(x => x.CatalogName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull()
-                .NotEmpty();
+        RuleFor(x => x.CatalogName)
+            .NotNull()
+            .NotEmpty();
 
-            When(x => x.Categories.Any(), () =>
+        When(x => x.Categories.Any(), () =>
+        {
+            RuleForEach(x => x.Categories).ChildRules(category =>
             {
-                RuleForEach(x => x.Categories).ChildRules(category =>
-                {
-                    category.RuleFor(x => x.DisplayName)
-                        .Cascade(CascadeMode.StopOnFirstFailure)
-                        .NotNull()
-                        .NotEmpty();
+                category.RuleFor(x => x.DisplayName)
+                    .NotNull()
+                    .NotEmpty();
 
-                    category.RuleFor(x => x.CategoryId)
-                        .Cascade(CascadeMode.StopOnFirstFailure)
-                        .NotNull().NotEqual(CategoryId.Empty)
-                        .Must(x => CategoryMustExist(repositoryFactory, x))
-                        .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
-                });
+                category.RuleFor(x => x.CategoryId)
+                    .NotNull().NotEqual(CategoryId.Empty)
+                    .MustAsync((categoryId, token) => CategoryMustExist(categoryRepository, categoryId, token))
+                    .WithMessage(x => $"Category#{x.CategoryId} could not be found.");
             });
-        }
+        });
+    }
 
-        private bool CategoryMustExist(IRepositoryFactory repositoryFactory, CategoryId categoryId)
-        {
-            var repository = repositoryFactory.CreateRepository<Category, CategoryId>();
-            var category = repository.FindOneAsync(x => x.Id == categoryId).Result;
-            return category != null;
-        }
+    private async Task<bool> CategoryMustExist(IRepository<Category, CategoryId> categoryRepository, CategoryId categoryId, CancellationToken cancellationToken)
+    {
+        var category = await categoryRepository.FindOneAsync(x => x.Id == categoryId);
+        return category != null;
     }
 }

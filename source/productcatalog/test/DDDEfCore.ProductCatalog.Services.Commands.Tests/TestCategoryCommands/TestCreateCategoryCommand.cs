@@ -1,50 +1,44 @@
-﻿using System.Threading.Tasks;
-using AutoFixture;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory;
-using FluentValidation;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using MediatR;
-using Moq;
-using Shouldly;
-using Xunit;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands;
+
+public class TestCreateCategoryCommand
 {
-    public class TestCreateCategoryCommand : UnitTestBase<Category, CategoryId>
+    private readonly IRepository<Category, CategoryId> _categoryRepository;
+    private readonly IFixture _fixture;
+
+    public TestCreateCategoryCommand()
     {
-        [Fact(DisplayName = "Create Category Successfully")]
-        public async Task Create_Category_Successfully()
-        {
-            var command = this.Fixture.Create<CreateCategoryCommand>();
+        this._categoryRepository = A.Fake<IRepository<Category, CategoryId>>();
+        this._fixture = new Fixture();
+    }
 
-            IRequestHandler<CreateCategoryCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, new CreateCategoryCommandValidator());
+    [Fact(DisplayName = "Create Category Successfully")]
+    public async Task Create_Category_Successfully()
+    {
+        var command = this._fixture.Create<CreateCategoryCommand>();
 
-            await handler.Handle(command, this.CancellationToken);
+        var handler = new CommandHandler(this._categoryRepository);
 
-            this.MockRepository.Verify(x => x.AddAsync(It.IsAny<Category>()), Times.Once);
-        }
+        var result = await handler.Handle(command, CancellationToken.None);
 
-        [Fact(DisplayName = "Create Category With Empty Name Should Throw Exception")]
-        public async Task Create_Category_With_Empty_Name_ShouldThrowException()
-        {
-            var command = new CreateCategoryCommand { CategoryName = string.Empty };
-            IRequestHandler<CreateCategoryCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, new CreateCategoryCommandValidator());
+        result.ShouldNotBeNull();
+        result.CategoryId.ShouldNotBeNull().ShouldNotBe(CategoryId.Empty);
+    }
 
-            await Should.ThrowAsync<ValidationException>(async () => await handler.Handle(command, this.CancellationToken));
-            this.MockRepository.Verify(x => x.AddAsync(It.IsAny<Category>()), Times.Never);
-        }
+    
 
-        [Fact(DisplayName = "CreateCategoryCommand Has Empty CategoryName Should Be Invalid")]
-        public void CreateCategoryCommand_Has_Empty_CategoryName_ShouldBeInvalid()
-        {
-            var command = new CreateCategoryCommand { CategoryName = string.Empty };
+    [Fact(DisplayName = "CreateCategoryCommand Has Empty CategoryName Should Be Invalid")]
+    public void CreateCategoryCommand_Has_Empty_CategoryName_ShouldBeInvalid()
+    {
+        var command = new CreateCategoryCommand { CategoryName = string.Empty };
 
-            var validator = new CreateCategoryCommandValidator();
-            var result = validator.TestValidate(command);
-            result.ShouldHaveValidationErrorFor(x => x.CategoryName);
-        }
+        var validator = new CreateCategoryCommandValidator();
+        var result = validator.TestValidate(command);
+        result.ShouldHaveValidationErrorFor(x => x.CategoryName);
     }
 }

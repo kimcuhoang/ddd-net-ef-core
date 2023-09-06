@@ -1,32 +1,28 @@
 ﻿using AutoFixture.Xunit2;
 using Shouldly;
-using System;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct
+namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct;
+
+public class TestCatalogProductBehaviors : TestBase<TestCatalogProductFixture>
 {
-    [Collection(nameof(SharedFixture))]
-    public class TestCatalogProductBehaviors : IClassFixture<TestCatalogProductFixture>
+    public TestCatalogProductBehaviors(ITestOutputHelper testOutput, TestCatalogProductFixture fixture) : base(testOutput, fixture)
     {
-        private readonly TestCatalogProductFixture _testFixture;
+    }
 
-        public TestCatalogProductBehaviors(TestCatalogProductFixture testFixture)
-            => this._testFixture = testFixture ?? throw new ArgumentNullException(nameof(testFixture));
-
-        [Theory(DisplayName = "CatalogProduct Change DisplayName Successfully")]
-        [AutoData]
-        public async Task CatalogProduct_Change_DisplayName_Successfully(string changeToName)
+    [Theory(DisplayName = "CatalogProduct Change DisplayName Successfully")]
+    [AutoData]
+    public async Task CatalogProduct_Change_DisplayName_Successfully(string changeToName)
+    {
+        await this._fixture.DoActionWithCatalogProduct(catalogProduct =>
         {
-            await this._testFixture.DoActionWithCatalogProduct(catalogProduct =>
-            {
-                catalogProduct.ChangeDisplayName(changeToName);
-            });
+            catalogProduct.ChangeDisplayName(changeToName);
+        });
 
-            await this._testFixture.DoAssertForCatalogProduct(catalogProduct =>
-            {
-                catalogProduct.DisplayName.ShouldBe(changeToName);
-            });
-        }
+        await this._fixture.DoAssertForCatalogProduct(catalogProduct =>
+        {
+            catalogProduct.DisplayName.ShouldBe(changeToName);
+        });
     }
 }

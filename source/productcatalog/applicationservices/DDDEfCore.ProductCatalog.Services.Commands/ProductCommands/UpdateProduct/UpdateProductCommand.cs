@@ -1,11 +1,9 @@
 ﻿using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
-using MediatR;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProduct
+namespace DDDEfCore.ProductCatalog.Services.Commands.ProductCommands.UpdateProduct;
+
+public class UpdateProductCommand : ITransactionCommand<UpdateProductResult>
 {
-    public class UpdateProductCommand : IRequest
-    {
-        public ProductId ProductId { get; set; }
-        public string ProductName { get; set; }
-    }
+    public ProductId ProductId { get; set; } = default!;
+    public string ProductName { get; set; } = default!;
 }

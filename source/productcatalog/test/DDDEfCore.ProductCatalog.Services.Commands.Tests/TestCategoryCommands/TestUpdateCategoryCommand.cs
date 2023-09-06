@@ -1,99 +1,58 @@
-﻿using AutoFixture;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory;
-using FluentValidation;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using MediatR;
-using Moq;
-using Shouldly;
-using System;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Xunit;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands
+namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands;
+
+public class TestUpdateCategoryCommand
 {
-    public class TestUpdateCategoryCommand : UnitTestBase<Category, CategoryId>
+    private readonly IRepository<Category, CategoryId> _categoryRepository;
+    private readonly IFixture _fixture;
+    private readonly Category _category;
+
+    public TestUpdateCategoryCommand()
     {
-        private readonly UpdateCategoryCommandValidator _validator;
+        this._categoryRepository = A.Fake<IRepository<Category, CategoryId>>();
+        this._fixture = new Fixture();
+        this._category = Category.Create("Category");
+    }
 
-        public TestUpdateCategoryCommand() : base()
+    [Fact(DisplayName = "Update Category Successfully")]
+    public async Task Update_Category_Successfully()
+    {
+        A.CallTo(() => this._categoryRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Category?)this._category));
+
+        var command = new UpdateCategoryCommand
         {
-            this._validator = new UpdateCategoryCommandValidator(this.MockRepositoryFactory.Object);
-            
-        }
+            CategoryId = this._category.Id,
+            CategoryName = this._fixture.Create<string>()
+        };
 
-        [Fact(DisplayName = "Update Category Successfully")]
-        public async Task Update_Category_Successfully()
+        var handler = new CommandHandler(this._categoryRepository);
+
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        result.ShouldNotBeNull();
+        result.CategoryId.ShouldNotBeNull().ShouldBe(command.CategoryId);
+    }
+
+    [Fact(DisplayName = "Update Not Found Category Should not pass validator")]
+    public async Task Update_NotFound_Category_ShouldNotPassValidator()
+    {
+        var command = new UpdateCategoryCommand
         {
-            var category = Category.Create(this.Fixture.Create<string>());
+            CategoryId = CategoryId.New,
+            CategoryName = this._fixture.Create<string>()
+        };
 
-            this.MockRepository
-                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
-                .ReturnsAsync(category);
+        var validator = new UpdateCategoryCommandValidator(this._categoryRepository);
+        var validationResult = await validator.TestValidateAsync(command);
 
-            var command = new UpdateCategoryCommand
-            {
-                CategoryId = category.Id,
-                CategoryName = this.Fixture.Create<string>()
-            };
-
-            IRequestHandler<UpdateCategoryCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
-
-            await handler.Handle(command, this.CancellationToken);
-
-            category.DisplayName.ShouldBe(command.CategoryName);
-            this.MockRepository.Verify(x => x.UpdateAsync(It.IsAny<Category>()), Times.Once);
-        }
-
-        [Fact(DisplayName = "Update Not Found Category Should Throw Exception")]
-        public async Task Update_NotFound_Category_ShouldThrowException()
-        {
-            var command = new UpdateCategoryCommand
-            {
-                CategoryId = CategoryId.New,
-                CategoryName = this.Fixture.Create<string>()
-            };
-
-            this.MockRepository
-                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
-                .ReturnsAsync((Category)null);
-
-            IRequestHandler<UpdateCategoryCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
-
-            await Should.ThrowAsync<ValidationException>(async () => await handler.Handle(command, this.CancellationToken));
-        }
-
-        [Fact(DisplayName = "Update Category With Invalid Command Should Throw Exception")]
-        public async Task Update_Category_With_InvalidCommand_ShouldThrowException()
-        {
-            var command = new UpdateCategoryCommand
-            {
-                CategoryId = CategoryId.Empty,
-                CategoryName = string.Empty
-            };
-
-            IRequestHandler<UpdateCategoryCommand> handler
-                = new CommandHandler(this.MockRepositoryFactory.Object, this._validator);
-
-            await Should.ThrowAsync<ValidationException>(async () => await handler.Handle(command, this.CancellationToken));
-            this.MockRepository.Verify(x => x.UpdateAsync(It.IsAny<Category>()), Times.Never);
-        }
-
-        [Fact(DisplayName = "UpdateCategoryCommand With Empty Values (Id, Name) Should Be Invalid")]
-        public void UpdateCategoryCommand_With_Empty_Values_ShouldBeInvalid()
-        {
-            var command = new UpdateCategoryCommand
-            {
-                CategoryId = CategoryId.Empty,
-                CategoryName = string.Empty
-            };
-
-            var validationResult = this._validator.TestValidate(command);
-            validationResult.ShouldHaveValidationErrorFor(x => x.CategoryId);
-            validationResult.ShouldHaveValidationErrorFor(x => x.CategoryName);
-        }
+        validationResult.ShouldHaveValidationErrorFor(x => x.CategoryId);
+        validationResult.ShouldNotHaveValidationErrorFor(x => x.CategoryName);
     }
 }

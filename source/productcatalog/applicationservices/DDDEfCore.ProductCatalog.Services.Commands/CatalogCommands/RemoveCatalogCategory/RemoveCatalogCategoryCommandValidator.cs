@@ -1,50 +1,49 @@
-﻿using System;
-using DDDEfCore.Core.Common;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
+﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
-namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatalogCategory
+namespace DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatalogCategory;
+
+public class RemoveCatalogCategoryCommandValidator : AbstractValidator<RemoveCatalogCategoryCommand>
 {
-    public class RemoveCatalogCategoryCommandValidator : AbstractValidator<RemoveCatalogCategoryCommand>
+    public RemoveCatalogCategoryCommandValidator(IRepository<Catalog, CatalogId> catalogRepository)
     {
-        public RemoveCatalogCategoryCommandValidator(IRepositoryFactory repositoryFactory)
+        RuleFor(x => x.CatalogId).NotNull().NotEqual(CatalogId.Empty);
+
+        RuleFor(x => x.CatalogCategoryId).NotNull().NotEqual(CatalogCategoryId.Empty);
+
+        When(x => IsValid(x), () =>
         {
-            RuleFor(x => x.CatalogId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull().NotEqual(CatalogId.Empty);
-
-            RuleFor(x => x.CatalogCategoryId)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull().NotEqual(CatalogCategoryId.Empty);
-
-            When(x => IsValid(x), () =>
+            RuleFor(x => x).CustomAsync(async (command, context, token) =>
             {
-                RuleFor(x => x).Custom((command, context) =>
-                {
-                    var repository = repositoryFactory.CreateRepository<Catalog, CatalogId>();
-                    var catalog = repository
-                        .FindOneWithIncludeAsync(x => x.Id == command.CatalogId,
-                            x => x.Include(c => c.Categories)).GetAwaiter().GetResult();
-                    if (catalog == null)
-                    {
-                        context.AddFailure(nameof(command.CatalogId), $"Could not found Catalog#{command.CatalogId}");
-                    }
-                    else
-                    {
-                        if (catalog.Categories.All(x => x.Id != command.CatalogCategoryId))
-                        {
-                            context.AddFailure(nameof(command.CatalogCategoryId), $"Could not found CatalogCategory#{command.CatalogCategoryId} in Catalog#{command.CatalogId}");
-                        }
-                    }
-                });
-            });
-        }
+                var catalogs = catalogRepository.AsQueryable();
 
-        private readonly Func<RemoveCatalogCategoryCommand, bool> IsValid = command
-            => command.CatalogId != null && command.CatalogId != CatalogId.Empty 
-            && command.CatalogCategoryId != null && command.CatalogCategoryId != CatalogCategoryId.Empty;
+                var query =
+                    from c in catalogs
+                    from c1 in c.Categories.Where(_ => _.Id == command.CatalogCategoryId).DefaultIfEmpty()
+                    where c.Id == command.CatalogId
+                    select new
+                    {
+                        Catalog = c,
+                        CatalogCategory = c1
+                    };
+
+                var result = await query.FirstOrDefaultAsync(token);
+                
+                if (result == null)
+                {
+                    context.AddFailure(nameof(command.CatalogId), $"Could not found Catalog#{command.CatalogId}");
+                }
+                else if (result.CatalogCategory == null)
+                {
+                    context.AddFailure(nameof(command.CatalogCategoryId), $"Could not found CatalogCategory#{command.CatalogCategoryId} in Catalog#{command.CatalogId}");
+                }
+            });
+        });
     }
+
+    private readonly Func<RemoveCatalogCategoryCommand, bool> IsValid = command
+        => command.CatalogId != null && command.CatalogId != CatalogId.Empty 
+        && command.CatalogCategoryId != null && command.CatalogCategoryId != CatalogCategoryId.Empty;
 }
