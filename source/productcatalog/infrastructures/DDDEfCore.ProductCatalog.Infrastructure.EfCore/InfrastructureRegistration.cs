@@ -30,8 +30,8 @@ public static class InfrastructureRegistration
         });
 
         services
-            .AddScoped(typeof(IRepository<,>), typeof(DefaultRepositoryAsync<,>))
-            .AddScoped<IRepositoryFactory, DefaultRepositoryFactory>();
+            .AddScoped(typeof(IRepository<,>), typeof(DefaultRepositoryAsync<,>));
+
 
         return services;
     }

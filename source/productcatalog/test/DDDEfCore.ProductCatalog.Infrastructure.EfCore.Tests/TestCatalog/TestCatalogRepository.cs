@@ -1,8 +1,6 @@
 ﻿using AutoFixture.Xunit2;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
-using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
@@ -80,9 +78,9 @@ public class TestCatalogRepository : TestBase<TestCatalogFixture>
 
         await this._fixture.RepositoryExecute<Catalog, CatalogId>(async repository =>
         {
-            var catalog = await repository
-                .FindOneWithIncludeAsync(x => x.Id == this._fixture.Catalog.Id,
-                    x => x.Include(y => y.Categories));
+            var catalog = await repository.FindOneAsync(_ => _ == this._fixture.Catalog);
+
+            catalog.ShouldNotBeNull();
 
             repository.Remove(catalog);
         });
@@ -102,8 +100,8 @@ public class TestCatalogRepository : TestBase<TestCatalogFixture>
         var category1 = Category.Create(nameOfCategory1);
         var category2 = Category.Create(nameofCategory2);
 
-        CatalogCategory catalogCategory1 = null;
-        CatalogCategory catalogCategory2 = null;
+        CatalogCategory? catalogCategory1 = default;
+        CatalogCategory? catalogCategory2 = default;
 
         await this._fixture.SeedingData<Category,CategoryId>(category1, category2);
 
