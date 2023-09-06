@@ -63,7 +63,7 @@ public class CatalogsController : ControllerBase
     [HttpGet("search")]
     [ProducesResponseType(typeof(GetCatalogCollectionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SearchCatalogsByName(string searchTerm = null, int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> SearchCatalogsByName(string? searchTerm = null, int pageIndex = 1, int pageSize = 10)
     {
         var request = new GetCatalogCollectionRequest
         {
