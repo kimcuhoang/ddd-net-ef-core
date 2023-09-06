@@ -2,10 +2,9 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalogCategory;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using MockQueryable.Moq;
-using Moq;
-using System.Linq.Expressions;
+using MockQueryable.FakeItEasy;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands;
 
@@ -17,26 +16,21 @@ public class TestCreateCatalogCategoryCommand
     private readonly Catalog _catalog;
     private readonly Category _category;
 
-    private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
-    private readonly Mock<IRepository<Category, CategoryId>> _mockCategoryRepository;
+    private readonly IRepository<Catalog, CatalogId> _catalogRepository;
+    private readonly IRepository<Category, CategoryId> _categoryRepository;
     private readonly IFixture _fixture;
 
     public TestCreateCatalogCategoryCommand()
     {
-        this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
-        this._mockCategoryRepository = new Mock<IRepository<Category, CategoryId>>();
+        this._catalogRepository = A.Fake<IRepository<Catalog, CatalogId>>();
+        this._categoryRepository = A.Fake<IRepository<Category, CategoryId>>();
         this._fixture = new Fixture();
 
         this._catalog = Catalog.Create("Catalog");
         this._category = Category.Create("Category");
 
-        this._mockCatalogRepository
-            .Setup(_ => _.AsQueryable())
-            .Returns(new List<Catalog> { this._catalog }.BuildMock());
-
-        this._mockCategoryRepository
-            .Setup(_ => _.AsQueryable())
-            .Returns(new List<Category> { this._category }.BuildMock());
+        A.CallTo(() => this._catalogRepository.AsQueryable()).Returns(new List<Catalog> { this._catalog }.BuildMock());
+        A.CallTo(() => this._categoryRepository.AsQueryable()).Returns(new List<Category> { this._category }.BuildMock());
     }
 
     [Fact(DisplayName = "Create CatalogCategory Successfully")]
@@ -49,7 +43,7 @@ public class TestCreateCatalogCategoryCommand
             DisplayName = this._fixture.Create<string>()
         };
 
-        var commandHandler = new CommandHandler(this._mockCatalogRepository.Object);
+        var commandHandler = new CommandHandler(this._catalogRepository);
 
         var result = await commandHandler.Handle(command, CancellationToken.None);
 
@@ -71,7 +65,7 @@ public class TestCreateCatalogCategoryCommand
             ParentCatalogCategoryId = catalogCategory.Id
         };
 
-        var commandHandler = new CommandHandler(this._mockCatalogRepository.Object);
+        var commandHandler = new CommandHandler(this._catalogRepository);
 
         var result = await commandHandler.Handle(command, CancellationToken.None);
 
@@ -89,8 +83,8 @@ public class TestCreateCatalogCategoryCommand
             DisplayName = string.Empty
         };
 
-        var validator = new CreateCatalogCategoryCommandValidator(this._mockCatalogRepository.Object,
-                                                                this._mockCategoryRepository.Object);
+        var validator = new CreateCatalogCategoryCommandValidator(this._catalogRepository,
+                                                                this._categoryRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -109,12 +103,12 @@ public class TestCreateCatalogCategoryCommand
             DisplayName = this._category.DisplayName
         };
 
-        this._mockCategoryRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
-            .ReturnsAsync(this._category);
+        A.CallTo(() => this._categoryRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Category?)this._category));
 
-        var validator = new CreateCatalogCategoryCommandValidator(this._mockCatalogRepository.Object,
-                                                                this._mockCategoryRepository.Object);
+        var validator = new CreateCatalogCategoryCommandValidator(this._catalogRepository,
+                                                                this._categoryRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -133,12 +127,12 @@ public class TestCreateCatalogCategoryCommand
             DisplayName = this._fixture.Create<string>()
         };
 
-        this._mockCatalogRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Catalog, bool>>>()))
-            .ReturnsAsync(this._catalog);
+        A.CallTo(() => this._catalogRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Catalog?)this._catalog));
 
-        var validator = new CreateCatalogCategoryCommandValidator(this._mockCatalogRepository.Object,
-                                                                this._mockCategoryRepository.Object);
+        var validator = new CreateCatalogCategoryCommandValidator(this._catalogRepository,
+                                                                this._categoryRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -160,16 +154,14 @@ public class TestCreateCatalogCategoryCommand
             ParentCatalogCategoryId = CatalogCategoryId.New
         };
 
-        this._mockCatalogRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Catalog, bool>>>()))
-            .ReturnsAsync(this._catalog);
+        A.CallTo(() => this._catalogRepository.FindOneAsync(default!))
+            .WithAnyArguments().Returns(Task.FromResult((Catalog?)this._catalog));
 
-        this._mockCategoryRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
-            .ReturnsAsync(this._category);
+        A.CallTo(() => this._categoryRepository.FindOneAsync(default!))
+            .WithAnyArguments().Returns(Task.FromResult((Category?)this._category));
 
-        var validator = new CreateCatalogCategoryCommandValidator(this._mockCatalogRepository.Object,
-                                                                this._mockCategoryRepository.Object);
+        var validator = new CreateCatalogCategoryCommandValidator(this._catalogRepository,
+                                                                this._categoryRepository);
 
         var result = await validator.TestValidateAsync(command);
 

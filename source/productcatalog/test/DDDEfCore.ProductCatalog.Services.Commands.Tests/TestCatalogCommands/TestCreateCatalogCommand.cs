@@ -3,24 +3,23 @@ using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.CreateCatalog;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using Moq;
-using System.Linq.Expressions;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands;
 
 public class TestCreateCatalogCommand
 {
     private readonly CreateCatalogCommandValidator _validator;
-    private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
-    private readonly Mock<IRepository<Category, CategoryId>> _mockCategoryRepository;
+    private readonly IRepository<Catalog, CatalogId> _catalogRepository;
+    private readonly IRepository<Category, CategoryId> _categoryRepository;
     private readonly IFixture _fixture;
 
     public TestCreateCatalogCommand() : base()
     {
-        this._mockCategoryRepository = new Mock<IRepository<Category, CategoryId>>();
-        this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
-        this._validator = new CreateCatalogCommandValidator(this._mockCategoryRepository.Object);
+        this._categoryRepository = A.Fake<IRepository<Category, CategoryId>>();
+        this._catalogRepository = A.Fake<IRepository<Catalog, CatalogId>>();
+        this._validator = new CreateCatalogCommandValidator(this._categoryRepository);
         this._fixture = new Fixture();
     }
 
@@ -33,11 +32,13 @@ public class TestCreateCatalogCommand
             CatalogName = catalogName
         };
 
-        var handler = new CommandHandler(this._mockCatalogRepository.Object);
+        var handler = new CommandHandler(this._catalogRepository);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
-        this._mockCatalogRepository.Verify(x => x.Add(It.IsAny<Catalog>()), Times.Once);
+        A.CallTo(() => this._catalogRepository.Add(default!))
+            .WhenArgumentsMatch(args => args.First() is Catalog)
+            .MustHaveHappenedOnceExactly();
 
         result.ShouldNotBeNull();
         result.CatalogId.ShouldNotBeNull();
@@ -61,15 +62,17 @@ public class TestCreateCatalogCommand
             command.AddCategory(category.Id, this._fixture.Create<string>());
         }
 
-        this._mockCategoryRepository
-                .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
-                .ReturnsAsync(categories.First());
+        A.CallTo(() => this._categoryRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Category?)categories.First()));
 
-        var handler = new CommandHandler(this._mockCatalogRepository.Object);
+        var handler = new CommandHandler(this._catalogRepository);
 
         await handler.Handle(command, CancellationToken.None);
 
-        this._mockCatalogRepository.Verify(x => x.Add(It.IsAny<Catalog>()), Times.Once);
+        A.CallTo(() => this._catalogRepository.Add(default!))
+            .WhenArgumentsMatch(args => args.First() is Catalog)
+            .MustHaveHappenedOnceExactly();
     }
 
     [Fact(DisplayName = "Create Catalog With Invalid Command Should Throw Exception")]

@@ -2,18 +2,17 @@
 using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.UpdateCatalog;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using Moq;
-using System.Linq.Expressions;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands;
 public class TestUpdateCatalogCommand
 {
-    private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
+    private readonly IRepository<Catalog, CatalogId> _catalogRepository;
 
     public TestUpdateCatalogCommand()
     {
-        this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
+        this._catalogRepository = A.Fake<IRepository<Catalog, CatalogId>>();
     }
 
     [Theory]
@@ -22,11 +21,11 @@ public class TestUpdateCatalogCommand
     {
         var catalog = Catalog.Create(initialName);
 
-        this._mockCatalogRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Catalog, bool>>>()))
-            .ReturnsAsync(catalog);
+        A.CallTo(() => this._catalogRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Catalog?)catalog));
 
-        var commandHandler = new CommandHandler(this._mockCatalogRepository.Object);
+        var commandHandler = new CommandHandler(this._catalogRepository);
 
         var command = new UpdateCatalogCommand
         {
@@ -50,7 +49,7 @@ public class TestUpdateCatalogCommand
             CatalogName = "Catalog"
         };
 
-        var validator = new UpdateCatalogCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new UpdateCatalogCommandValidator(this._catalogRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -67,7 +66,7 @@ public class TestUpdateCatalogCommand
             CatalogName = "Catalog"
         };
 
-        var validator = new UpdateCatalogCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new UpdateCatalogCommandValidator(this._catalogRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -80,9 +79,9 @@ public class TestUpdateCatalogCommand
     {
         var catalog = Catalog.Create("Catalog");
 
-        this._mockCatalogRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Catalog, bool>>>()))
-            .ReturnsAsync(catalog);
+        A.CallTo(() => this._catalogRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Catalog?)catalog));
 
         var command = new UpdateCatalogCommand
         {
@@ -90,7 +89,7 @@ public class TestUpdateCatalogCommand
             CatalogName = string.Empty
         };
 
-        var validator = new UpdateCatalogCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new UpdateCatalogCommandValidator(this._catalogRepository);
 
         var result = await validator.TestValidateAsync(command);
 

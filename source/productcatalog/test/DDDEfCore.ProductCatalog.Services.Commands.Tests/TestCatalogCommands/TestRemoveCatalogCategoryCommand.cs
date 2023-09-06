@@ -2,20 +2,20 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCommands.RemoveCatalogCategory;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using MockQueryable.Moq;
-using Moq;
+using MockQueryable.FakeItEasy;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCommands;
 
 public class TestRemoveCatalogCategoryCommand
 {
-    private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
+    private readonly IRepository<Catalog, CatalogId> _catalogRepository;
     private readonly IFixture _fixture;
 
     public TestRemoveCatalogCategoryCommand()
     {
-        this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
+        this._catalogRepository = A.Fake<IRepository<Catalog, CatalogId>>();
         this._fixture = new Fixture();
     }
 
@@ -34,11 +34,9 @@ public class TestRemoveCatalogCategoryCommand
             CatalogCategoryId = catalogCategory.Id
         };
 
-        this._mockCatalogRepository
-            .Setup(_ => _.AsQueryable())
-            .Returns(catalogs.BuildMock());
+        A.CallTo(() => this._catalogRepository.AsQueryable()).Returns(catalogs.BuildMock());
 
-        var handler = new CommandHandler(this._mockCatalogRepository.Object);
+        var handler = new CommandHandler(this._catalogRepository);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -53,7 +51,7 @@ public class TestRemoveCatalogCategoryCommand
             CatalogCategoryId = CatalogCategoryId.Empty
         };
 
-        var validator = new RemoveCatalogCategoryCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new RemoveCatalogCategoryCommandValidator(this._catalogRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -70,7 +68,7 @@ public class TestRemoveCatalogCategoryCommand
             CatalogCategoryId = CatalogCategoryId.New
         };
 
-        var validator = new RemoveCatalogCategoryCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new RemoveCatalogCategoryCommandValidator(this._catalogRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -83,10 +81,8 @@ public class TestRemoveCatalogCategoryCommand
     {
         var catalog = Catalog.Create(this._fixture.Create<string>());
         var catalogs = new List<Catalog> { catalog };
-        
-        this._mockCatalogRepository
-            .Setup(_ => _.AsQueryable())
-            .Returns(catalogs.BuildMock());
+
+        A.CallTo(() => this._catalogRepository.AsQueryable()).Returns(catalogs.BuildMock());
 
         var command = new RemoveCatalogCategoryCommand
         {
@@ -94,7 +90,7 @@ public class TestRemoveCatalogCategoryCommand
             CatalogCategoryId = CatalogCategoryId.Empty
         };
 
-        var validator = new RemoveCatalogCategoryCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new RemoveCatalogCategoryCommandValidator(this._catalogRepository);
 
         var result = await validator.TestValidateAsync(command);
 

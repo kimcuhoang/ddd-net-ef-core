@@ -2,9 +2,9 @@
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.UpdateCatalogCategory;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using MockQueryable.Moq;
-using Moq;
+using MockQueryable.FakeItEasy;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands;
 
@@ -14,7 +14,7 @@ public class TestUpdateCatalogCategoryCommand
     private Category _category;
     private CatalogCategory _catalogCategory;
 
-    private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
+    private readonly IRepository<Catalog, CatalogId> _catalogRespository;
 
     public TestUpdateCatalogCategoryCommand()
     {
@@ -22,10 +22,8 @@ public class TestUpdateCatalogCategoryCommand
         this._category = Category.Create("Category");
         this._catalogCategory = this._catalog.AddCategory(this._category.Id, this._category.DisplayName);
 
-        this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
-        this._mockCatalogRepository
-            .Setup(_ => _.AsQueryable())
-            .Returns(new List<Catalog> { this._catalog }.BuildMock());
+        this._catalogRespository = A.Fake<IRepository<Catalog, CatalogId>>();
+        A.CallTo(() => this._catalogRespository.AsQueryable()).Returns(new List<Catalog> { this._catalog }.BuildMock());
     }
 
     
@@ -40,7 +38,7 @@ public class TestUpdateCatalogCategoryCommand
             DisplayName = "Catalog-Category"
         };
 
-        var commandHandler = new CommandHandler(this._mockCatalogRepository.Object);
+        var commandHandler = new CommandHandler(this._catalogRespository);
 
         var result = await commandHandler.Handle(command, CancellationToken.None);
 
@@ -59,7 +57,7 @@ public class TestUpdateCatalogCategoryCommand
             DisplayName = "Catalog-Category"
         };
 
-        var validator = new UpdateCatalogCategoryCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new UpdateCatalogCategoryCommandValidator(this._catalogRespository);
         var result = await validator.TestValidateAsync(command);
 
         result.ShouldHaveValidationErrorFor(x => x.CatalogId);
@@ -77,7 +75,7 @@ public class TestUpdateCatalogCategoryCommand
             DisplayName = "Catalog-Category"
         };
 
-        var validator = new UpdateCatalogCategoryCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new UpdateCatalogCategoryCommandValidator(this._catalogRespository);
         var result = await validator.TestValidateAsync(command);
 
         result.ShouldHaveValidationErrorFor(x => x.CatalogCategoryId);
@@ -95,7 +93,7 @@ public class TestUpdateCatalogCategoryCommand
             DisplayName = string.Empty
         };
 
-        var validator = new UpdateCatalogCategoryCommandValidator(this._mockCatalogRepository.Object);
+        var validator = new UpdateCatalogCategoryCommandValidator(this._catalogRespository);
         var result = await validator.TestValidateAsync(command);
 
         result.ShouldHaveValidationErrorFor(x => x.DisplayName);

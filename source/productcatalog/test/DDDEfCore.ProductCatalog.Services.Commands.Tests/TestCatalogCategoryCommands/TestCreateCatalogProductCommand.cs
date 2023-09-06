@@ -3,10 +3,9 @@ using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using DDDEfCore.ProductCatalog.Services.Commands.CatalogCategoryCommands.CreateCatalogProduct;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using MockQueryable.Moq;
-using Moq;
-using System.Linq.Expressions;
+using MockQueryable.FakeItEasy;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCatalogCategoryCommands;
 
@@ -17,13 +16,13 @@ public class TestCreateCatalogProductCommand
     private Product _product;
     private CatalogCategory _catalogCategory;
 
-    private readonly Mock<IRepository<Catalog, CatalogId>> _mockCatalogRepository;
-    private readonly Mock<IRepository<Product, ProductId>> _mockProductRepository;
+    private readonly IRepository<Catalog, CatalogId> _catalogRepository;
+    private readonly IRepository<Product, ProductId> _productRepository;
 
     public TestCreateCatalogProductCommand()
     {
-        this._mockCatalogRepository = new Mock<IRepository<Catalog, CatalogId>>();
-        this._mockProductRepository = new Mock<IRepository<Product, ProductId>>();
+        this._catalogRepository = A.Fake<IRepository<Catalog, CatalogId>>();
+        this._productRepository = A.Fake<IRepository<Product, ProductId>>();
 
         this._catalog = Catalog.Create("Catalog");
         this._category = Category.Create("Category");
@@ -31,12 +30,10 @@ public class TestCreateCatalogProductCommand
 
         this._catalogCategory = this._catalog.AddCategory(this._category.Id, "Catalog-Category");
 
-        this._mockCatalogRepository
-            .Setup(_ => _.AsQueryable())
+        A.CallTo(() => this._catalogRepository.AsQueryable())
             .Returns(new List<Catalog> { this._catalog }.BuildMock());
 
-        this._mockProductRepository
-            .Setup(_ => _.AsQueryable())
+        A.CallTo(() => this._productRepository.AsQueryable())
             .Returns(new List<Product> { this._product }.BuildMock());
     }
 
@@ -53,7 +50,7 @@ public class TestCreateCatalogProductCommand
             DisplayName = this._product.Name
         };
 
-        var commandHandler = new CommandHandler(this._mockCatalogRepository.Object);
+        var commandHandler = new CommandHandler(this._catalogRepository);
 
         var result = await commandHandler.Handle(command, CancellationToken.None);
 
@@ -73,7 +70,7 @@ public class TestCreateCatalogProductCommand
             DisplayName = string.Empty
         };
 
-        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
+        var validator = new CreateCatalogProductCommandValidator(this._catalogRepository, this._productRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -93,11 +90,11 @@ public class TestCreateCatalogProductCommand
             DisplayName = this._product.Name
         };
 
-        this._mockProductRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Product, bool>>>()))
-            .ReturnsAsync(this._product);
+        A.CallTo(() => this._productRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Product?)this._product));
 
-        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
+        var validator = new CreateCatalogProductCommandValidator(this._catalogRepository, this._productRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -118,11 +115,11 @@ public class TestCreateCatalogProductCommand
             DisplayName = this._product.Name
         };
 
-        this._mockProductRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Product, bool>>>()))
-            .ReturnsAsync(this._product);
+        A.CallTo(() => this._productRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Product?)this._product));
 
-        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
+        var validator = new CreateCatalogProductCommandValidator(this._catalogRepository, this._productRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -143,7 +140,7 @@ public class TestCreateCatalogProductCommand
             DisplayName = this._product.Name
         };
 
-        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
+        var validator = new CreateCatalogProductCommandValidator(this._catalogRepository, this._productRepository);
 
         var result = await validator.TestValidateAsync(command);
 
@@ -166,11 +163,11 @@ public class TestCreateCatalogProductCommand
             DisplayName = this._product.Name
         };
 
-        this._mockProductRepository
-            .Setup(_ => _.FindOneAsync(It.IsAny<Expression<Func<Product, bool>>>()))
-            .ReturnsAsync(this._product);
+        A.CallTo(() => this._productRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Product?)this._product));
 
-        var validator = new CreateCatalogProductCommandValidator(this._mockCatalogRepository.Object, this._mockProductRepository.Object);
+        var validator = new CreateCatalogProductCommandValidator(this._catalogRepository, this._productRepository);
 
         var result = await validator.TestValidateAsync(command);
 

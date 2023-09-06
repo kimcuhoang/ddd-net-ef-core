@@ -1,19 +1,19 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.CreateCategory;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using Moq;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands;
 
 public class TestCreateCategoryCommand
 {
-    private readonly Mock<IRepository<Category, CategoryId>> _mockCategoryRepository;
+    private readonly IRepository<Category, CategoryId> _categoryRepository;
     private readonly IFixture _fixture;
 
     public TestCreateCategoryCommand()
     {
-        this._mockCategoryRepository = new Mock<IRepository<Category, CategoryId>>();
+        this._categoryRepository = A.Fake<IRepository<Category, CategoryId>>();
         this._fixture = new Fixture();
     }
 
@@ -22,7 +22,7 @@ public class TestCreateCategoryCommand
     {
         var command = this._fixture.Create<CreateCategoryCommand>();
 
-        var handler = new CommandHandler(this._mockCategoryRepository.Object);
+        var handler = new CommandHandler(this._categoryRepository);
 
         var result = await handler.Handle(command, CancellationToken.None);
 

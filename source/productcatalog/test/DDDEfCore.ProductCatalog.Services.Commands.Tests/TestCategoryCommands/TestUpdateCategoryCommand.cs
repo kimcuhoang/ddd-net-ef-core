@@ -1,21 +1,20 @@
 ﻿using DDDEfCore.Core.Common;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Services.Commands.CategoryCommands.UpdateCategory;
+using FakeItEasy;
 using FluentValidation.TestHelper;
-using Moq;
-using System.Linq.Expressions;
 
 namespace DDDEfCore.ProductCatalog.Services.Commands.Tests.TestCategoryCommands;
 
 public class TestUpdateCategoryCommand
 {
-    private readonly Mock<IRepository<Category, CategoryId>> _mockCategoryRepository;
+    private readonly IRepository<Category, CategoryId> _categoryRepository;
     private readonly IFixture _fixture;
     private readonly Category _category;
 
     public TestUpdateCategoryCommand()
     {
-        this._mockCategoryRepository = new Mock<IRepository<Category, CategoryId>>();
+        this._categoryRepository = A.Fake<IRepository<Category, CategoryId>>();
         this._fixture = new Fixture();
         this._category = Category.Create("Category");
     }
@@ -23,9 +22,9 @@ public class TestUpdateCategoryCommand
     [Fact(DisplayName = "Update Category Successfully")]
     public async Task Update_Category_Successfully()
     {
-        this._mockCategoryRepository
-            .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<Category, bool>>>()))
-            .ReturnsAsync(this._category);
+        A.CallTo(() => this._categoryRepository.FindOneAsync(default!))
+            .WithAnyArguments()
+            .Returns(Task.FromResult((Category?)this._category));
 
         var command = new UpdateCategoryCommand
         {
@@ -33,7 +32,7 @@ public class TestUpdateCategoryCommand
             CategoryName = this._fixture.Create<string>()
         };
 
-        var handler = new CommandHandler(this._mockCategoryRepository.Object);
+        var handler = new CommandHandler(this._categoryRepository);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -50,7 +49,7 @@ public class TestUpdateCategoryCommand
             CategoryName = this._fixture.Create<string>()
         };
 
-        var validator = new UpdateCategoryCommandValidator(this._mockCategoryRepository.Object);
+        var validator = new UpdateCategoryCommandValidator(this._categoryRepository);
         var validationResult = await validator.TestValidateAsync(command);
 
         validationResult.ShouldHaveValidationErrorFor(x => x.CategoryId);
