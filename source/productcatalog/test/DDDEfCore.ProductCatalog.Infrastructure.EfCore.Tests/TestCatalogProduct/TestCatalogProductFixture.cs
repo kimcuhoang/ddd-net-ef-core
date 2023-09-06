@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
 using Microsoft.EntityFrameworkCore;
+using Shouldly;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct;
 
@@ -38,40 +38,38 @@ public class TestCatalogProductFixture : DefaultTestFixture
         this.CatalogProduct =
             this.CatalogCategory.CreateCatalogProduct(this.Product.Id, this.Fixture.Create<string>());
 
-        await this.RepositoryExecute<Catalog, CatalogId>(async repository => { await repository.AddAsync(this.Catalog); });
+        await this.ExecuteTransactionDbContextAsync(async dbContext =>
+        {
+            dbContext.Add(this.Catalog);
+            await dbContext.SaveChangesAsync();
+        });
     }
 
     public async Task DoActionWithCatalogProduct(Action<CatalogProduct> action)
     {
-        await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
+        await this.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            var catalog = await repository
-                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                    x => x.Include(c => c.Categories)
-                        .ThenInclude(c => c.Products));
+            var catalogProduct = await dbContext.Set<Catalog>().Where(_ => _ == this.Catalog)
+                            .SelectMany(_ => _.Categories).Where(_ => _ == this.CatalogCategory)
+                            .SelectMany(_ => _.Products).FirstOrDefaultAsync(_ => _ == this.CatalogProduct);
 
-            var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
-
-            var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x == this.CatalogProduct);
+            catalogProduct.ShouldNotBeNull();
 
             action(catalogProduct);
 
-            await repository.UpdateAsync(catalog);
+            await dbContext.SaveChangesAsync();
         });
     }
 
     public async Task DoAssertForCatalogProduct(Action<CatalogProduct> action)
     {
-        await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
+        await this.ExecuteDbContextAsync(async dbContext =>
         {
-            var catalog = await repository
-                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                    x => x.Include(c => c.Categories)
-                        .ThenInclude(c => c.Products));
+            var catalogProduct = await dbContext.Set<Catalog>().Where(_ => _ == this.Catalog)
+                            .SelectMany(_ => _.Categories).Where(_ => _ == this.CatalogCategory)
+                            .SelectMany(_ => _.Products).FirstOrDefaultAsync(_ => _ == this.CatalogProduct);
 
-            var catalogCategory = catalog.Categories.SingleOrDefault(x => x == this.CatalogCategory);
-
-            var catalogProduct = catalogCategory.Products.SingleOrDefault(x => x == this.CatalogProduct);
+            catalogProduct.ShouldNotBeNull();
 
             action(catalogProduct);
         });

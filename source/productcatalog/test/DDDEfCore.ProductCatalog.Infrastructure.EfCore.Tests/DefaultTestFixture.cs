@@ -106,10 +106,28 @@ public class DefaultTestFixture : IAsyncLifetime
     {
         await this.ExecuteServiceAsync(async serviceProvider =>
         {
-            var repositoryFactory = serviceProvider.GetRequiredService<IRepositoryFactory>();
-            var repository = repositoryFactory.CreateRepository<TAggregate, TIdentity>();
-            await action(repository);
-            await repositoryFactory.Commit();
+            var dbContext = serviceProvider.GetRequiredService<DbContext>();
+
+            var strategy = dbContext.Database.CreateExecutionStrategy();
+
+            await strategy.ExecuteAsync(async () =>
+            {
+                // Achieving atomicity
+                await using var transaction = await dbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    var repository = serviceProvider.GetRequiredService<IRepository<TAggregate, TIdentity>>();
+                    await action(repository);
+
+                    await dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         });
     }
 

@@ -28,12 +28,9 @@ public class TestProductRepository : TestBase<TestProductFixture>
     {
         await this._fixture.RepositoryExecute<Product, ProductId>(async repository =>
         {
-            var product =
-                await repository.FindOneAsync(x => x.Id == this._fixture.Product.Id);
-
+            var product = await repository.FindOneAsync(x => x == this._fixture.Product);
+            product.ShouldNotBeNull();
             product.ChangeName(newProductName);
-
-            await repository.UpdateAsync(product);
         });
 
         await this._fixture.DoAssert(this._fixture.Product.Id, product =>
@@ -54,7 +51,7 @@ public class TestProductRepository : TestBase<TestProductFixture>
             var productToRemove = await repository
                 .FindOneAsync(x => x.Id == product.Id);
 
-            await repository.RemoveAsync(productToRemove);
+            repository.Remove(productToRemove);
         });
 
         await this._fixture.DoAssert(product.Id, productAssert => { productAssert.ShouldBeNull(); });

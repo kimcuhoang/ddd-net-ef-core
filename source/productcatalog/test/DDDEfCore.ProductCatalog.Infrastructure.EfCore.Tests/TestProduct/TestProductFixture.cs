@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Products;
+using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct;
 
@@ -20,19 +21,18 @@ public class TestProductFixture : DefaultTestFixture
         await this.SeedingData<Product, ProductId>(this.ProductToRemove);
 
         this.Product = Product.Create(this.Fixture.Create<string>());
-        await this.RepositoryExecute<Product, ProductId>(async repository =>
+
+        await this.ExecuteTransactionDbContextAsync(async _ =>
         {
-            await repository.AddAsync(this.Product);
-            
+            _.Add(this.Product);
+            await _.SaveChangesAsync();
         });
     }
     public async Task DoAssert(ProductId productId, Action<Product> assertFor)
     {
-        await this.RepositoryExecute<Product, ProductId>(async repository =>
+        await this.ExecuteDbContextAsync(async _ =>
         {
-            var product = await repository
-                .FindOneAsync(x => x.Id == productId);
-
+            var product = await _.Set<Product>().FirstOrDefaultAsync(_ => _.Id == productId);
             assertFor(product);
         });
     }

@@ -84,7 +84,7 @@ public class TestCatalogRepository : TestBase<TestCatalogFixture>
                 .FindOneWithIncludeAsync(x => x.Id == this._fixture.Catalog.Id,
                     x => x.Include(y => y.Categories));
 
-            await repository.RemoveAsync(catalog);
+            repository.Remove(catalog);
         });
 
         await this._fixture.DoAssert(catalog =>

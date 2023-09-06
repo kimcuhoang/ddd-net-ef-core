@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
+using Microsoft.EntityFrameworkCore;
 
 namespace DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory;
 
@@ -17,18 +18,18 @@ public class TestCategoryFixture : DefaultTestFixture
 
         this.Category = Category.Create(this.Fixture.Create<string>());
 
-        await this.RepositoryExecute<Category, CategoryId>(async repository =>
+        await this.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            await repository.AddAsync(this.Category);
+            dbContext.Add(this.Category);
+            await dbContext.SaveChangesAsync();
         });
     }
 
     public async Task DoAssert(Action<Category> assertFor)
     {
-        await this.RepositoryExecute<Category, CategoryId>(async repository =>
+        await this.ExecuteDbContextAsync(async dbContext =>
         {
-            var category = await repository
-                .FindOneAsync(x => x.Id == this.Category.Id);
+            var category = await dbContext.Set<Category>().FirstOrDefaultAsync(_ => _ == this.Category);
 
             assertFor(category);
         });

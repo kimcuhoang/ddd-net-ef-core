@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using DDDEfCore.Infrastructures.EfCore.Common.Extensions;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Catalogs;
 using DDDEfCore.ProductCatalog.Core.DomainModels.Categories;
 using Microsoft.EntityFrameworkCore;
@@ -51,19 +50,22 @@ public class TestCatalogFixture : DefaultTestFixture
         this.CatalogCategoryLv3 =
             this.Catalog.AddCategory(this.CategoryLv3.Id, this.Fixture.Create<string>(), this.CatalogCategoryLv2);
 
-        await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
+        await this.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            await repository.AddAsync(this.Catalog);
+            dbContext.Add(this.Catalog);
+            await dbContext.SaveChangesAsync();
         });
     }
 
     public async Task DoAssert(Action<Catalog> assertFor)
     {
-        await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
+        await this.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            var catalog = await repository
-                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                    x => x.Include(y => y.Categories));
+            var queryCatalog = await dbContext.Set<Catalog>().Include(_ => _.Categories)
+                                .Where(_ => _.Id == this.Catalog.Id)
+                                .ToListAsync();
+
+            var catalog = queryCatalog.FirstOrDefault();
 
             assertFor(catalog);
         });
@@ -71,15 +73,17 @@ public class TestCatalogFixture : DefaultTestFixture
 
     public async Task DoActionWithCatalog(Action<Catalog> action)
     {
-        await this.RepositoryExecute<Catalog,CatalogId>(async repository =>
+        await this.ExecuteTransactionDbContextAsync(async dbContext =>
         {
-            var catalog = await repository
-                .FindOneWithIncludeAsync(x => x.Id == this.Catalog.Id,
-                    x => x.Include(y => y.Categories));
+            var queryCatalog = await dbContext.Set<Catalog>().Include(_ => _.Categories)
+                                .Where(_ => _.Id == this.Catalog.Id)
+                                .ToListAsync();
+
+            var catalog = queryCatalog.FirstOrDefault();
 
             action(catalog);
 
-            await repository.UpdateAsync(catalog);
+            await dbContext.SaveChangesAsync();
         });
     }
 }

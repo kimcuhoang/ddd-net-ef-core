@@ -46,7 +46,7 @@ public class CommandHandler : IRequestHandler<UpdateCatalogProductCommand>
 
         catalogProduct.ChangeDisplayName(request.DisplayName);
 
-        await this._repository.UpdateAsync(catalog);
+        this._repository.Update(catalog);
     }
 
     #endregion

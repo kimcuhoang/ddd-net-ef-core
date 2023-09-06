@@ -28,12 +28,13 @@ public class TestCategoryRepository : TestBase<TestCategoryFixture>
     {
         await this._fixture.RepositoryExecute<Category, CategoryId>(async repository =>
         {
-            var category =
-                await repository.FindOneAsync(x => x.Id == this._fixture.Category.Id);
+            var category = await repository.FindOneAsync(x => x.Id == this._fixture.Category.Id);
+
+            category.ShouldNotBeNull();
 
             category.ChangeDisplayName(newCategoryName);
 
-            await repository.UpdateAsync(category);
+            //repository.Update(category);
         });
 
         await this._fixture.DoAssert(category =>
@@ -49,8 +50,9 @@ public class TestCategoryRepository : TestBase<TestCategoryFixture>
     {
         await this._fixture.RepositoryExecute<Category, CategoryId>(async repository =>
         {
-            var category = await repository.FindOneAsync(x => x.Id == this._fixture.Category.Id);
-            await repository.RemoveAsync(category);
+            var category = await repository.FindOneAsync(x => x == this._fixture.Category);
+            category.ShouldNotBeNull();
+            repository.Remove(category);
         });
 
         await this._fixture.DoAssert(category =>

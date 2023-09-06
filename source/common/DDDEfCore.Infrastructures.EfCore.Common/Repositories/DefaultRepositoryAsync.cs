@@ -26,20 +26,9 @@ public class DefaultRepositoryAsync<TAggregate, TIdentity> : IRepository<TAggreg
         return await this._dbContext.Set<TAggregate>().FirstOrDefaultAsync(predicate);
     }
 
-    public async Task AddAsync(TAggregate aggregate)
-    {
-        await this._dbContext.AddAsync(aggregate);
-    }
+    public void Update(TAggregate aggregate) => this._dbContext.Update(aggregate);
 
-    public Task UpdateAsync(TAggregate aggregate)
-    {
-        return Task.FromResult(this._dbContext.Update(aggregate));
-    }
-
-    public Task RemoveAsync(TAggregate aggregate)
-    {
-        return Task.FromResult(this._dbContext.Remove(aggregate));
-    }
+    public void Remove(TAggregate aggregate) => this._dbContext.Remove(aggregate);
 
     public void Add(TAggregate aggregate) => this._dbContext.Add(aggregate);
 
