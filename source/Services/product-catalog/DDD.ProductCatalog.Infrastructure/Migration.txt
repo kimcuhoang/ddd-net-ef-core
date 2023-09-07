@@ -1,0 +1,11 @@
+﻿dotnet ef migrations add Initialize `
+-p source\Services\product-catalog\DDD.ProductCatalog.Infrastructure `
+-s source\Services\product-catalog\DDD.ProductCatalog.WebApi `
+-c ProductCatalogDbContext `
+-o EfCore\Migrations
+
+dotnet ef database update `
+-p source\Services\product-catalog\DDD.ProductCatalog.Infrastructure `
+-s source\Services\product-catalog\DDD.ProductCatalog.WebApi `
+-c ProductCatalogDbContext
+

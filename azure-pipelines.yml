@@ -3,6 +3,7 @@ trigger:
     include:
       - master
       - feature/*
+      - Feature/*
   paths:
     exclude:
       - README.md
@@ -21,10 +22,9 @@ variables:
     buildConfiguration: 'Release'
     NETCoreVersion: '7.0.x'
     solutionFile: '$(Build.SourcesDirectory)/*.sln'
-    unitTestPath: '$(Build.SourcesDirectory)/source/productcatalog/test'
+    unitTestPath: '$(Build.SourcesDirectory)/source/Services/product-catalog/DDD.ProductCatalog.Tests'
     unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
     codeCoverageReportPath : '$(Build.SourcesDirectory)/CodeCoverage'
-    sqlPassword: 'P@ssword'
 
 stages:
 - stage: RunBuild
@@ -63,9 +63,6 @@ stages:
   - job: RunTestsJob
     displayName: 'Run Tests Projects'
     steps:
-
-    
-
     - task: UseDotNet@2
       displayName: "Install .NET Core $(NETCoreVersion)"
       inputs: 

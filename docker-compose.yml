@@ -4,15 +4,15 @@ services:
 
     sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
-        restart: on-failure
-        networks:
-            - ddd-net-ef-core
+        restart: always
         environment:
             SA_PASSWORD: "P@ssword"
             ACCEPT_EULA: "Y"
+        networks:
+            - dotnet-ddd
         ports:
             - "1433:1433"
 
 networks:
-    ddd-net-ef-core:
-        name: ddd-net-ef-core-network
+    dotnet-ddd:
+        name: dotnet-ddd-network

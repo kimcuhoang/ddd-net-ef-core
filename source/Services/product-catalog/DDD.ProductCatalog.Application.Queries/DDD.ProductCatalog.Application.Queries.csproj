@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<ContainerImageTags>alpine-7.0.302</ContainerImageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper.SqlBuilder" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="MediatR" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\BuildingBlocks\DNK.DDD.Application\DNK.DDD.Application.csproj" />
+	  <ProjectReference Include="..\DDD.ProductCatalog.Core\DDD.ProductCatalog.Core.csproj" />
+	</ItemGroup>
+
+</Project>

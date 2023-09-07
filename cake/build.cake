@@ -8,7 +8,7 @@ var configuration = Argument("Configuration", "Release");
 
 /*  Change the output artifacts and their configuration here. */
 var parentDirectory = Directory("..");
-var testProjectDirectory = Directory($"{parentDirectory}/source/productcatalog/test");
+var testProjectDirectory = Directory($"{parentDirectory}/source/Services/product-catalog/DDD.ProductCatalog.Tests");
 var coverageDirectory = Directory($"{parentDirectory}/code_coverage");
 var cuberturaFileName = "results";
 var cuberturaFileExtension = ".cobertura.xml";

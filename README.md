@@ -40,8 +40,8 @@ In the **Product Catalog** bounded context, I have a following Aggregate-Roots, 
 
 ### [CQRS](https://martinfowler.com/bliki/CQRS.html)
 
-1. `DDDEfCore.ProductCatalog.Services.Commands`: for Create, Update and delete operators by consuming repositories.
-2. `DDDEfCore.ProductCatalog.Services.Queries`: for all of the query operators by using [Dapper](https://github.com/StackExchange/Dapper)
+1. `DDD.ProductCatalog.Application.Commands`: for Create, Update and delete operators by consuming repositories.
+2. `DDD.ProductCatalog.Application.Queries`: for all of the query operators by using [Dapper](https://github.com/StackExchange/Dapper)
 
 ## Highlighted Points
 
@@ -143,21 +143,21 @@ I want to use Strongly-Typed Ids for all models (i.e. `CatalogId`, `CatalogCateg
 
 #### About Test Projects
 
-1. `DDDEfCore.ProductCatalog.Core.DomainModels.Tests`
+1. `DDD.ProductCatalog.Core.Tests`
     - Unit Test for the behaviors of Domain Models
 
-2. `DDDEfCore.ProductCatalog.Infrastructure.EfCore.Tests`
+2. `DDD.ProductCatalog.Infrastructure.EfCore.Tests`
     - Integration Test with EntityFramework Core and SqlServer for repositories of Aggregate-Roots
 
-3. `DDDEfCore.ProductCatalog.Services.Commands.Tests`
+3. `DDD.ProductCatalog.Application.Commands.Tests`
     - Unit Test of Command Handlers.
     - Use [MockQueryable.FakeItEasy](https://github.com/romantitov/MockQueryable) to mock `DbSet`.
 
-4. `DDDEfCore.ProductCatalog.Services.Queries.Tests`
+4. `DDD.ProductCatalog.Application.Queries.Tests`
     - Integration Test with [Dapper](https://github.com/StackExchange/Dapper) and SqlServer for Query Handlers.
 
-5. `DDDEfCore.ProductCatalog.WebApi.Tests`
-   - Integration Test with Web Api by consuming `Microsoft.AspNetCore.TestHost`
+5. `DDD.ProductCatalog.WebApi.Tests`
+   - Integration Test with Web Api
 
 #### Interesting Points
 
@@ -177,7 +177,7 @@ For every test project, I use the following packages
 
 ### Run via swagger from Visual Studio
 
-- You have to change the `connectionstring` value in `appsettings.Development.json` under `DDDEfCore.ProductCatalog.WebApi`
+- You have to change the `connectionstring` value in `appsettings.Development.json` under `DDD.ProductCatalog.WebApi`
 - After run the WebApi by `Ctrl+F5` from Visual Studio, assume the Url is `http://localhost:[port]`
 	- Switch to swagger via `swagger`
 
@@ -193,6 +193,6 @@ For every test project, I use the following packages
 
 - After run successfully, go to `code_coverage` folder, and open the `index.html` by browser to see the report
 
-## Give a Star! :star:
+## Give a Star! :star2:
 
 If you liked this project or if it helped you, please give a star :star: for this repository. Thank you!!!
