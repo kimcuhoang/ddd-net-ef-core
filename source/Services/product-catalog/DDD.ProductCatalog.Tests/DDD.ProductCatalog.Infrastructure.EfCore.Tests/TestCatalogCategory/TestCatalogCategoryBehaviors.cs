@@ -1,21 +1,68 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.Infrastructure.EfCore.Tests;
-using DDD.ProductCatalog.Core.Catalogs;
+﻿using DDD.ProductCatalog.Core.Catalogs;
+using DDD.ProductCatalog.Core.Categories;
 using DDD.ProductCatalog.Core.Products;
 using Microsoft.EntityFrameworkCore;
-using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogCategory;
 
-public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
+public class TestCatalogCategoryBehaviors : TestEfCoreBase
 {
-    public TestCatalogCategoryBehaviors(ITestOutputHelper testOutput, TestCatalogCategoryFixture fixture)
-        : base(testOutput, fixture)
+    public TestCatalogCategoryBehaviors(TestEfCoreFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
+    private Catalog Catalog = default!;
+    private Category Category = default!;
+    private Product Product = default!;
+    private CatalogCategory CatalogCategory = default!;
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        this.Category = Category.Create(this._fixture.Create<string>());
+        this.Product = Product.Create(this._fixture.Create<string>());
+        this.Catalog = Catalog.Create(this._fixture.Create<string>());
+
+        this.CatalogCategory =
+            this.Catalog.AddCategory(this.Category.Id, this._fixture.Create<string>());
+
+        await this.ExecuteTransactionDbContext(async dbContext =>
+        {
+            dbContext.Add(this.Category);
+            dbContext.Add(this.Product);
+            dbContext.Add(this.Catalog);
+            await dbContext.SaveChangesAsync();
+        });
+    }
+
+    private async Task DoActionWithCatalogCategory(Action<CatalogCategory> action)
+    {
+        await this.ExecuteTransactionDbContext(async dbContext =>
+        {
+            var catalogCategory = await dbContext.Set<Catalog>()
+                            .Where(_ => _ == this.Catalog)
+                            .SelectMany(_ => _.Categories)
+                            .FirstOrDefaultAsync(_ => _ == this.CatalogCategory);
+
+            action(catalogCategory);
+
+            await dbContext.SaveChangesAsync();
+        });
+    }
+
+    private async Task DoAssertForCatalogCategory(Action<CatalogCategory> action)
+    {
+        await this.ExecuteDbContextAsync(async dbContext =>
+        {
+            var catalogCategory = await dbContext.Set<Catalog>()
+                            .Where(_ => _ == this.Catalog)
+                            .SelectMany(_ => _.Categories)
+                            .FirstOrDefaultAsync(_ => _ == this.CatalogCategory);
+
+            action(catalogCategory);
+        });
+    }
 
     #region Self Behaviors
 
@@ -23,12 +70,12 @@ public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
     [AutoData]
     public async Task CatalogCategory_Change_DisplayName_Successfully(string catalogCategoryDisplayName)
     {
-        await this._fixture.DoActionWithCatalogCategory(catalogCategory =>
+        await this.DoActionWithCatalogCategory(catalogCategory =>
         {
             catalogCategory.ChangeDisplayName(catalogCategoryDisplayName);
         });
 
-        await this._fixture.DoAssertForCatalogCategory(catalogCategory =>
+        await this.DoAssertForCatalogCategory(catalogCategory =>
         {
             catalogCategory.DisplayName.ShouldBe(catalogCategoryDisplayName);
         });
@@ -44,27 +91,27 @@ public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
     {
         var product = Product.Create("Product");
 
-        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
+        await this.ExecuteTransactionDbContext(async dbContext =>
         {
             dbContext.Add(product);
             await dbContext.SaveChangesAsync();
         });
 
-        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
+        await this.ExecuteTransactionDbContext(async dbContext =>
         {
             var catalogs = dbContext.Set<Catalog>();
 
             var query =
                     from c in catalogs
                     from c1 in c.Categories
-                    where c.Id == this._fixture.Catalog.Id && c1.Id == this._fixture.CatalogCategory.Id
+                    where c.Id == this.Catalog.Id && c1.Id == this.CatalogCategory.Id
                     select new
                     {
                         Catalog = c,
                         CatalogCategory = c1
                     };
 
-            this._testOutput.WriteLine(query.ToQueryString());
+            this._output.WriteLine(query.ToQueryString());
 
             var result = await query.FirstOrDefaultAsync();
 
@@ -77,16 +124,16 @@ public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
             await dbContext.SaveChangesAsync();
         });
 
-        await this._fixture.ExecuteDbContextAsync(async dbContext =>
+        await this.ExecuteDbContextAsync(async dbContext =>
         {
             var query = dbContext.Set<Catalog>()
-                        .Where(_ => _.Id == this._fixture.Catalog.Id)
+                        .Where(_ => _.Id == this.Catalog.Id)
                         .SelectMany(_ => _.Categories)
-                        .Where(_ => _.Id == this._fixture.CatalogCategory.Id)
+                        .Where(_ => _.Id == this.CatalogCategory.Id)
                         .SelectMany(_ => _.Products)
                         .Where(_ => _.ProductId == product.Id);
 
-            this._testOutput.WriteLine(query.ToQueryString());
+            this._output.WriteLine(query.ToQueryString());
 
             var catalogProduct = await query.FirstOrDefaultAsync();
 
@@ -99,27 +146,27 @@ public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
     {
         var product = Product.Create("Product");
 
-        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
+        await this.ExecuteTransactionDbContext(async dbContext =>
         {
             dbContext.Add(product);
             await dbContext.SaveChangesAsync();
         });
 
-        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
+        await this.ExecuteTransactionDbContext(async dbContext =>
         {
             var catalogs = dbContext.Set<Catalog>();
 
             var query =
                     from c in catalogs
                     from c1 in c.Categories
-                    where c.Id == this._fixture.Catalog.Id && c1.Id == this._fixture.CatalogCategory.Id
+                    where c.Id == this.Catalog.Id && c1.Id == this.CatalogCategory.Id
                     select new
                     {
                         Catalog = c,
                         CatalogCategory = c1
                     };
 
-            this._testOutput.WriteLine(query.ToQueryString());
+            this._output.WriteLine(query.ToQueryString());
 
             var result = await query.FirstOrDefaultAsync();
 
@@ -132,12 +179,12 @@ public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
             await dbContext.SaveChangesAsync();
         });
 
-        await this._fixture.ExecuteTransactionDbContextAsync(async dbContext =>
+        await this.ExecuteTransactionDbContext(async dbContext =>
         {
             var query = dbContext.Set<Catalog>()
-                        .Where(_ => _.Id == this._fixture.Catalog.Id)
+                        .Where(_ => _.Id == this.Catalog.Id)
                         .SelectMany(_ => _.Categories)
-                        .Where(_ => _.Id == this._fixture.CatalogCategory.Id)
+                        .Where(_ => _.Id == this.CatalogCategory.Id)
                         .SelectMany(_ => _.Products)
                         .Where(_ => _.ProductId == product.Id);
 
@@ -146,16 +193,16 @@ public class TestCatalogCategoryBehaviors : TestBase<TestCatalogCategoryFixture>
             result.ShouldBe(1);
         });
 
-        await this._fixture.ExecuteDbContextAsync(async dbContext =>
+        await this.ExecuteDbContextAsync(async dbContext =>
         {
             var query = dbContext.Set<Catalog>()
-                        .Where(_ => _.Id == this._fixture.Catalog.Id)
+                        .Where(_ => _.Id == this.Catalog.Id)
                         .SelectMany(_ => _.Categories)
-                        .Where(_ => _.Id == this._fixture.CatalogCategory.Id)
+                        .Where(_ => _.Id == this.CatalogCategory.Id)
                         .SelectMany(_ => _.Products)
                         .Where(_ => _.ProductId == product.Id);
 
-            this._testOutput.WriteLine(query.ToQueryString());
+            this._output.WriteLine(query.ToQueryString());
 
             var catalogProduct = await query.FirstOrDefaultAsync();
 

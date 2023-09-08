@@ -1,29 +1,26 @@
 ﻿using DDD.ProductCatalog.Application.Queries.CategoryQueries.GetCategoryDetail;
 using DDD.ProductCatalog.Core.Categories;
-using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCategoryQueries;
 
-public class TestGetCategoryDetail : TestBase<TestGetCategoryFixture>
+public class TestGetCategoryDetail : TestCategoryQueriesBase
 {
-    public TestGetCategoryDetail(ITestOutputHelper testOutput, TestGetCategoryFixture fixture) : base(testOutput, fixture)
+    public TestGetCategoryDetail(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
     [Fact(DisplayName = "Should get CategoryDetail within assigned Catalogs Correctly")]
     public async Task Should_Get_Category_Within_AssignedCatalogs_Correctly()
     {
-        var category = this._fixture.Category;
+        var category = this.Category;
         var request = new GetCategoryDetailRequest
         {
-            CategoryId = this._fixture.Category.Id
+            CategoryId = this.Category.Id
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>(request, result =>
         {
-            var predefinedCatalog = this._fixture.Catalog;
+            var predefinedCatalog = this.Catalog;
 
             result.ShouldNotBeNull();
             result.CategoryDetail.Id.ShouldBe(category.Id);
@@ -45,7 +42,7 @@ public class TestGetCategoryDetail : TestBase<TestGetCategoryFixture>
             CategoryId = CategoryId.New
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>(request, result =>
         {
             result.ShouldNotBeNull();
             result.CategoryDetail.Id.ShouldBeNull();
@@ -61,7 +58,6 @@ public class TestGetCategoryDetail : TestBase<TestGetCategoryFixture>
         {
             CategoryId = CategoryId.Empty
         };
-        await this._fixture
-            .ExecuteValidationTest(request, result => { result.ShouldHaveValidationErrorFor(x => x.CategoryId); });
+        await this.ExecuteValidationTest(request, result => { result.ShouldHaveValidationErrorFor(x => x.CategoryId); });
     }
 }

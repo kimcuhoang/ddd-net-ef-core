@@ -1,13 +1,10 @@
-﻿using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
-using DDD.ProductCatalog.Application.Queries.ProductQueries.GetProductCollection;
+﻿using DDD.ProductCatalog.Application.Queries.ProductQueries.GetProductCollection;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestProductQueries;
 
-public class TestGetProductCollection : TestBase<TestProductsFixture>
+public class TestGetProductCollection : TestProductQueriesBase
 {
-    public TestGetProductCollection(ITestOutputHelper testOutput, TestProductsFixture fixture) : base(testOutput, fixture)
+    public TestGetProductCollection(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
@@ -22,7 +19,7 @@ public class TestGetProductCollection : TestBase<TestProductsFixture>
             PageSize = pageSize
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalProducts.ShouldBeGreaterThanOrEqualTo(1);
@@ -33,13 +30,13 @@ public class TestGetProductCollection : TestBase<TestProductsFixture>
     [Fact(DisplayName = "Search Products by Name and return correctly")]
     public async Task Search_Products_By_Name_And_Return_Correctly()
     {
-        var product = this._fixture.Product;
+        var product = this.Product;
         var request = new GetProductCollectionRequest
         {
             SearchTerm = product.Name
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalProducts.ShouldBeGreaterThanOrEqualTo(1);
@@ -66,7 +63,7 @@ public class TestGetProductCollection : TestBase<TestProductsFixture>
             PageIndex = pageIndex
         };
 
-        await this._fixture.ExecuteValidationTest(request, result =>
+        await this.ExecuteValidationTest(request, result =>
         {
             if (pageIndex < 0 || pageIndex == int.MaxValue)
             {
@@ -85,7 +82,7 @@ public class TestGetProductCollection : TestBase<TestProductsFixture>
     {
         var request = GenFu.GenFu.New<GetProductCollectionRequest>();
 
-        await this._fixture.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetProductCollectionRequest, GetProductCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalProducts.ShouldBe(0);

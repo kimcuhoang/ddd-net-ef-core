@@ -1,24 +1,17 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDD.ProductCatalog.WebApi.Tests.Helpers;
+﻿using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDD.ProductCatalog.Core.Catalogs;
 using DDD.ProductCatalog.Application.Commands.CatalogCommands.UpdateCatalog;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
-public class TestUpdateCatalog : TestBase<TestCatalogsControllerFixture>
+public class TestUpdateCatalog : TestCatalogsControllerBase
 {
-    public TestUpdateCatalog(ITestOutputHelper testOutput, TestCatalogsControllerFixture fixture)
-        : base(testOutput, fixture)
+    public TestUpdateCatalog(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private Catalog Catalog => this._fixture.Catalog;
-
-    private string ApiUrl => $"{this._fixture.BaseUrl}/{(Guid)this.Catalog.Id}";
+    private string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Catalog.Id}";
 
 
 
@@ -26,22 +19,20 @@ public class TestUpdateCatalog : TestBase<TestCatalogsControllerFixture>
     [AutoData]
     public async Task Update_Catalog_Successfully_Should_Return(string catalogName)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = catalogName.ToStringContent(jsonSerializerOptions);
-            var response = await client.PutAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(catalogName);
+            
+            var response = await httpClient.PutAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-            var result = await response.Content.ReadAsStringAsync();
-
-            var model = this._fixture.Parse<UpdateCatalogResult>(result);
+            var model = await this.ParseResponse<UpdateCatalogResult>(response);
 
             model.ShouldNotBeNull();
             model.CatalogId.ShouldNotBeNull();
             model.Success.ShouldBeTrue();
         });
 
-        await this._fixture.ExecuteDbContextAsync(async dbContext =>
+        await this.ExecuteDbContextAsync(async dbContext =>
         {
             var catalog = await dbContext.Set<Catalog>().FirstOrDefaultAsync(_ => _.Id == this.Catalog.Id);
 
@@ -53,14 +44,14 @@ public class TestUpdateCatalog : TestBase<TestCatalogsControllerFixture>
     [Fact(DisplayName = "Update Catalog With Empty Name Should Return HttpStatusCode400")]
     public async Task Update_Catalog_With_Empty_Name_Should_Return_HttpStatusCode400()
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = string.Empty.ToStringContent();
-            var response = await client.PutAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(string.Empty);
+
+            var response = await httpClient.PutAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
-            var result = await response.Content.ReadAsStringAsync();
-            var errorResponse = this._fixture.Parse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result);
+            var errorResponse = await this.ParseResponse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(response);
 
             errorResponse.ShouldNotBeNull();
             errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);

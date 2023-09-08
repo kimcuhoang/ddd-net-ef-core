@@ -1,14 +1,11 @@
 ﻿using DDD.ProductCatalog.Application.Queries.CatalogQueries.GetCatalogDetail;
 using DDD.ProductCatalog.Core.Catalogs;
-using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCatalogQueries;
 
-public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
+public class TestGetCatalogDetail : TestCatalogQueriesBase
 {
-    public TestGetCatalogDetail(ITestOutputHelper testOutput, TestGetCatalogFixture fixture) : base(testOutput, fixture)
+    public TestGetCatalogDetail(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
@@ -17,7 +14,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
     [InlineData(1, 2)]
     public async Task Should_GetCatalogDetail_With_Paging_CatalogCategory_Correctly(int pageIndex, int pageSize)
     {
-        var catalog = this._fixture.CatalogHasCatalogCategory;
+        var catalog = this.CatalogHasCatalogCategory;
 
         var request = new GetCatalogDetailRequest
         {
@@ -29,7 +26,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
             }
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
         {
             result.ShouldNotBeNull();
             result.CatalogDetail.ShouldNotBeNull();
@@ -43,7 +40,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
                 var catalogCategory =
                     catalog.Categories.SingleOrDefault(x => x.Id == c.Id);
                 catalogCategory.ShouldNotBeNull();
-                c.CategoryId.ShouldBe(this._fixture.Category.Id);
+                c.CategoryId.ShouldBe(this.Category.Id);
                 c.DisplayName.ShouldBe(catalogCategory.DisplayName);
                 c.TotalOfProducts.ShouldBe(catalogCategory.Products.Count());
             });
@@ -53,7 +50,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
     [Fact(DisplayName = "Should GetCatalogDetail With Search CatalogCategory Correctly")]
     public async Task Should_GetCatalogDetail_With_Search_CatalogCategory_Correctly()
     {
-        var catalog = this._fixture.CatalogHasCatalogCategory;
+        var catalog = this.CatalogHasCatalogCategory;
         var catalogId = catalog.Id;
         var catalogCategories = catalog.Categories.ToList();
 
@@ -69,7 +66,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
             }
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
         {
             result.ShouldNotBeNull();
             result.CatalogDetail.ShouldSatisfyAllConditions(
@@ -84,7 +81,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
                     catalog.Categories.SingleOrDefault(x => x.Id == c.Id);
 
                 catalogCategory.ShouldNotBeNull();
-                c.CategoryId.ShouldBe(this._fixture.Category.Id);
+                c.CategoryId.ShouldBe(this.Category.Id);
                 c.DisplayName.ShouldBe(catalogCategory.DisplayName);
                 c.TotalOfProducts.ShouldBe(catalogCategory.Products.Count());
             });
@@ -96,10 +93,10 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
     {
         var request = new GetCatalogDetailRequest
         {
-            CatalogId = this._fixture.CatalogWithoutCatalogCategory.Id
+            CatalogId = this.CatalogWithoutCatalogCategory.Id
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
         {
             result.ShouldNotBeNull();
             result.TotalOfCatalogCategories.ShouldBe(0);
@@ -112,7 +109,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
     {
         var request = new GetCatalogDetailRequest { CatalogId = CatalogId.New };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCatalogDetailRequest, GetCatalogDetailResult>(request, result =>
         {
             result.ShouldNotBeNull();
             result.TotalOfCatalogCategories.ShouldBe(0);
@@ -140,7 +137,7 @@ public class TestGetCatalogDetail : TestBase<TestGetCatalogFixture>
             }
         };
 
-        await this._fixture.ExecuteValidationTest(request, result =>
+        await this.ExecuteValidationTest(request, result =>
         {
             result.ShouldHaveValidationErrorFor(x => x.CatalogId);
             if (pageIndex < 0 || pageIndex == int.MaxValue)

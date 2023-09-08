@@ -1,20 +1,17 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.WebApi.Tests.Helpers;
-using DDD.ProductCatalog.Core.Products;
+﻿using DDD.ProductCatalog.Core.Products;
 using DDD.ProductCatalog.Application.Commands.ProductCommands.CreateProduct;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using Xunit.Abstractions;
+
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
-public class TestCreateProduct : TestBase<TestProductsControllerFixture>
+public class TestCreateProduct : TestProductsControllerBase
 {
-    public TestCreateProduct(ITestOutputHelper testOutput, TestProductsControllerFixture fixture) : base(testOutput, fixture)
+    public TestCreateProduct(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private string ApiUrl => this._fixture.BaseUrl;
+    private string ApiUrl => this.BaseUrl;
 
 
 
@@ -22,25 +19,24 @@ public class TestCreateProduct : TestBase<TestProductsControllerFixture>
     [AutoData]
     public async Task Create_Product_Successfully_Should_Return_HttpStatusCode204(string productName)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var command = new CreateProductCommand
             {
                 ProductName = productName
             };
 
-            var content = command.ToStringContent();
-            var response = await client.PostAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(command);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
 
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-            var result = await response.Content.ReadAsStringAsync();
-            var model = this._fixture.Parse<CreateProductResult>(result);
+            var model = await this.ParseResponse<CreateProductResult>(response);
 
             model.ShouldNotBeNull();
             model.ProductId.ShouldNotBeNull().ShouldNotBe(ProductId.Empty);
 
-            await this._fixture.ExecuteDbContextAsync(async dbContext =>
+            await this.ExecuteDbContextAsync(async dbContext =>
             {
                 var product = await dbContext.Set<Product>().FirstOrDefaultAsync(_ => _.Id == model.ProductId);
 
@@ -52,11 +48,11 @@ public class TestCreateProduct : TestBase<TestProductsControllerFixture>
     [Fact(DisplayName = "Create Product With Invalid Request Should Return HttpStatusCode400")]
     public async Task Create_Product_With_Invalid_Request_Should_Return_HttpStatusCode400()
     {
-        await this._fixture.ExecuteHttpClientAsync(async httpClient =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var command = new CreateProductCommand();
 
-            var content = this.ConvertToStringContent(command);
+            var content = this.ConvertRequestToStringContent(command);
 
             var response = await httpClient.PostAsync(this.ApiUrl, content);
 

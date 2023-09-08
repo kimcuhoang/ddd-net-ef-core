@@ -1,30 +1,22 @@
 ﻿using DDD.ProductCatalog.Application.Queries.CatalogQueries.GetCatalogDetail;
 using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDD.ProductCatalog.WebApi.Tests.Helpers;
 using DDD.ProductCatalog.Core.Catalogs;
-using System.Net;
-using System.Text.Json;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
-public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
+public class TestGetCatalogDetail : TestCatalogsControllerBase
 {
-    public TestGetCatalogDetail(ITestOutputHelper testOutput, TestCatalogsControllerFixture fixture)
-        : base(testOutput, fixture)
+    public TestGetCatalogDetail(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private Catalog Catalog => this._fixture.Catalog;
-    private CatalogCategory CatalogCategory => this._fixture.CatalogCategory;
-    private string ApiUrl => $"{this._fixture.BaseUrl}";
-
+    private string ApiUrl => $"{this.BaseUrl}";
 
 
     [Fact(DisplayName = "Get CatalogDetail Successfully")]
     public async Task Get_CatalogDetail_Successfully()
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var request = new GetCatalogDetailRequest
             {
@@ -32,17 +24,9 @@ public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
                 SearchCatalogCategoryRequest = new GetCatalogDetailRequest.CatalogCategorySearchRequest()
             };
 
-            var content = request.ToStringContent(jsonSerializerOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
-
-            var result = await response.Content.ReadAsStringAsync();
-
-            this._testOutput.WriteLine(result);
-
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-            var catalogDetailResult =
-                JsonSerializer.Deserialize<GetCatalogDetailResult>(result, jsonSerializerOptions);
+            var content = this.ConvertRequestToStringContent(request);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
+            var catalogDetailResult = await this.ParseResponse<GetCatalogDetailResult>(response);
 
             catalogDetailResult.ShouldNotBeNull();
             catalogDetailResult.TotalOfCatalogCategories.ShouldBe(this.Catalog.Categories.Count());
@@ -67,7 +51,7 @@ public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
     [Fact(DisplayName = "Get CatalogDetail Within Search CatalogCategory Successfully")]
     public async Task Get_CatalogDetail_Within_Search_CatalogCategory_Successfully()
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var request = new GetCatalogDetailRequest
             {
@@ -78,13 +62,9 @@ public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
                 }
             };
 
-            var content = request.ToStringContent(jsonSerializerOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
-
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var result = await response.Content.ReadAsStringAsync();
-            var catalogDetailResult =
-                JsonSerializer.Deserialize<GetCatalogDetailResult>(result, jsonSerializerOptions);
+            var content = this.ConvertRequestToStringContent(request);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
+            var catalogDetailResult = await this.ParseResponse<GetCatalogDetailResult>(response);
 
             catalogDetailResult.ShouldNotBeNull();
             catalogDetailResult.TotalOfCatalogCategories.ShouldBe(this.Catalog.Categories.Count());
@@ -113,7 +93,7 @@ public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
     [InlineData(int.MinValue, int.MinValue)]
     public async Task Invalid_GetCatalogDetail_Request_Should_Return_HttpStatusCode400(int pageIndex, int pageSize)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var request = new GetCatalogDetailRequest
             {
@@ -124,14 +104,9 @@ public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
                     PageSize = pageSize
                 }
             };
-            var content = request.ToStringContent(jsonSerializerOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
-            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-
-            var result = await response.Content.ReadAsStringAsync();
-            var errorResponse =
-                JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result,
-                    jsonSerializerOptions);
+            var content = this.ConvertRequestToStringContent(request);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
+            var errorResponse = await this.ParseResponse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(response);
 
             errorResponse.ShouldNotBeNull();
             errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);
@@ -142,19 +117,15 @@ public class TestGetCatalogDetail : TestBase<TestCatalogsControllerFixture>
     [Fact(DisplayName = "Not Found Catalog Should Return Empty Result")]
     public async Task NotFound_Catalog_Should_Return_Empty_Result()
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var request = new GetCatalogDetailRequest
             {
                 CatalogId = CatalogId.New
             };
-            var content = request.ToStringContent(jsonSerializerOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-            var result = await response.Content.ReadAsStringAsync();
-            var catalogDetailResult =
-                JsonSerializer.Deserialize<GetCatalogDetailResult>(result, jsonSerializerOptions);
+            var content = this.ConvertRequestToStringContent(request);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
+            var catalogDetailResult = await this.ParseResponse<GetCatalogDetailResult>(response);
 
             catalogDetailResult.ShouldNotBeNull();
             catalogDetailResult.CatalogDetail.ShouldNotBeNull();

@@ -1,0 +1,28 @@
+﻿using DNK.DDD.IntegrationTests;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DDD.ProductCatalog.Application.Queries.Tests;
+public class TestQueriesFixture : TestFixtureBase<DefaultWebApplicationFactory, Program>
+{
+    public TestQueriesFixture(DefaultWebApplicationFactory factory) : base(factory)
+    {
+    }
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await this.Factory.ExecuteServiceAsync(async serviceProvider =>
+        {
+            var dbContext = serviceProvider.GetRequiredService<DbContext>();
+
+            var database = dbContext.Database;
+            var pendingMigrations = await database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
+            {
+                await database.MigrateAsync();
+            }
+        });
+    }
+}

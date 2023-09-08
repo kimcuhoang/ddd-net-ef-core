@@ -1,13 +1,10 @@
-﻿using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
-using DDD.ProductCatalog.Application.Queries.CategoryQueries.GetCategoryCollection;
+﻿using DDD.ProductCatalog.Application.Queries.CategoryQueries.GetCategoryCollection;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCategoryQueries;
 
-public class TestGetCategoryCollection : TestBase<TestGetCategoryFixture>
+public class TestGetCategoryCollection : TestCategoryQueriesBase
 {
-    public TestGetCategoryCollection(ITestOutputHelper testOutput, TestGetCategoryFixture fixture) : base(testOutput, fixture)
+    public TestGetCategoryCollection(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
@@ -22,7 +19,7 @@ public class TestGetCategoryCollection : TestBase<TestGetCategoryFixture>
             PageSize = pageSize
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalCategories.ShouldBeGreaterThanOrEqualTo(1);
@@ -33,13 +30,13 @@ public class TestGetCategoryCollection : TestBase<TestGetCategoryFixture>
     [Fact(DisplayName = "Should GetCategoryCollection With SearchTerm Correctly")]
     public async Task Should_GetCategoryCollection_With_SearchTerm_Correctly()
     {
-        var category = this._fixture.Category;
+        var category = this.Category;
         var request = new GetCategoryCollectionRequest
         {
             SearchTerm = category.DisplayName
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalCategories.ShouldBeGreaterThanOrEqualTo(1);
@@ -60,7 +57,7 @@ public class TestGetCategoryCollection : TestBase<TestGetCategoryFixture>
             PageIndex = pageIndex
         };
 
-        await this._fixture.ExecuteValidationTest(request, result =>
+        await this.ExecuteValidationTest(request, result =>
         {
             if (pageIndex < 0 || pageIndex == int.MaxValue)
             {
@@ -80,7 +77,7 @@ public class TestGetCategoryCollection : TestBase<TestGetCategoryFixture>
     {
         var request = GenFu.GenFu.New<GetCategoryCollectionRequest>();
 
-        await this._fixture.ExecuteTestRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalCategories.ShouldBe(0);

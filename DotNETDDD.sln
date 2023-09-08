@@ -51,9 +51,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDD.ProductCatalog.Infrastr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDD.ProductCatalog.WebApi.Tests", "source\Services\product-catalog\DDD.ProductCatalog.Tests\DDD.ProductCatalog.WebApi.Tests\DDD.ProductCatalog.WebApi.Tests.csproj", "{1E111929-5BF5-48F4-A9A9-EAF1919E53C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNK.DDD.Infrastructure.Dapper", "source\BuildingBlocks\DNK.DDD.Infrastructure.Dapper\DNK.DDD.Infrastructure.Dapper.csproj", "{CA854476-39AE-42B7-A875-B30C7E1A768C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNK.DDD.Infrastructure.Dapper", "source\BuildingBlocks\DNK.DDD.Infrastructure.Dapper\DNK.DDD.Infrastructure.Dapper.csproj", "{CA854476-39AE-42B7-A875-B30C7E1A768C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNK.DDD.Infrastructure.Dapper.MsSqlServer", "source\BuildingBlocks\DNK.DDD.Infrastructure.Dapper.MsSqlServer\DNK.DDD.Infrastructure.Dapper.MsSqlServer.csproj", "{48F0B364-EF69-48E6-BA8F-289908072EB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNK.DDD.Infrastructure.Dapper.MsSqlServer", "source\BuildingBlocks\DNK.DDD.Infrastructure.Dapper.MsSqlServer\DNK.DDD.Infrastructure.Dapper.MsSqlServer.csproj", "{48F0B364-EF69-48E6-BA8F-289908072EB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNK.DDD.IntegrationTests", "source\BuildingBlocks\DNK.DDD.IntegrationTests\DNK.DDD.IntegrationTests.csproj", "{464FB409-AE7B-4AE3-88D7-A8807771AE57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,6 +131,10 @@ Global
 		{48F0B364-EF69-48E6-BA8F-289908072EB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48F0B364-EF69-48E6-BA8F-289908072EB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48F0B364-EF69-48E6-BA8F-289908072EB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{464FB409-AE7B-4AE3-88D7-A8807771AE57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{464FB409-AE7B-4AE3-88D7-A8807771AE57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{464FB409-AE7B-4AE3-88D7-A8807771AE57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{464FB409-AE7B-4AE3-88D7-A8807771AE57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +159,7 @@ Global
 		{1E111929-5BF5-48F4-A9A9-EAF1919E53C8} = {FB8E8C12-C1FB-4CC4-BA1F-01A5F7FC5B12}
 		{CA854476-39AE-42B7-A875-B30C7E1A768C} = {78B8259D-9A21-4FF3-B2DF-41015EFE04E1}
 		{48F0B364-EF69-48E6-BA8F-289908072EB7} = {78B8259D-9A21-4FF3-B2DF-41015EFE04E1}
+		{464FB409-AE7B-4AE3-88D7-A8807771AE57} = {78B8259D-9A21-4FF3-B2DF-41015EFE04E1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A5BBA926-AD8E-4C99-9CA1-631F45530EDA}

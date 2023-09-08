@@ -1,39 +1,36 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDD.ProductCatalog.WebApi.Tests.Helpers;
+﻿using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDD.ProductCatalog.Core.Products;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System.Text.Json;
-using Xunit.Abstractions;
+using DDD.ProductCatalog.Application.Commands.ProductCommands.UpdateProduct;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
-public class TestUpdateProduct : TestBase<TestProductsControllerFixture>
+public class TestUpdateProduct : TestProductsControllerBase
 {
-    public TestUpdateProduct(ITestOutputHelper testOutput, TestProductsControllerFixture fixture) : base(testOutput, fixture)
+    public TestUpdateProduct(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private Product Product => this._fixture.Product;
-    private string ApiUrl => $"{this._fixture.BaseUrl}/{(Guid)this.Product.Id}";
-
-
+    private string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Product.Id}";
 
     [Theory(DisplayName = "Update Product Successfully")]
     [AutoData]
     public async Task Update_Product_Successfully_Should_Return(string productName)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = productName.ToStringContent();
-            var response = await client.PutAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(productName);
+            var response = await httpClient.PutAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            var model = await this.ParseResponse<UpdateProductResult>(response);
+            model.ShouldNotBeNull();
+            model.ProductId.ShouldBe(this.Product.Id);
         });
 
-        await this._fixture.ExecuteDbContextAsync(async dbContext =>
+        await this.ExecuteDbContextAsync(async dbContext =>
         {
-            var product = await dbContext.Set<Product>().FirstOrDefaultAsync(_ => _.Id == this._fixture.Product.Id);
+            var product = await dbContext.Set<Product>().FirstOrDefaultAsync(_ => _ == this.Product);
 
             product.ShouldNotBeNull();
             product.Name.ShouldBe(productName);
@@ -43,15 +40,12 @@ public class TestUpdateProduct : TestBase<TestProductsControllerFixture>
     [Fact(DisplayName = "Update Product With Invalid Request Should Return HttpStatusCode400")]
     public async Task Update_Product_With_Invalid_Request_Should_Return_HttpStatusCode400()
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = string.Empty.ToStringContent();
-            var response = await client.PutAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(string.Empty);
+            var response = await httpClient.PutAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-            var result = await response.Content.ReadAsStringAsync();
-            var errorResponse =
-                JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result,
-                    jsonSerializerOptions);
+            var errorResponse = await this.ParseResponse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(response);
 
             errorResponse.ShouldNotBeNull();
             errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);

@@ -1,23 +1,16 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.WebApi.Tests.Helpers;
-using DDD.ProductCatalog.Core.Categories;
+﻿using DDD.ProductCatalog.Core.Categories;
 using DDD.ProductCatalog.Application.Commands.CategoryCommands.CreateCategory;
 using Microsoft.EntityFrameworkCore;
-using Shouldly;
-using System.Net;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
-public class TestCreateCategory : TestBase<TestCategoryControllerFixture>
+public class TestCreateCategory : TestCategoriesControllerBase
 {
-    public TestCreateCategory(ITestOutputHelper testOutput, TestCategoryControllerFixture fixture)
-        : base(testOutput, fixture)
+    public TestCreateCategory(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private string ApiUrl => $"{this._fixture.BaseUrl}/create";
+    private string ApiUrl => $"{this.BaseUrl}/create";
 
 
 
@@ -25,19 +18,17 @@ public class TestCreateCategory : TestBase<TestCategoryControllerFixture>
     [AutoData]
     public async Task Create_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
     {
-        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = new { CategoryName = categoryName }.ToStringContent(jsonSerializeOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(new { CategoryName = categoryName });
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-            var result = await response.Content.ReadAsStringAsync();
-            var model = this._fixture.Parse<CreateCategoryResult>(result);
+            var model = await this.ParseResponse<CreateCategoryResult>(response);
 
             model.ShouldNotBeNull();
             model.CategoryId.ShouldNotBeNull().ShouldNotBe(CategoryId.Empty);
 
-            await this._fixture.ExecuteDbContextAsync(async dbContext =>
+            await this.ExecuteDbContextAsync(async dbContext =>
             {
                 var category = await dbContext.Set<Category>().FirstOrDefaultAsync(_ => _.Id == model.CategoryId);
 
@@ -51,10 +42,10 @@ public class TestCreateCategory : TestBase<TestCategoryControllerFixture>
     [Fact(DisplayName = "Create Category With Empty Name Should Return HttpStatusCode400")]
     public async Task Create_Category_With_EmptyName_Should_Return_HttpStatusCode400()
     {
-        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = string.Empty.ToStringContent();
-            var response = await client.PostAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(string.Empty);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         });
     }

@@ -1,13 +1,10 @@
 ﻿using DDD.ProductCatalog.Application.Queries.CatalogQueries.GetCatalogCollections;
-using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCatalogQueries;
 
-public class TestGetCatalogCollection : TestBase<TestGetCatalogFixture>
+public class TestGetCatalogCollection : TestCatalogQueriesBase
 {
-    public TestGetCatalogCollection(ITestOutputHelper testOutput, TestGetCatalogFixture fixture) : base(testOutput, fixture)
+    public TestGetCatalogCollection(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
@@ -16,14 +13,14 @@ public class TestGetCatalogCollection : TestBase<TestGetCatalogFixture>
     [InlineData(1, 2)]
     public async Task Should_GetCatalogCollection_WithPaging_Correctly(int pageIndex, int pageSize)
     {
-        var catalogs = this._fixture.Catalogs.ToList();
+        var catalogs = this.Catalogs.ToList();
         var request = new GetCatalogCollectionRequest
         {
             PageIndex = pageIndex,
             PageSize = pageSize
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalCatalogs.ShouldBeGreaterThanOrEqualTo(1);
@@ -44,7 +41,7 @@ public class TestGetCatalogCollection : TestBase<TestGetCatalogFixture>
             PageIndex = pageIndex
         };
 
-        await this._fixture.ExecuteValidationTest(request, result =>
+        await this.ExecuteValidationTest(request, result =>
         {
             if (pageIndex < 0 || pageIndex == int.MaxValue)
             {
@@ -61,8 +58,8 @@ public class TestGetCatalogCollection : TestBase<TestGetCatalogFixture>
     [Fact(DisplayName = "Should GetCatalogCollection With SearchTerm Correctly")]
     public async Task Should_GetCatalogCollection_With_SearchTerm_Correctly()
     {
-        var randomIndex = GenFu.GenFu.Random.Next(0, this._fixture.Catalogs.Count);
-        var catalogAtRandomIndex = this._fixture.Catalogs[randomIndex];
+        var randomIndex = GenFu.GenFu.Random.Next(0, this.Catalogs.Count);
+        var catalogAtRandomIndex = this.Catalogs[randomIndex];
         var searchTerm = catalogAtRandomIndex.DisplayName;
 
         var request = new GetCatalogCollectionRequest
@@ -70,7 +67,7 @@ public class TestGetCatalogCollection : TestBase<TestGetCatalogFixture>
             SearchTerm = searchTerm
         };
 
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalCatalogs.ShouldBe(1);
@@ -83,7 +80,7 @@ public class TestGetCatalogCollection : TestBase<TestGetCatalogFixture>
     {
         var request = GenFu.GenFu.New<GetCatalogCollectionRequest>();
 
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
+        await this.ExecuteTestRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>(request, (result) =>
         {
             result.ShouldNotBeNull();
             result.TotalCatalogs.ShouldBe(0);

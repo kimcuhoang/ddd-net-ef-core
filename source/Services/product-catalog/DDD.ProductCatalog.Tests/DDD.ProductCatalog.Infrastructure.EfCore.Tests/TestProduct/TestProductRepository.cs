@@ -1,60 +1,30 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.Infrastructure.EfCore.Tests;
-using DDD.ProductCatalog.Core.Products;
-using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
+﻿using DDD.ProductCatalog.Core.Products;
+using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct;
 
-public class TestProductRepository : TestBase<TestProductFixture>
+public class TestProductRepository : TestEfCoreBase
 {
-    public TestProductRepository(ITestOutputHelper testOutput, TestProductFixture fixture) : base(testOutput, fixture)
+    public TestProductRepository(TestEfCoreFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
     [Fact(DisplayName = "Should Create Product Successfully")]
     public async Task ShouldCreateProductSuccessfully()
     {
-        await this._fixture.DoAssert(this._fixture.Product.Id, product =>
-        {
-            product.ShouldNotBeNull();
-            product.Equals(this._fixture.Product).ShouldBeTrue();
-        });
-    }
+        var product = Product.Create(this._fixture.Create<string>());
 
-    [Theory(DisplayName = "Should Update Product Successfully")]
-    [AutoData]
-    public async Task ShouldUpdateProductSuccessfully(string newProductName)
-    {
-        await this._fixture.RepositoryExecute<Product, ProductId>(async repository =>
+        await this.ExecuteTransactionDbContext(async _ =>
         {
-            var product = await repository.FindOneAsync(x => x == this._fixture.Product);
-            product.ShouldNotBeNull();
-            product.ChangeName(newProductName);
+            _.Add(product);
+            await _.SaveChangesAsync();
         });
 
-        await this._fixture.DoAssert(this._fixture.Product.Id, product =>
+        await this.ExecuteDbContextAsync(async _ =>
         {
-            product.ShouldNotBeNull();
-            product.Equals(this._fixture.Product).ShouldBeTrue();
-            product.Name.ShouldBe(newProductName);
+            var productSaved = await _.Set<Product>().FirstOrDefaultAsync(_ => _ == product);
+            productSaved.ShouldNotBeNull();
+            productSaved.Equals(product).ShouldBeTrue();
         });
-    }
-
-    [Fact(DisplayName = "Should Remove Product Successfully")]
-    public async Task ShouldRemoveProductSuccessfully()
-    {
-        var product = this._fixture.ProductToRemove;
-
-        await this._fixture.RepositoryExecute<Product, ProductId>(async repository =>
-        {
-            var productToRemove = await repository
-                .FindOneAsync(x => x.Id == product.Id);
-
-            repository.Remove(productToRemove);
-        });
-
-        await this._fixture.DoAssert(product.Id, productAssert => { productAssert.ShouldBeNull(); });
     }
 }

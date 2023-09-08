@@ -1,42 +1,28 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.Application.Queries.ProductQueries.GetProductDetail;
+﻿using DDD.ProductCatalog.Application.Queries.ProductQueries.GetProductDetail;
 using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDD.ProductCatalog.Core.Catalogs;
-using DDD.ProductCatalog.Core.Products;
-using Shouldly;
-using System.Net;
-using System.Text.Json;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
-public class TestGetProductDetail : TestBase<TestProductsControllerFixture>
+public class TestGetProductDetail : TestProductsControllerBase
 {
-    public TestGetProductDetail(ITestOutputHelper testOutput, TestProductsControllerFixture fixture) : base(testOutput, fixture)
+    public TestGetProductDetail(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private Catalog Catalog => this._fixture.Catalog;
-    private Product Product => this._fixture.Product;
-    private CatalogCategory CatalogCategory => this._fixture.CatalogCategory;
-    private CatalogProduct CatalogProduct => this._fixture.CatalogProduct;
-
-    private string ApiUrl => $"{this._fixture.BaseUrl}/{(Guid)this.Product.Id}";
+    private string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Product.Id}";
 
 
 
     [Fact(DisplayName = "Should GetProductDetail by ProductId Correctly")]
     public async Task Should_GetProductDetail_By_ProductId_Correctly()
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var response = await client.GetAsync(this.ApiUrl);
+            var response = await httpClient.GetAsync(this.ApiUrl);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-            var result = await response.Content.ReadAsStringAsync();
-            var productDetailResult =
-                JsonSerializer.Deserialize<GetProductDetailResult>(result, jsonSerializerOptions);
+
+            var productDetailResult = await this.ParseResponse<GetProductDetailResult>(response);
 
             productDetailResult.ShouldNotBeNull();
 
@@ -61,17 +47,14 @@ public class TestGetProductDetail : TestBase<TestProductsControllerFixture>
     [Fact(DisplayName = "Invalid ProductId Should Return HttpStatusCode400")]
     public async Task Invalid_ProductId_Should_Return_HttpStatusCode400()
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var apiUrl = $"{this._fixture.BaseUrl}/{Guid.Empty}";
-            var response = await client.GetAsync(apiUrl);
+            var apiUrl = $"{this.BaseUrl}/{Guid.Empty}";
+            var response = await httpClient.GetAsync(apiUrl);
 
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-            var result = await response.Content.ReadAsStringAsync();
 
-            var errorResponse =
-                JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result,
-                    jsonSerializerOptions);
+            var errorResponse = await this.ParseResponse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(response);
 
             errorResponse.ShouldNotBeNull();
             errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);
@@ -83,16 +66,14 @@ public class TestGetProductDetail : TestBase<TestProductsControllerFixture>
     [AutoData]
     public async Task NotFound_Product_Should_Return_Empty_Result_With_HttpStatusCode200(Guid randomProductId)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var apiUrl = $"{this._fixture.BaseUrl}/{randomProductId}";
-            var response = await client.GetAsync(apiUrl);
+            var apiUrl = $"{this.BaseUrl}/{randomProductId}";
+            var response = await httpClient.GetAsync(apiUrl);
 
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-            var result = await response.Content.ReadAsStringAsync();
-            var productDetailResult =
-                JsonSerializer.Deserialize<GetProductDetailResult>(result, jsonSerializerOptions);
+            var productDetailResult = await this.ParseResponse<GetProductDetailResult>(response);
 
             productDetailResult.ShouldNotBeNull();
             var productDetail = productDetailResult.Product;

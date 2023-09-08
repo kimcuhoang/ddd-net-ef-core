@@ -1,37 +1,35 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.WebApi.Tests;
-using DDD.ProductCatalog.WebApi.Tests.Helpers;
+﻿using DDD.ProductCatalog.Application.Commands.CategoryCommands.UpdateCategory;
 using DDD.ProductCatalog.Core.Categories;
 using Microsoft.EntityFrameworkCore;
-using Shouldly;
-using System.Net;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
-public class TestUpdateCategory : TestBase<TestCategoryControllerFixture>
+public class TestUpdateCategory : TestCategoriesControllerBase
 {
-    public TestUpdateCategory(ITestOutputHelper testOutput, TestCategoryControllerFixture fixture) : base(testOutput, fixture)
+    public TestUpdateCategory(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private Category Category => this._fixture.Category;
-    public string ApiUrl => $"{this._fixture.BaseUrl}/{(Guid)this.Category.Id}";
+    public string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Category.Id}";
 
-    [Theory(DisplayName = "Update Category Successfully Should Return HttpStatusCode204")]
+    [Theory(DisplayName = "Update Category Successfully")]
     [AutoData]
-    public async Task Update_Category_Successfully_Should_Return_HttpStatusCode204(string categoryName)
+    public async Task Update_Category_Successfully_Should_Return(string categoryName)
     {
-        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = categoryName.ToStringContent(jsonSerializeOptions);
-            var response = await client.PutAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(categoryName);
+            var response = await httpClient.PutAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-            await this._fixture.ExecuteDbContextAsync(async dbContext =>
+            var model = await this.ParseResponse<UpdateCategoryResult>(response);
+
+            model.ShouldNotBeNull();
+            model.CategoryId.ShouldBe(this.Category.Id);
+
+            await this.ExecuteDbContextAsync(async dbContext =>
             {
-                var category = await dbContext.Set<Category>().FirstOrDefaultAsync(_ => _.Id == this._fixture.Category.Id);
+                var category = await dbContext.Set<Category>().FirstOrDefaultAsync(_ => _ == this.Category);
 
                 category.ShouldNotBeNull();
                 category.DisplayName.ShouldBe(categoryName);
@@ -42,10 +40,10 @@ public class TestUpdateCategory : TestBase<TestCategoryControllerFixture>
     [Fact(DisplayName = "Update Category with Empty Name Should Return HttpStatusCode400")]
     public async Task Update_Category_With_Empty_Name_Should_Return_HttpStatusCode400()
     {
-        await this._fixture.DoTest(async (client, jsonSerializeOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            var content = string.Empty.ToStringContent();
-            var response = await client.PutAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(string.Empty);
+            var response = await httpClient.PutAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         });
     }

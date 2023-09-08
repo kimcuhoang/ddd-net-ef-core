@@ -1,27 +1,19 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.Application.Queries.CategoryQueries.GetCategoryCollection;
+﻿using DDD.ProductCatalog.Application.Queries.CategoryQueries.GetCategoryCollection;
 using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDD.ProductCatalog.Core.Categories;
-using Shouldly;
-using System.Net;
-using System.Text.Json;
-using System.Web;
-using Xunit;
-using Xunit.Abstractions;
+
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
-public class TestSearchCategories : TestBase<TestCategoryControllerFixture>
+public class TestSearchCategories : TestCategoriesControllerBase
 {
-    public TestSearchCategories(ITestOutputHelper testOutput, TestCategoryControllerFixture fixture) : base(testOutput, fixture)
+    public TestSearchCategories(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private Category Category => this._fixture.Category;
-
     private IEnumerable<Category> Categories => new List<Category> { this.Category };
 
-    private string ApiUrl => $"{this._fixture.BaseUrl}/search";
+    private string ApiUrl => $"{this.BaseUrl}/search";
 
     [Theory(DisplayName = "Can Search Categories With Paging Correctly And Return HttpStatusCode200")]
     [InlineData(1, 1)]
@@ -31,7 +23,7 @@ public class TestSearchCategories : TestBase<TestCategoryControllerFixture>
     [InlineData(null, null)]
     public async Task Can_Search_Categories_With_Paging_Correctly_And_Return_HttpStatusCode200(int? pageIndex, int? pageSize)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var parameters = HttpUtility.ParseQueryString(string.Empty);
             parameters.Add("searchTerm", this.Category.DisplayName);
@@ -46,14 +38,10 @@ public class TestSearchCategories : TestBase<TestCategoryControllerFixture>
                 parameters.Add(nameof(pageSize), $"{pageSize.Value}");
             }
 
-            var searchUrl = $"{this.ApiUrl}?{parameters.ToString()}";
+            var searchUrl = $"{this.ApiUrl}?{parameters}";
 
-            var response = await client.GetAsync(searchUrl);
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-            var result = await response.Content.ReadAsStringAsync();
-            var categoryResult =
-                JsonSerializer.Deserialize<GetCategoryCollectionResult>(result, jsonSerializerOptions);
+            var response = await httpClient.GetAsync(searchUrl);
+            var categoryResult = await this.ParseResponse<GetCategoryCollectionResult>(response);
 
             categoryResult.ShouldNotBeNull();
             categoryResult.TotalCategories.ShouldBe(this.Categories.Count());
@@ -69,19 +57,17 @@ public class TestSearchCategories : TestBase<TestCategoryControllerFixture>
     [AutoData]
     public async Task Search_Not_Found_Still_Return_HttpStatusCode200(string randomSearchTerm)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var parameters = HttpUtility.ParseQueryString(string.Empty);
             parameters.Add("searchTerm", randomSearchTerm);
 
-            var searchUrl = $"{this.ApiUrl}?{parameters.ToString()}";
+            var searchUrl = $"{this.ApiUrl}?{parameters}";
 
-            var response = await client.GetAsync(searchUrl);
+            var response = await httpClient.GetAsync(searchUrl);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-            var result = await response.Content.ReadAsStringAsync();
-            var categoryResult =
-                JsonSerializer.Deserialize<GetCategoryCollectionResult>(result, jsonSerializerOptions);
+            var categoryResult = await this.ParseResponse<GetCategoryCollectionResult>(response);
 
             categoryResult.ShouldNotBeNull();
             categoryResult.TotalCategories.ShouldBe(0);
@@ -96,19 +82,19 @@ public class TestSearchCategories : TestBase<TestCategoryControllerFixture>
     [InlineData(int.MinValue, int.MinValue)]
     public async Task Invalid_Search_Request_Should_Return_HttpStatusCode400(int pageIndex, int pageSize)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var parameters = HttpUtility.ParseQueryString(string.Empty);
             parameters.Add(nameof(pageIndex), $"{pageIndex}");
             parameters.Add(nameof(pageSize), $"{pageSize}");
 
             var searchUrl = $"{this.ApiUrl}?{parameters.ToString()}";
-            var response = await client.GetAsync(searchUrl);
+            var response = await httpClient.GetAsync(searchUrl);
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
-            var result = await response.Content.ReadAsStringAsync();
-            var searchResult =
-                JsonSerializer.Deserialize<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result, jsonSerializerOptions);
+            var searchResult = await this.ParseResponse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(response);
+
+            searchResult.ShouldNotBeNull();
             searchResult.Status.ShouldBe((int)HttpStatusCode.BadRequest);
             searchResult.ErrorMessages.Count.ShouldBeGreaterThan(0);
         });

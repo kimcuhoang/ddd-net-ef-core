@@ -1,50 +1,37 @@
-﻿using AutoFixture.Xunit2;
-using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
-using DDD.ProductCatalog.WebApi.Tests.Helpers;
-using DNK.DDD.Core;
-using DDD.ProductCatalog.Core.Catalogs;
-using DDD.ProductCatalog.Core.Categories;
+﻿using DDD.ProductCatalog.Core.Catalogs;
 using DDD.ProductCatalog.Application.Commands.CatalogCommands.CreateCatalog;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
-using Xunit.Abstractions;
+using DNK.DDD.Core;
+using Microsoft.EntityFrameworkCore;
+using DDD.ProductCatalog.Core.Categories;
+using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
-public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
+public class TestCreateCatalog : TestCatalogsControllerBase
 {
-    public TestCreateCatalog(ITestOutputHelper testOutput, TestCatalogsControllerFixture fixture)
-        : base(testOutput, fixture)
+    public TestCreateCatalog(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 
-    private string ApiUrl => $"{this._fixture.BaseUrl}/create";
-
-    private Category Category => this._fixture.Category;
-
-
+    private string ApiUrl => $"{this.BaseUrl}/create";
 
     [Theory(DisplayName = "Create Catalog Successfully")]
     [AutoData]
     public async Task Create_Catalog_Successfully(string catalogName)
     {
-        var command = new CreateCatalogCommand
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
-            CatalogName = catalogName
-        };
+            var command = new CreateCatalogCommand
+            {
+                CatalogName = catalogName
+            };
 
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
-        {
+            var content = this.ConvertRequestToStringContent(command);
 
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
 
-            var content = command.ToStringContent(jsonSerializerOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-            var result = await response.Content.ReadAsStringAsync();
-
-            var model = this._fixture.Parse<CreateCatalogResult>(result);
+            var model = await this.ParseResponse<CreateCatalogResult>(response);
 
             model.ShouldNotBeNull();
             model.CatalogId.ShouldNotBeNull();
@@ -56,7 +43,7 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
     [AutoData]
     public async Task Create_Catalog_Within_CatalogCategory_Successfully(string catalogName)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var command = new CreateCatalogCommand
             {
@@ -64,19 +51,15 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
             };
             command.AddCategory(this.Category.Id, this.Category.DisplayName);
 
-            var content = command.ToStringContent(jsonSerializerOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-            var result = await response.Content.ReadAsStringAsync();
-
-            var model = this._fixture.Parse<CreateCatalogResult>(result);
+            var content = this.ConvertRequestToStringContent(command);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
+            var model = await this.ParseResponse<CreateCatalogResult>(response);
 
             model.ShouldNotBeNull();
             model.CatalogId.ShouldNotBeNull();
             model.CatalogId.ShouldNotBe(CatalogId.Empty);
 
-            await this._fixture.ExecuteServiceAsync(async serviceProvider =>
+            await this.ExecuteServiceAsync(async serviceProvider =>
             {
                 var repository = serviceProvider.GetRequiredService<IRepository<Catalog, CatalogId>>();
 
@@ -104,11 +87,11 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
     [Fact(DisplayName = "Empty Catalog Name Should Return HttpStatusCode400")]
     public async Task Empty_CatalogName_Should_Return_HttpStatusCode400()
     {
-        await this._fixture.ExecuteHttpClientAsync(async httpClient =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var command = new CreateCatalogCommand();
 
-            var content = this.ConvertToStringContent(command);
+            var content = this.ConvertRequestToStringContent(command);
 
             var response = await httpClient.PostAsync(this.ApiUrl, content);
 
@@ -120,7 +103,7 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
     [MemberData(nameof(InvalidCategoryIds))]
     public async Task Invalid_CategoryId_Should_Return_HttpStatusCode400(Guid categoryId)
     {
-        await this._fixture.DoTest(async (client, jsonSerializerOptions) =>
+        await this.ExecuteHttpClientAsync(async httpClient =>
         {
             var command = new CreateCatalogCommand
             {
@@ -128,13 +111,11 @@ public class TestCreateCatalog : TestBase<TestCatalogsControllerFixture>
             };
             command.AddCategory(CategoryId.Of(categoryId), this.Category.DisplayName);
 
-            var content = command.ToStringContent(jsonSerializerOptions);
-            var response = await client.PostAsync(this.ApiUrl, content);
+            var content = this.ConvertRequestToStringContent(command);
+            var response = await httpClient.PostAsync(this.ApiUrl, content);
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
-            var result = await response.Content.ReadAsStringAsync();
-            var errorResponse = this._fixture.Parse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(result);
-
+            var errorResponse = await this.ParseResponse<GlobalExceptionHandlerMiddleware.ExceptionResponse>(response);
             errorResponse.ShouldNotBeNull();
             errorResponse.Status.ShouldBe((int)HttpStatusCode.BadRequest);
             errorResponse.ErrorMessages.ShouldNotBeEmpty();

@@ -9,13 +9,11 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="AutoFixture.Xunit2" />
 		<PackageReference Include="coverlet.msbuild">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
-		<PackageReference Include="Shouldly" />
 		<PackageReference Include="xunit" />
 		<PackageReference Include="xunit.runner.visualstudio">
 			<PrivateAssets>all</PrivateAssets>
@@ -24,6 +22,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\BuildingBlocks\DNK.DDD.IntegrationTests\DNK.DDD.IntegrationTests.csproj" />
 	  <ProjectReference Include="..\..\DDD.ProductCatalog.Core\DDD.ProductCatalog.Core.csproj" />
 	</ItemGroup>
 

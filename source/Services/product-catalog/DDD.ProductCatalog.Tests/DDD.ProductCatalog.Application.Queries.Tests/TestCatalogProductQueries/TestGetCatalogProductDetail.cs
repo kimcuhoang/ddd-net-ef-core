@@ -1,32 +1,55 @@
 ﻿using DDD.ProductCatalog.Application.Queries.CatalogProductQueries.GetCatalogProductDetail;
 using DDD.ProductCatalog.Core.Catalogs;
-using Shouldly;
-using Xunit;
-using Xunit.Abstractions;
+using DDD.ProductCatalog.Core.Categories;
+using DDD.ProductCatalog.Core.Products;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCatalogProductQueries;
 
-public class TestGetCatalogProductDetail : TestBase<TestCatalogProductFixture>
+public class TestGetCatalogProductDetail : TestQueriesBase
 {
-    public TestGetCatalogProductDetail(ITestOutputHelper testOutput, TestCatalogProductFixture fixture) : base(testOutput, fixture)
+    public TestGetCatalogProductDetail(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
+    }
+
+    private Product Product = default!;
+    private Category Category = default!;
+    private Catalog Catalog = default!;
+    private CatalogCategory CatalogCategory = default!;
+    private CatalogProduct CatalogProduct = default!;
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        this.Category = Category.Create(this._fixture.Create<string>());
+        this.Product = Product.Create(this._fixture.Create<string>());
+        this.Catalog = Catalog.Create(this._fixture.Create<string>());
+
+        this.CatalogCategory = this.Catalog.AddCategory(this.Category.Id, this.Category.DisplayName);
+        this.CatalogProduct = this.CatalogCategory.CreateCatalogProduct(this.Product.Id, this.Product.Name);
+
+        await this.ExecuteTransactionDbContext(async dbContext =>
+        {
+            dbContext.AddRange(this.Category, this.Product, this.Catalog);
+            await dbContext.SaveChangesAsync();
+        });
     }
 
     [Fact(DisplayName = "GetCatalogProductDetail Correctly")]
     public async Task GetCatalogProductDetail_Correctly()
     {
-        var catalogProduct = this._fixture.CatalogProduct;
+        var catalogProduct = this.CatalogProduct;
         var catalogProductId = catalogProduct.Id;
-        var catalogCategory = this._fixture.CatalogCategory;
+        var catalogCategory = this.CatalogCategory;
         var catalogCategoryId = catalogCategory.Id;
-        var catalog = this._fixture.Catalog;
+        var catalog = this.Catalog;
         var catalogId = catalog.Id;
 
         var request = new GetCatalogProductDetailRequest
         {
             CatalogProductId = catalogProductId
         };
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>
         {
             result.ShouldNotBeNull();
 
@@ -51,7 +74,7 @@ public class TestGetCatalogProductDetail : TestBase<TestCatalogProductFixture>
         {
             CatalogProductId = CatalogProductId.New
         };
-        await this._fixture.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>
+        await this.ExecuteTestRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>(request, result =>
         {
             result.ShouldNotBeNull();
             result.IsNull.ShouldBe(true);
@@ -73,7 +96,7 @@ public class TestGetCatalogProductDetail : TestBase<TestCatalogProductFixture>
             CatalogProductId = CatalogProductId.Empty
         };
 
-        await this._fixture.ExecuteValidationTest(request,
+        await this.ExecuteValidationTest(request,
             result => { result.ShouldHaveValidationErrorFor(x => x.CatalogProductId); });
     }
 }

@@ -16,7 +16,7 @@ public static class HostExtensions
         var services = builder.Services;
         var assembly = typeof(TDbContext).Assembly;
 
-        services.AddDbContext<DbContext, TDbContext>(options =>
+        services.AddDbContextPool<DbContext, TDbContext>(options =>
         {
             options.UseSqlServer(connectionString, sqlServer =>
             {
