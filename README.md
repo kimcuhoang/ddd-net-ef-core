@@ -167,6 +167,7 @@ For every test project, I use the following packages
 - [AutoFixture](https://github.com/AutoFixture/AutoFixture): AutoFixture is an open source library for .NET designed to minimize the 'Arrange' phase of your unit tests in order to maximize maintainability. Its primary goal is to allow developers to focus on what is being tested rather than how to setup the test scenario, by making it easier to create object graphs containing test data.
 - [MSSQL TestContainer](https://testcontainers.com/modules/mssql/) to isolating database from integration test with others environment
 - [Memory Configuration Provider](https://learn.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#memory-configuration-provider) to override the settings for testing, i.e - `connection-string`
+- [EF Core Migration Bundles](https://devblogs.microsoft.com/dotnet/introducing-devops-friendly-ef-core-migration-bundles/)
 
 
 ## How to run
@@ -175,24 +176,41 @@ For every test project, I use the following packages
 
 ![Test Results](docs/images/test-result.png)
 
-### Run via swagger from Visual Studio
+### Install Cake Tool
 
-- You have to change the `connectionstring` value in `appsettings.Development.json` under `DDD.ProductCatalog.WebApi`
-- After run the WebApi by `Ctrl+F5` from Visual Studio, assume the Url is `http://localhost:[port]`
-	- Switch to swagger via `swagger`
+```bash
+dotnet tool install --global Cake.Tool --version 3.1.0
+```
 
+### Starting SqlServer via Docker
+
+```bash
+docker compose -f docker-compose.yaml up -d
+```
+
+### Run via Tye
+
+- Starting web api via [Tye](https://github.com/dotnet/tye)
+
+```bash
+dotnet-cake.exe "./cake/dev.cake" --target="Tye" --verbosity=normal
+```
+
+- Access the url `http://localhost:5009`
 	![Swagger](docs/images/swagger.png)
 
 ## How to see the codecoverage report
 
-- Use PowerShell, change location to `cake`; then execute the following command
+- Execute tests & generate report
 
-```powershell
-.\build.ps1
+```bash
+dotnet-cake.exe "./cake/report-tests.cake" --target="Report" --verbosity=normal   
 ```
 
 - After run successfully, go to `code_coverage` folder, and open the `index.html` by browser to see the report
 
+---
+
 ## Give a Star! :star2:
 
-If you liked this project or if it helped you, please give a star :star: for this repository. Thank you!!!
+If you liked this project or if it helped you, please give a star :star2: for this repository. Thank you!!!

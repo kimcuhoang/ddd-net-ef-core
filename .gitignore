@@ -331,4 +331,6 @@ ASALocalRun/
 
 
 /cake/tools/**
+/cake/*.exe
 /code_coverage
+/.tye/.logs

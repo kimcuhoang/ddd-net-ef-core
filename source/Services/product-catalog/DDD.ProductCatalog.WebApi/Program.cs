@@ -38,7 +38,8 @@ services.ConfigureHttpJsonOptions(options =>
 });
 
 services.AddSwaggerConfig();
-services.AddHostedService<DbMigratorHostedService>();
+
+//services.AddHostedService<DbMigratorHostedService>();
 
 builder.Host
     .UseDefaultServiceProvider((context, options) =>
@@ -61,6 +62,8 @@ app.UseSwaggerMiddleware();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseRouting();
 app.MapControllers();
+
+app.MapGet("/", () => TypedResults.Redirect("/swagger", permanent: true));
 
 await app.RunAsync();
 

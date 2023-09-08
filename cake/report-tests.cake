@@ -2,8 +2,8 @@
 var target = Argument("target", "Report");
 var configuration = Argument("Configuration", "Release");
 
-#addin nuget:?package=Cake.Coverlet&version=2.3.4
-#tool nuget:?package=ReportGenerator&version=4.3.2
+#addin nuget:?package=Cake.Coverlet&version=3.0.4
+#tool nuget:?package=ReportGenerator&version=5.1.25
 
 
 /*  Change the output artifacts and their configuration here. */
@@ -15,24 +15,29 @@ var cuberturaFileExtension = ".cobertura.xml";
 var reportTypes = "HTML;HTMLSummary"; // Use "Html" value locally for performance and files' size.
 var coverageFilePath = coverageDirectory + File(cuberturaFileName + cuberturaFileExtension);
 
-Task("Clean")
-    .Does(() =>
+Task("Clean").Does(() =>
 {
-    if (!DirectoryExists(coverageDirectory))
-        CreateDirectory(coverageDirectory);
-    else
-        CleanDirectory(coverageDirectory);
+    if (DirectoryExists(coverageDirectory))
+    {
+        DeleteDirectory(coverageDirectory, new DeleteDirectorySettings
+        {
+            Recursive = true,
+            Force = true
+        });
+    }
+
+    CreateDirectory(coverageDirectory);
 });
 
 Task("Test")
-    .IsDependentOn("Clean")
-    .Does(() =>
+.IsDependentOn("Clean")
+.Does(() =>
 {
     var testResultDir = MakeAbsolute(coverageDirectory);
-    var testSettings = new DotNetCoreTestSettings
+    var testSettings = new DotNetTestSettings
     {
         Configuration = configuration,
-        ArgumentCustomization = args => 
+        ArgumentCustomization = args =>
             args.Append($"--logger trx")
                 .Append($"--results-directory {testResultDir}")
     };
@@ -44,16 +49,16 @@ Task("Test")
         CoverletOutputFormat = CoverletOutputFormat.cobertura
     };
 
-    
+
     var testProjects = GetFiles($@"{testProjectDirectory}/**/*.csproj");
-    
+
     foreach (var testProject in testProjects)
     {
         var filename = testProject.GetFilenameWithoutExtension().FullPath;
         coverletSettings.CoverletOutputName = File($"{filename}.{cuberturaFileName}{cuberturaFileExtension}");
-        coverletSettings.CoverletOutputDirectory = Directory($"{coverageDirectory}"); 
+        coverletSettings.CoverletOutputDirectory = Directory($"{coverageDirectory}");
 
-        DotNetCoreTest(testProject, testSettings, coverletSettings);
+        DotNetTest(testProject, testSettings, coverletSettings);
     }
 });
 
@@ -63,10 +68,13 @@ Task("Report")
 {
     var reportSettings = new ReportGeneratorSettings
     {
-        ReportTypes = new List<ReportGeneratorReportType> {ReportGeneratorReportType.Html, ReportGeneratorReportType.HtmlSummary},
+        ReportTypes = new List<ReportGeneratorReportType> { ReportGeneratorReportType.Html, ReportGeneratorReportType.HtmlSummary },
         Verbosity = ReportGeneratorVerbosity.Verbose,
     };
-    ReportGenerator($"{Directory($"{coverageDirectory}")}/*.{cuberturaFileName}{cuberturaFileExtension}", coverageDirectory, reportSettings);
+
+    var reportFiles = GetFiles($"{Directory($"{coverageDirectory}")}/*.{cuberturaFileName}{cuberturaFileExtension}");
+
+    ReportGenerator(reportFiles, coverageDirectory, reportSettings);
 });
 
 RunTarget(target);
