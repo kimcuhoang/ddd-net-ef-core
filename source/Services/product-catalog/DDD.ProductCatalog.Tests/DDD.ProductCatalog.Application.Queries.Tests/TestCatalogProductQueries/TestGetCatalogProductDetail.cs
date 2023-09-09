@@ -7,7 +7,7 @@ namespace DDD.ProductCatalog.Application.Queries.Tests.TestCatalogProductQueries
 
 public class TestGetCatalogProductDetail : TestQueriesBase
 {
-    public TestGetCatalogProductDetail(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestGetCatalogProductDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 

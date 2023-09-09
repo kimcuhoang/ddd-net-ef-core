@@ -2,12 +2,11 @@
 using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDD.ProductCatalog.Core.Categories;
 
-
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
 public class TestSearchCategories : TestCategoriesControllerBase
 {
-    public TestSearchCategories(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestSearchCategories(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

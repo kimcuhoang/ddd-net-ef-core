@@ -6,7 +6,7 @@ namespace DDD.ProductCatalog.Application.Queries.Tests.TestProductQueries;
 
 public abstract class TestProductQueriesBase : TestQueriesBase
 {
-    protected TestProductQueriesBase(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    protected TestProductQueriesBase(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 

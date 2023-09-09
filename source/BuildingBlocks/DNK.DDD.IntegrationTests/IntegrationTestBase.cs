@@ -6,27 +6,25 @@ using System.Text.Json;
 using Xunit.Abstractions;
 
 namespace DNK.DDD.IntegrationTests;
-public abstract class IntegrationTestBase<TTestFixture, TWebApplicationFactory, TProgram> : IAsyncLifetime, IClassFixture<TTestFixture>
-        where TTestFixture: TestFixtureBase<TWebApplicationFactory, TProgram>
+public abstract class IntegrationTestBase<TTestCollectionFixture, TWebApplicationFactory, TProgram> : IAsyncLifetime, IClassFixture<TTestCollectionFixture>
+        where TTestCollectionFixture : TestCollectionFixtureBase<TWebApplicationFactory, TProgram>
         where TWebApplicationFactory: WebApplicationFactoryBase<TProgram>
         where TProgram : class
 {
-    protected readonly TTestFixture _testFixture;
-
-    protected TWebApplicationFactory _factory => this._testFixture.Factory;
+    protected TWebApplicationFactory Factory { get; }
     protected readonly ITestOutputHelper _output;
     protected readonly IFixture _fixture;
 
-    protected IntegrationTestBase(TTestFixture testFixture, ITestOutputHelper output)
+    protected IntegrationTestBase(TTestCollectionFixture testCollectionFixture, ITestOutputHelper output)
     {
-        this._testFixture = testFixture;
+        this.Factory = testCollectionFixture.Factory;
         this._output = output;
         this._fixture = new Fixture();
     }
 
     protected async Task ExecuteTransactionDbContext(Func<DbContext, Task> func)
     {
-        await this._factory.ExecuteServiceAsync(async serviceProvider =>
+        await this.Factory.ExecuteServiceAsync(async serviceProvider =>
         {
             var dbContext = serviceProvider.GetRequiredService<DbContext>();
 
@@ -52,7 +50,7 @@ public abstract class IntegrationTestBase<TTestFixture, TWebApplicationFactory, 
 
     protected async Task ExecuteDbContextAsync(Func<DbContext, Task> func)
     {
-        await this._factory.ExecuteServiceAsync(async serviceProvider =>
+        await this.Factory.ExecuteServiceAsync(async serviceProvider =>
         {
             var dbContext = serviceProvider.GetRequiredService<DbContext>();
 
@@ -62,18 +60,18 @@ public abstract class IntegrationTestBase<TTestFixture, TWebApplicationFactory, 
 
     protected async Task ExecuteServiceAsync(Func<IServiceProvider, Task> func)
     {
-        await this._factory.ExecuteServiceAsync(func);
+        await this.Factory.ExecuteServiceAsync(func);
     }
 
     protected async Task ExecuteHttpClientAsync(Func<HttpClient, Task> func)
     {
-        using var httpClient = this._factory.CreateClient();
+        using var httpClient = this.Factory.CreateClient();
         await func(httpClient);
     }
 
     protected StringContent ConvertRequestToStringContent(object request)
     {
-        var jsonSerializerSettings = this._factory.JsonSerializerSettings;
+        var jsonSerializerSettings = this.Factory.JsonSerializerSettings;
 
         var requestAsJson = JsonSerializer.Serialize(request, jsonSerializerSettings);
 
@@ -86,7 +84,7 @@ public abstract class IntegrationTestBase<TTestFixture, TWebApplicationFactory, 
 
         this._output.WriteLine(content);
 
-        return JsonSerializer.Deserialize<TModel>(content, this._factory.JsonSerializerSettings);
+        return JsonSerializer.Deserialize<TModel>(content, this.Factory.JsonSerializerSettings);
     }
 
     public virtual async Task DisposeAsync()

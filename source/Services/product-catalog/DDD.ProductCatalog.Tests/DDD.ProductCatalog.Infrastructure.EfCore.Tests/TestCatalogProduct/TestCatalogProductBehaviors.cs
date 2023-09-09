@@ -7,7 +7,7 @@ namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct;
 
 public class TestCatalogProductBehaviors : TestEfCoreBase
 {
-    public TestCatalogProductBehaviors(TestEfCoreFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestCatalogProductBehaviors(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 

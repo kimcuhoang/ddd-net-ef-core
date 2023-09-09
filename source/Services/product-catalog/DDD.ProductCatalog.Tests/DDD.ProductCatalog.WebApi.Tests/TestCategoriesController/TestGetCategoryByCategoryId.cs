@@ -5,7 +5,7 @@ namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
 public class TestGetCategoryByCategoryId : TestCategoriesControllerBase
 {
-    public TestGetCategoryByCategoryId(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestGetCategoryByCategoryId(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

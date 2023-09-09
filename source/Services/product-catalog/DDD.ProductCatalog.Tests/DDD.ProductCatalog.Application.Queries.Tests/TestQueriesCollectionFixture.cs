@@ -1,18 +1,22 @@
 ﻿using DNK.DDD.IntegrationTests;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+[assembly: CollectionBehavior(DisableTestParallelization = false)]
+
 namespace DDD.ProductCatalog.Application.Queries.Tests;
-public class TestQueriesFixture : TestFixtureBase<DefaultWebApplicationFactory, Program>
+
+
+[CollectionDefinition(nameof(QueriesTestCollection))]
+public class QueriesTestCollection : ICollectionFixture<TestQueriesCollectionFixture>
 {
-    public TestQueriesFixture(DefaultWebApplicationFactory factory) : base(factory)
-    {
-    }
+}
 
-    public override async Task InitializeAsync()
+public class TestQueriesCollectionFixture : TestCollectionFixtureBase<DefaultWebApplicationFactory, Program>
+{
+    protected override async Task ApplyMigrations(DatabaseFacade database)
     {
-        await base.InitializeAsync();
-
         await this.Factory.ExecuteServiceAsync(async serviceProvider =>
         {
             var dbContext = serviceProvider.GetRequiredService<DbContext>();

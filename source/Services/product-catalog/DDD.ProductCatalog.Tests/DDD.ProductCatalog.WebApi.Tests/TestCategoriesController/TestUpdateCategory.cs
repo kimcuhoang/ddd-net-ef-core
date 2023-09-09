@@ -6,7 +6,7 @@ namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
 public class TestUpdateCategory : TestCategoriesControllerBase
 {
-    public TestUpdateCategory(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestUpdateCategory(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

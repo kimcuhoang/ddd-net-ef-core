@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Testcontainers.MsSql;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
@@ -13,18 +12,11 @@ using Microsoft.AspNetCore.Http.Json;
 namespace DNK.DDD.IntegrationTests;
 public abstract class WebApplicationFactoryBase<TProgram>: WebApplicationFactory<TProgram> where TProgram : class
 {
-    private readonly MsSqlContainer _container;
+    private readonly string _connectionString;
 
-    protected WebApplicationFactoryBase()
+    protected WebApplicationFactoryBase(string connectionString)
     {
-        this._container = new MsSqlBuilder()
-                .WithAutoRemove(true)
-                .WithCleanUp(true)
-                .WithHostname("test")
-                .WithExposedPort(14333)
-                .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-                .WithPassword("P@ssw0rd-01")
-                .Build();
+        this._connectionString = connectionString;
     }
 
     protected virtual Dictionary<string, string?> InMemorySettings
@@ -33,7 +25,7 @@ public abstract class WebApplicationFactoryBase<TProgram>: WebApplicationFactory
         {
             return new Dictionary<string, string?>
             {
-                ["ConnectionStrings:DefaultDb"] = this._container.GetConnectionString()
+                ["ConnectionStrings:DefaultDb"] = this._connectionString
             };
         }
     }
@@ -78,6 +70,4 @@ public abstract class WebApplicationFactoryBase<TProgram>: WebApplicationFactory
         using var scope = this.Services.CreateAsyncScope();
         await func.Invoke(scope.ServiceProvider);
     }
-
-    public async Task StartTestContainer() => await this._container.StartAsync();
 }

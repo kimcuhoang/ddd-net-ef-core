@@ -5,7 +5,7 @@ using DDD.ProductCatalog.Core.Products;
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 public abstract class TestProductsControllerBase : WebApiTestBase
 {
-    protected TestProductsControllerBase(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    protected TestProductsControllerBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

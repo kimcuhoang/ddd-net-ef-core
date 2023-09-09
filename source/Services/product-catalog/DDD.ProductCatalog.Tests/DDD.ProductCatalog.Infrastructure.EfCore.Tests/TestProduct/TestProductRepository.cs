@@ -5,7 +5,7 @@ namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct;
 
 public class TestProductRepository : TestEfCoreBase
 {
-    public TestProductRepository(TestEfCoreFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestProductRepository(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 

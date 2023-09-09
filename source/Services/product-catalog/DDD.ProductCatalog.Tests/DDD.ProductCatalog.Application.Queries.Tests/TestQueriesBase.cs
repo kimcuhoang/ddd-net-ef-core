@@ -7,9 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DDD.ProductCatalog.Application.Queries.Tests;
 
 [Collection(nameof(QueriesTestCollection))]
-public abstract class TestQueriesBase : IntegrationTestBase<TestQueriesFixture, DefaultWebApplicationFactory, Program>
+public abstract class TestQueriesBase : IntegrationTestBase<TestQueriesCollectionFixture, DefaultWebApplicationFactory, Program>
 {
-    protected TestQueriesBase(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    protected TestQueriesBase(TestQueriesCollectionFixture testQueriesCollectionFixture, ITestOutputHelper output) : base(testQueriesCollectionFixture, output)
     {
     }
 

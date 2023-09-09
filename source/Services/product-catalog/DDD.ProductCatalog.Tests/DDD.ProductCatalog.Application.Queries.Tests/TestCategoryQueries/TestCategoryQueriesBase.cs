@@ -5,7 +5,7 @@ namespace DDD.ProductCatalog.Application.Queries.Tests.TestCategoryQueries;
 
 public abstract class TestCategoryQueriesBase : TestQueriesBase
 {
-    protected TestCategoryQueriesBase(TestQueriesFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    protected TestCategoryQueriesBase(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
     {
     }
 

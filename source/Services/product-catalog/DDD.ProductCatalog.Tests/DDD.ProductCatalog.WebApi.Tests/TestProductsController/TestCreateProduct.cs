@@ -2,12 +2,11 @@
 using DDD.ProductCatalog.Application.Commands.ProductCommands.CreateProduct;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
 public class TestCreateProduct : TestProductsControllerBase
 {
-    public TestCreateProduct(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestCreateProduct(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

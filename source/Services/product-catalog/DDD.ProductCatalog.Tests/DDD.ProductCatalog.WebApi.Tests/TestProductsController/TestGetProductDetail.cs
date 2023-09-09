@@ -5,7 +5,7 @@ namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
 public class TestGetProductDetail : TestProductsControllerBase
 {
-    public TestGetProductDetail(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestGetProductDetail(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

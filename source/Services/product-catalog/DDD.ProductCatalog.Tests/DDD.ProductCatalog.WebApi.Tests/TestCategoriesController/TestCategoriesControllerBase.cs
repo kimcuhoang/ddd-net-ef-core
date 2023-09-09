@@ -3,7 +3,7 @@
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 public abstract class TestCategoriesControllerBase : WebApiTestBase
 {
-    protected TestCategoriesControllerBase(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    protected TestCategoriesControllerBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

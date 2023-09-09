@@ -10,7 +10,7 @@ namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
 public class TestCreateCatalog : TestCatalogsControllerBase
 {
-    public TestCreateCatalog(WebApiTestFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
+    public TestCreateCatalog(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
     {
     }
 

@@ -1,16 +1,10 @@
-﻿using Xunit;
-using DNK.DDD.IntegrationTests;
-
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+﻿using DNK.DDD.IntegrationTests;
 
 namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests;
 
-[CollectionDefinition(nameof(EfCoreTestCollection))]
-public class EfCoreTestCollection : ICollectionFixture<DefaultWebApplicationFactory>
-{
-}
-
 public class DefaultWebApplicationFactory : WebApplicationFactoryBase<Program>
 {
-    
+    public DefaultWebApplicationFactory(string connectionString) : base(connectionString)
+    {
+    }
 }
