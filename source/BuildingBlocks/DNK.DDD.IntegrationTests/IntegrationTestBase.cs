@@ -6,7 +6,7 @@ using System.Text.Json;
 using Xunit.Abstractions;
 
 namespace DNK.DDD.IntegrationTests;
-public abstract class IntegrationTestBase<TTestCollectionFixture, TWebApplicationFactory, TProgram> : IAsyncLifetime, IClassFixture<TTestCollectionFixture>
+public abstract class IntegrationTestBase<TTestCollectionFixture, TWebApplicationFactory, TProgram> : IAsyncLifetime
         where TTestCollectionFixture : TestCollectionFixtureBase<TWebApplicationFactory, TProgram>
         where TWebApplicationFactory: WebApplicationFactoryBase<TProgram>
         where TProgram : class

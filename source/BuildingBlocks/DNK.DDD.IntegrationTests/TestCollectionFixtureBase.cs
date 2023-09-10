@@ -18,22 +18,25 @@ public abstract class TestCollectionFixtureBase<TWebApplicationFactory, TProgram
                 .WithAutoRemove(true)
                 .WithCleanUp(true)
                 .WithHostname("test")
-                .WithExposedPort(14333)
+                .WithPortBinding(1433, assignRandomHostPort: true)
                 .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
                 .WithPassword("P@ssw0rd-01")
+                .WithStartupCallback(async (container, cancellationToken) =>
+                {
+                    var msSqlContainer = (MsSqlContainer)container;
+                    this.Factory = (TWebApplicationFactory)Activator.CreateInstance(typeof(TWebApplicationFactory), msSqlContainer.GetConnectionString())!;
+                })
                 .Build();
     }
 
     public async Task DisposeAsync()
     {
-        await this._container.DisposeAsync().ConfigureAwait(false);
+        await this._container.DisposeAsync();
     }
 
     public async Task InitializeAsync()
     {
         await this._container.StartAsync();
-
-        this.Factory = (TWebApplicationFactory)Activator.CreateInstance(typeof(TWebApplicationFactory), this._container.GetConnectionString())!;
 
         await this.Factory.ExecuteServiceAsync(async serviceProvider =>
         {
