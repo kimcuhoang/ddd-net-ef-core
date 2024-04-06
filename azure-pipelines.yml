@@ -20,7 +20,7 @@ pool:
 
 variables:
     buildConfiguration: 'Release'
-    NETCoreVersion: '8.0.x'
+    NETCoreVersion: '8.x'
     solutionFile: '$(Build.SourcesDirectory)/*.sln'
     unitTestPath: '$(Build.SourcesDirectory)/source/Services/product-catalog/DDD.ProductCatalog.Tests'
     unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
@@ -47,7 +47,6 @@ stages:
       inputs:
           command: 'restore'
           projects: '$(solutionFile)'
-          version: '$(NETCoreVersion)'
     #############
     # dotnet build solution
     #############
@@ -57,7 +56,6 @@ stages:
           command: 'build'
           arguments: '--configuration $(buildConfiguration)'
           projects: '$(solutionFile)'
-          version: '$(NETCoreVersion)'
 
 - stage: RunTests
   displayName: 'Run Tests'
