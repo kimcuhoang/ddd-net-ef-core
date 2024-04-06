@@ -1,11 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\DNK.DDD.Infrastructure.Dapper.MsSqlServer\DNK.DDD.Infrastructure.Dapper.MsSqlServer.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\DNK.DDD.Infrastructure.EntityFrameworkCore.MsSqlServer\DNK.DDD.Infrastructure.EntityFrameworkCore.MsSqlServer.csproj" />

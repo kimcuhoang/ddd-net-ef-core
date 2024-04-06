@@ -20,7 +20,7 @@ pool:
 
 variables:
     buildConfiguration: 'Release'
-    NETCoreVersion: '7.0.x'
+    NETCoreVersion: '8.0.x'
     solutionFile: '$(Build.SourcesDirectory)/*.sln'
     unitTestPath: '$(Build.SourcesDirectory)/source/Services/product-catalog/DDD.ProductCatalog.Tests'
     unitTestProjects: '$(unitTestPath)/*Tests/*.csproj'
@@ -79,7 +79,7 @@ stages:
         nobuild: true
 
     - script: |
-        dotnet tool install -g dotnet-reportgenerator-globaltool --version 4.3.8
+        dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.2.4
         $HOME/.dotnet/tools/reportgenerator -reports:$(unitTestPath)/**/coverage.cobertura.xml -targetdir:$(codeCoverageReportPath) -reporttypes:Cobertura
       displayName: 'Create Code coverage report'
 

@@ -2,8 +2,8 @@
 var target = Argument("target", "Report");
 var configuration = Argument("Configuration", "Release");
 
-#addin nuget:?package=Cake.Coverlet&version=3.0.4
-#tool nuget:?package=ReportGenerator&version=5.1.25
+#addin nuget:?package=Cake.Coverlet&version=4.0.1
+#tool nuget:?package=ReportGenerator&version=5.2.4
 
 
 /*  Change the output artifacts and their configuration here. */
