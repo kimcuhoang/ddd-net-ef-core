@@ -47,6 +47,7 @@ stages:
       inputs:
           command: 'restore'
           projects: '$(solutionFile)'
+          version: '$(NETCoreVersion)'
     #############
     # dotnet build solution
     #############
@@ -56,6 +57,7 @@ stages:
           command: 'build'
           arguments: '--configuration $(buildConfiguration)'
           projects: '$(solutionFile)'
+          version: '$(NETCoreVersion)'
 
 - stage: RunTests
   displayName: 'Run Tests'
