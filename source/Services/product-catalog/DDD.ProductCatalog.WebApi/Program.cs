@@ -39,7 +39,7 @@ services.ConfigureHttpJsonOptions(options =>
 
 services.AddSwaggerConfig();
 
-//services.AddHostedService<DbMigratorHostedService>();
+services.AddHostedService<DbMigratorHostedService>();
 
 builder.Host
     .UseDefaultServiceProvider((context, options) =>

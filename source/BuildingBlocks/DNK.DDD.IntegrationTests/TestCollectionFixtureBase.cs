@@ -13,6 +13,8 @@ public abstract class TestCollectionFixtureBase<TWebApplicationFactory, TProgram
     public TWebApplicationFactory Factory { get; private set; } = default!;
     private const string MsSqlPassword = "P@ssw0rd-01";
 
+    protected virtual bool AutoMigration => false;
+
     protected TestCollectionFixtureBase()
     {
         this._container = new MsSqlBuilder()
@@ -60,15 +62,18 @@ public abstract class TestCollectionFixtureBase<TWebApplicationFactory, TProgram
     {
         await this._container.StartAsync();
 
-        await this.Factory.ExecuteServiceAsync(async serviceProvider =>
+        if (!this.AutoMigration)
         {
-            var dbContext = serviceProvider.GetRequiredService<DbContext>();
+            await this.Factory.ExecuteServiceAsync(async serviceProvider =>
+            {
+                var dbContext = serviceProvider.GetRequiredService<DbContext>();
 
-            var database = dbContext.Database;
+                var database = dbContext.Database;
 
-            await this.ApplyMigrations(database);
-        });
+                await this.ApplyMigrations(database);
+            });
+        }
     }
 
-    protected abstract Task ApplyMigrations(DatabaseFacade database);
+    protected virtual Task ApplyMigrations(DatabaseFacade database) => Task.CompletedTask;
 }

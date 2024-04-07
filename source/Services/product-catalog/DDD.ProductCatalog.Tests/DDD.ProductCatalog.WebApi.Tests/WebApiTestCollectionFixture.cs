@@ -14,13 +14,5 @@ public class WebApiTestCollection : ICollectionFixture<WebApiTestCollectionFixtu
 
 public class WebApiTestCollectionFixture : TestCollectionFixtureBase<DefaultWebApplicationFactory, Program>
 {
-    protected override async Task ApplyMigrations(DatabaseFacade database)
-    {
-        var pendingMigrations = await database.GetPendingMigrationsAsync();
-
-        if (pendingMigrations.Any())
-        {
-            await database.MigrateAsync();
-        }
-    }
+    protected override bool AutoMigration => true;
 }

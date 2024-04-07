@@ -1,4 +1,6 @@
-﻿using DNK.DDD.IntegrationTests;
+﻿using DDD.ProductCatalog.WebApi.Infrastructures.HostedServices;
+using DNK.DDD.IntegrationTests;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DDD.ProductCatalog.WebApi.Tests;
 
@@ -16,5 +18,12 @@ public class DefaultWebApplicationFactory : WebApplicationFactoryBase<Program>
 
             return inMemorySettings;
         }
+    }
+
+    protected override void ConfigureTestServices(IServiceCollection services)
+    {
+        base.ConfigureTestServices(services);
+
+        services.AddHostedService<DbMigratorHostedService>();
     }
 }
