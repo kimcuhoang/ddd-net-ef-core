@@ -11,6 +11,7 @@ public abstract class TestCollectionFixtureBase<TWebApplicationFactory, TProgram
 {
     private readonly MsSqlContainer _container;
     public TWebApplicationFactory Factory { get; private set; } = default!;
+    private const string MsSqlPassword = "P@ssw0rd-01";
 
     protected TestCollectionFixtureBase()
     {
@@ -20,14 +21,35 @@ public abstract class TestCollectionFixtureBase<TWebApplicationFactory, TProgram
                 .WithHostname("test")
                 .WithPortBinding(1433, assignRandomHostPort: true)
                 .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-                .WithPassword("P@ssw0rd-01")
+                .WithPassword(MsSqlPassword)
                 .WithStartupCallback(async (container, cancellationToken) =>
                 {
-                    var msSqlContainer = (MsSqlContainer)container;
-                    this.Factory = (TWebApplicationFactory)Activator.CreateInstance(typeof(TWebApplicationFactory), msSqlContainer.GetConnectionString())!;
+                    this.Factory = (TWebApplicationFactory)Activator
+                                    .CreateInstance(typeof(TWebApplicationFactory), this.GetConnectionString(container))!;
+                    await Task.Yield();
                 })
                 .Build();
     }
+
+    /// <summary>
+    /// Override the GetConnectionString from MsSqlBuilder
+    /// </summary>
+    /// <param name="container"></param>
+    /// <returns></returns>
+    private string GetConnectionString(MsSqlContainer container)
+    {
+        var properties = new Dictionary<string, string>
+        {
+            { "Server", container.Hostname + "," + container.GetMappedPublicPort(MsSqlBuilder.MsSqlPort) },
+            { "Database", MsSqlBuilder.DefaultDatabase },
+            { "User Id", MsSqlBuilder.DefaultUsername },
+            { "Password", MsSqlPassword },
+            { "Encrypt", bool.FalseString },
+            { "MultipleActiveResultSets", bool.TrueString }
+        };
+        return string.Join(";", properties.Select(property => string.Join("=", property.Key, property.Value)));
+    }
+
 
     public async Task DisposeAsync()
     {

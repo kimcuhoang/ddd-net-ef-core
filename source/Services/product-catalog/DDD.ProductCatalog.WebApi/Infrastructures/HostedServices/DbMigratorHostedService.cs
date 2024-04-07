@@ -1,35 +1,40 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace DDD.ProductCatalog.WebApi.Infrastructures.HostedServices
+namespace DDD.ProductCatalog.WebApi.Infrastructures.HostedServices;
+
+/// <summary>
+/// https://andrewlock.net/running-async-tasks-on-app-startup-in-asp-net-core-3/
+/// </summary>
+public class DbMigratorHostedService(
+        IServiceProvider serviceProvider,
+        ILogger<DbMigratorHostedService> logger) : IHostedService
 {
-    /// <summary>
-    /// https://andrewlock.net/running-async-tasks-on-app-startup-in-asp-net-core-3/
-    /// </summary>
-    public class DbMigratorHostedService : IHostedService
+    private readonly ILogger<DbMigratorHostedService> _logger = logger;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+
+    #region Implementation of IHostedService
+
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        private readonly IServiceProvider _serviceProvider;
-        public DbMigratorHostedService(IServiceProvider serviceProvider)
-            => this._serviceProvider = serviceProvider;
+        using var scope = this._serviceProvider.CreateScope();
 
-        #region Implementation of IHostedService
+        var applicationDbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        var database = applicationDbContext.Database;
+
+        var pendingChanges = await database.GetPendingMigrationsAsync(cancellationToken);
+
+        if (!pendingChanges.Any()) 
         {
-            using var scope = this._serviceProvider.CreateScope();
-
-            var applicationDbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
-
-            await applicationDbContext.Database.MigrateAsync(cancellationToken);
+            this._logger.LogWarning("There is no pending migrations. Database is up to date!!!");
+            return; 
         }
 
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-
-        #endregion
+        await applicationDbContext.Database.MigrateAsync(cancellationToken);
     }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+
+    #endregion
 }

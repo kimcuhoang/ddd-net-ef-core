@@ -1,9 +1,9 @@
-# An Example of using DDD with .NET 7
+# An Example of using DDD with .NET 8
 
 [![Build Status](https://kimcu.visualstudio.com/ddd-net-ef-core/_apis/build/status/kimcuhoang.ddd-net-ef-core?branchName=master)](https://kimcu.visualstudio.com/ddd-net-ef-core/_build/latest?definitionId=8&branchName=master)
 
 - Domain Driven Design (aka DDD)
-- .NET 7.0.400
+- .NET 8.0.202
 
 ## Overview
 
