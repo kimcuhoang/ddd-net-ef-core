@@ -45,7 +45,7 @@ public abstract class TestCollectionFixtureBase<TWebApplicationFactory, TProgram
             { "User Id", MsSqlBuilder.DefaultUsername },
             { "Password", MsSqlPassword },
             { "Encrypt", bool.FalseString },
-            { "MultipleActiveResultSets", bool.TrueString }
+            // { "MultipleActiveResultSets", bool.TrueString }
         };
         return string.Join(";", properties.Select(property => string.Join("=", property.Key, property.Value)));
     }
