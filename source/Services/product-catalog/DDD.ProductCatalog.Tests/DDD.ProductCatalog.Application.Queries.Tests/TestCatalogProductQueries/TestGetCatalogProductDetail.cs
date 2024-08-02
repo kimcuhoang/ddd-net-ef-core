@@ -5,12 +5,8 @@ using DDD.ProductCatalog.Core.Products;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCatalogProductQueries;
 
-public class TestGetCatalogProductDetail : TestQueriesBase
+public class TestGetCatalogProductDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : TestQueriesBase(testFixture, output)
 {
-    public TestGetCatalogProductDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     private Product Product = default!;
     private Category Category = default!;
     private Catalog Catalog = default!;

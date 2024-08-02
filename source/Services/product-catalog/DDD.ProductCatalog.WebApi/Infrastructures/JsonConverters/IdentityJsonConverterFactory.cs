@@ -16,6 +16,6 @@ public class IdentityJsonConverterFactory : JsonConverterFactory
     {
         var converterType = typeof(IdentityJsonConverter<>).MakeGenericType(typeToConvert);
 
-        return (JsonConverter)Activator.CreateInstance(converterType);
+        return (JsonConverter)Activator.CreateInstance(converterType)!;
     }
 }

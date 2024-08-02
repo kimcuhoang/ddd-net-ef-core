@@ -17,7 +17,7 @@ public class CatalogCategory : EntityBase<CatalogCategoryId>
 
     public bool IsRoot => this.Parent is null;
 
-    private readonly List<CatalogProduct> _products = new();
+    private readonly List<CatalogProduct> _products = [];
 
     public IEnumerable<CatalogProduct> Products => this._products.AsReadOnly();
 

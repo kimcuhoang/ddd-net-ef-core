@@ -4,12 +4,8 @@ using DDD.ProductCatalog.Core.Catalogs;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
-public class TestGetCatalogDetail : TestCatalogsControllerBase
+public class TestGetCatalogDetail(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCatalogsControllerBase(testCollectionFixture, output)
 {
-    public TestGetCatalogDetail(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}";
 
 

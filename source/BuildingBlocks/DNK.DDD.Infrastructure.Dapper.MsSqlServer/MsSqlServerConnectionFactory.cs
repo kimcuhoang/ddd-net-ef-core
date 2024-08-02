@@ -2,15 +2,10 @@
 using System.Data.SqlClient;
 
 namespace DNK.DDD.Infrastructure.Dapper.MsSqlServer;
-public class MsSqlServerConnectionFactory : IDbConnectionFactory
+public class MsSqlServerConnectionFactory(string connectionString) : IDbConnectionFactory
 {
-    private readonly string _connectionString;
+    private readonly string _connectionString = connectionString;
     private IDbConnection _connection;
-
-    public MsSqlServerConnectionFactory(string connectionString)
-    {
-        this._connectionString = connectionString;
-    }
 
     public void Dispose()
     {

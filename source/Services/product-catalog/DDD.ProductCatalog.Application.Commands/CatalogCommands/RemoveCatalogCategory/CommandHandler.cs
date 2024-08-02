@@ -6,14 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Application.Commands.CatalogCommands.RemoveCatalogCategory;
 
-public class CommandHandler : IRequestHandler<RemoveCatalogCategoryCommand, RemoveCatalogCategoryResult>
+public class CommandHandler(IRepository<Catalog, CatalogId> repository) : IRequestHandler<RemoveCatalogCategoryCommand, RemoveCatalogCategoryResult>
 {
-    private readonly IRepository<Catalog, CatalogId> _repository;
-
-    public CommandHandler(IRepository<Catalog, CatalogId> repository)
-    {
-        this._repository = repository;
-    }
+    private readonly IRepository<Catalog, CatalogId> _repository = repository;
 
     public async Task<RemoveCatalogCategoryResult> Handle(RemoveCatalogCategoryCommand request, CancellationToken cancellationToken)
     {

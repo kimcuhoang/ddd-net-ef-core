@@ -1,8 +1,5 @@
 ﻿namespace DNK.DDD.Core.Models;
 
-public abstract class AggregateRoot<TIdentity> : EntityBase<TIdentity> where TIdentity : IdentityBase
+public abstract class AggregateRoot<TIdentity>(TIdentity id) : EntityBase<TIdentity>(id) where TIdentity : IdentityBase
 {
-    protected AggregateRoot(TIdentity id) : base(id)
-    {
-    }
 }

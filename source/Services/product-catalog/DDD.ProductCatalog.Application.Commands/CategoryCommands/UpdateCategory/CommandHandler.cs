@@ -4,14 +4,9 @@ using MediatR;
 
 namespace DDD.ProductCatalog.Application.Commands.CategoryCommands.UpdateCategory;
 
-public class CommandHandler : IRequestHandler<UpdateCategoryCommand, UpdateCategoryResult>
+public class CommandHandler(IRepository<Category, CategoryId> repository) : IRequestHandler<UpdateCategoryCommand, UpdateCategoryResult>
 {
-    private readonly IRepository<Category, CategoryId> _repository;
-
-    public CommandHandler(IRepository<Category, CategoryId> repository)
-    {
-        this._repository = repository;
-    }
+    private readonly IRepository<Category, CategoryId> _repository = repository;
 
     public async Task<UpdateCategoryResult> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {

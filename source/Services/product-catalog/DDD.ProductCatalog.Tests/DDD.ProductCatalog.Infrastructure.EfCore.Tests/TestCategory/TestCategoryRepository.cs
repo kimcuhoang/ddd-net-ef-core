@@ -3,12 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests.TestCategory;
 
-public class TestCategoryRepository : TestEfCoreBase
+public class TestCategoryRepository(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : TestEfCoreBase(testFixture, output)
 {
-    public TestCategoryRepository(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     [Fact(DisplayName = "Should Create Category Successfully")]
     public async Task ShouldCreateCategorySuccessfully()
     {

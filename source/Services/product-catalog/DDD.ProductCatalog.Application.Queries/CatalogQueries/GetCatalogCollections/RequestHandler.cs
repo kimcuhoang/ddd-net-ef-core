@@ -6,14 +6,9 @@ using System.Text;
 
 namespace DDD.ProductCatalog.Application.Queries.CatalogQueries.GetCatalogCollections;
 
-public sealed class RequestHandler : IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>
+public sealed class RequestHandler(IDbConnection dbConnection) : IRequestHandler<GetCatalogCollectionRequest, GetCatalogCollectionResult>
 {
-    private readonly IDbConnection _dbConnection;
-
-    public RequestHandler(IDbConnection dbConnection)
-    {
-        this._dbConnection = dbConnection;
-    }
+    private readonly IDbConnection _dbConnection = dbConnection;
 
     #region Implementation of IRequestHandler<in GetCatalogCollectionsRequest,GetCatalogCollectionsResult>
 

@@ -6,14 +6,9 @@ using System.Data;
 
 namespace DDD.ProductCatalog.Application.Queries.CategoryQueries.GetCategoryCollection;
 
-public class RequestHandler : IRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>
+public class RequestHandler(IDbConnection dbConnection) : IRequestHandler<GetCategoryCollectionRequest, GetCategoryCollectionResult>
 {
-    private readonly IDbConnection _dbConnection;
-
-    public RequestHandler(IDbConnection dbConnection)
-    {
-        this._dbConnection = dbConnection;
-    }
+    private readonly IDbConnection _dbConnection = dbConnection;
 
     #region Implementation of IRequestHandler<in GetCategoryCollectionRequest,GetCategoryCollectionResult>
 

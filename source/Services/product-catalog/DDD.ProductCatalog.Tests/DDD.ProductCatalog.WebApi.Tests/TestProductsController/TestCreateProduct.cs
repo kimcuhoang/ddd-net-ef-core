@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
-public class TestCreateProduct : TestProductsControllerBase
+public class TestCreateProduct(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestProductsControllerBase(testCollectionFixture, output)
 {
-    public TestCreateProduct(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => this.BaseUrl;
 
 

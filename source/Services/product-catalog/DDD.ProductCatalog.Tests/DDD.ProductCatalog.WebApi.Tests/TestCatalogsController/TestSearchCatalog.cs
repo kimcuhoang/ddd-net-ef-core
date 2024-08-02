@@ -3,12 +3,8 @@ using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
-public class TestSearchCatalog : TestCatalogsControllerBase
+public class TestSearchCatalog(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCatalogsControllerBase(testCollectionFixture, output)
 {
-    public TestSearchCatalog(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/search";
 
     [Theory(DisplayName = "Search All With Paging Successfully")]

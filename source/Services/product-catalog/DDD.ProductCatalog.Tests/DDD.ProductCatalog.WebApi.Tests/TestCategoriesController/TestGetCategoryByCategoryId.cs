@@ -3,12 +3,8 @@ using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
-public class TestGetCategoryByCategoryId : TestCategoriesControllerBase
+public class TestGetCategoryByCategoryId(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCategoriesControllerBase(testCollectionFixture, output)
 {
-    public TestGetCategoryByCategoryId(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Category.Id}";
 
 

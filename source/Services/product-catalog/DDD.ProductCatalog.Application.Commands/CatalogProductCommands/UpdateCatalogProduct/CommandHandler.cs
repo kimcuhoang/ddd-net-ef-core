@@ -6,16 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Application.Commands.CatalogProductCommands.UpdateCatalogProduct;
 
-public class CommandHandler : IRequestHandler<UpdateCatalogProductCommand>
+public class CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<UpdateCatalogProductCommand> validator) : IRequestHandler<UpdateCatalogProductCommand>
 {
-    private readonly IRepository<Catalog, CatalogId> _repository;
-    private readonly IValidator<UpdateCatalogProductCommand> _validator;
-
-    public CommandHandler(IRepository<Catalog, CatalogId> repository, IValidator<UpdateCatalogProductCommand> validator)
-    {
-        this._repository = repository;
-        this._validator = validator;
-    }
+    private readonly IRepository<Catalog, CatalogId> _repository = repository;
+    private readonly IValidator<UpdateCatalogProductCommand> _validator = validator;
 
 
     #region Overrides of IRequestHandler<UpdateCatalogProductCommand>

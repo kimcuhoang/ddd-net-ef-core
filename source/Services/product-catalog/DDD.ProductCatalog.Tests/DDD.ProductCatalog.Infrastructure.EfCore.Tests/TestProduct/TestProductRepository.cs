@@ -3,12 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests.TestProduct;
 
-public class TestProductRepository : TestEfCoreBase
+public class TestProductRepository(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : TestEfCoreBase(testFixture, output)
 {
-    public TestProductRepository(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     [Fact(DisplayName = "Should Create Product Successfully")]
     public async Task ShouldCreateProductSuccessfully()
     {

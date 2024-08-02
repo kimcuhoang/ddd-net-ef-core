@@ -4,14 +4,10 @@ using MediatR;
 
 namespace DDD.ProductCatalog.Application.Commands.ProductCommands.UpdateProduct;
 
-public class CommandHandler : IRequestHandler<UpdateProductCommand, UpdateProductResult>
+public class CommandHandler(IRepository<Product, ProductId> repository) : IRequestHandler<UpdateProductCommand, UpdateProductResult>
 {
-    private readonly IRepository<Product, ProductId> _repository;
+    private readonly IRepository<Product, ProductId> _repository = repository;
 
-    public CommandHandler(IRepository<Product, ProductId> repository)
-    {
-        this._repository = repository;
-    }
     public async Task<UpdateProductResult> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         var product = await this._repository.FindOneAsync(x => x.Id == request.ProductId);

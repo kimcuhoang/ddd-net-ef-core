@@ -1,18 +1,16 @@
 ﻿using DNK.DDD.Core.Models;
-using System;
 
-namespace DDD.ProductCatalog.Core.Catalogs
+namespace DDD.ProductCatalog.Core.Catalogs;
+
+public class CatalogProductId : IdentityBase
 {
-    public class CatalogProductId : IdentityBase
-    {
-        #region Constructors
+    #region Constructors
 
-        private CatalogProductId(Guid id) : base(id) { }
+    private CatalogProductId(Guid id) : base(id) { }
 
-        #endregion
+    #endregion
 
-        public static CatalogProductId New => new CatalogProductId(Guid.NewGuid());
-        public static CatalogProductId Of(Guid id) => new CatalogProductId(id);
-        public static CatalogProductId Empty => new CatalogProductId(Guid.Empty);
-    }
+    public static CatalogProductId New => new(Guid.NewGuid());
+    public static CatalogProductId Of(Guid id) => new(id);
+    public static CatalogProductId Empty => new(Guid.Empty);
 }

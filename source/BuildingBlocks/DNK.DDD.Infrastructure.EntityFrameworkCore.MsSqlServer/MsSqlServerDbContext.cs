@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace DNK.DDD.Infrastructure.EntityFrameworkCore.MsSqlServer;
 
-public abstract class MsSqlServerDbContext : DbContextBase
+public abstract class MsSqlServerDbContext(DbContextOptions options) : DbContextBase(options)
 {
-    protected MsSqlServerDbContext(DbContextOptions options) : base(options)
-    {
-    }
-
     protected override void InnerConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.InnerConfigureConventions(configurationBuilder);

@@ -3,13 +3,8 @@
 namespace DDD.ProductCatalog.WebApi.Tests;
 
 [Collection(nameof(WebApiTestCollection))]
-public abstract class WebApiTestBase : IntegrationTestBase<WebApiTestCollectionFixture, DefaultWebApplicationFactory, Program>
+public abstract class WebApiTestBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : IntegrationTestBase<WebApiTestCollectionFixture, DefaultWebApplicationFactory, Program>(testCollectionFixture, output)
 {
-    protected WebApiTestBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) 
-        : base(testCollectionFixture, output)
-    {
-    }
-
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();

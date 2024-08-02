@@ -4,14 +4,9 @@ using MediatR;
 
 namespace DDD.ProductCatalog.Application.Commands.ProductCommands.CreateProduct;
 
-public class CommandHandler : IRequestHandler<CreateProductCommand, CreateProductResult>
+public class CommandHandler(IRepository<Product, ProductId> repository) : IRequestHandler<CreateProductCommand, CreateProductResult>
 {
-    private readonly IRepository<Product, ProductId> _repository;
-
-    public CommandHandler(IRepository<Product, ProductId> repository)
-    {
-        this._repository = repository;
-    }
+    private readonly IRepository<Product, ProductId> _repository = repository;
 
     public async Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {

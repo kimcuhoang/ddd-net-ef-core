@@ -8,16 +8,10 @@ using Microsoft.Extensions.Options;
 
 namespace DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
-public class GlobalExceptionHandlerMiddleware
+public class GlobalExceptionHandlerMiddleware(RequestDelegate next, IOptions<JsonOptions> jsonOptions)
 {
-    private readonly RequestDelegate _next;
-    private readonly JsonOptions _jsonOptions;
-
-    public GlobalExceptionHandlerMiddleware(RequestDelegate next, IOptions<JsonOptions> jsonOptions)
-    {
-        this._next = next;
-        this._jsonOptions = jsonOptions.Value;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly JsonOptions _jsonOptions = jsonOptions.Value;
 
     public async Task InvokeAsync(HttpContext httpContext)
     {

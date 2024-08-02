@@ -31,7 +31,7 @@ public static class ProductCatalogInfrastructure
             TypeDescriptor.AddAttributes(idType, new TypeConverterAttribute(typeOfIdentity));
 
             var idTypeHandler = typeof(StronglyTypedIdMapper<>).MakeGenericType(idType);
-            var idTypeHandlerInstance = (SqlMapper.ITypeHandler)Activator.CreateInstance(idTypeHandler);
+            var idTypeHandlerInstance = (SqlMapper.ITypeHandler)Activator.CreateInstance(idTypeHandler)!;
             SqlMapper.AddTypeHandler(idType, idTypeHandlerInstance);
         });
 

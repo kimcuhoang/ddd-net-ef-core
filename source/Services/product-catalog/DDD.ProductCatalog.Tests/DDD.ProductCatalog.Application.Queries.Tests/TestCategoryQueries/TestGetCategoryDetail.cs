@@ -3,12 +3,8 @@ using DDD.ProductCatalog.Core.Categories;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCategoryQueries;
 
-public class TestGetCategoryDetail : TestCategoryQueriesBase
+public class TestGetCategoryDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : TestCategoryQueriesBase(testFixture, output)
 {
-    public TestGetCategoryDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     [Fact(DisplayName = "Should get CategoryDetail within assigned Catalogs Correctly")]
     public async Task Should_Get_Category_Within_AssignedCatalogs_Correctly()
     {

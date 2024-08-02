@@ -2,9 +2,6 @@
 
 namespace DDD.ProductCatalog.Application.Queries.Tests;
 
-public class DefaultWebApplicationFactory : WebApplicationFactoryBase<Program>
+public class DefaultWebApplicationFactory(string connectionString) : WebApplicationFactoryBase<Program>(connectionString)
 {
-    public DefaultWebApplicationFactory(string connectionString) : base(connectionString)
-    {
-    }
 }

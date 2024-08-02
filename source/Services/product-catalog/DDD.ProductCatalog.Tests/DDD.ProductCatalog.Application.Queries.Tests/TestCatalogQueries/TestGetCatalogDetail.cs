@@ -3,12 +3,8 @@ using DDD.ProductCatalog.Core.Catalogs;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCatalogQueries;
 
-public class TestGetCatalogDetail : TestCatalogQueriesBase
+public class TestGetCatalogDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : TestCatalogQueriesBase(testFixture, output)
 {
-    public TestGetCatalogDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     [Theory(DisplayName = "Should GetCatalogDetail With Paging CatalogCategory Correctly")]
     [InlineData(1, 1)]
     [InlineData(1, 2)]

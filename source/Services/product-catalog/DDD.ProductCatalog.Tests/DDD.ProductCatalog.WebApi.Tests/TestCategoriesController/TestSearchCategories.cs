@@ -4,12 +4,8 @@ using DDD.ProductCatalog.Core.Categories;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
-public class TestSearchCategories : TestCategoriesControllerBase
+public class TestSearchCategories(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCategoriesControllerBase(testCollectionFixture, output)
 {
-    public TestSearchCategories(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private IEnumerable<Category> Categories => new List<Category> { this.Category };
 
     private string ApiUrl => $"{this.BaseUrl}/search";

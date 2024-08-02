@@ -3,12 +3,8 @@ using DDD.ProductCatalog.Core.Products;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestProductQueries;
 
-public class TestGetProductDetail : TestProductQueriesBase
+public class TestGetProductDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : TestProductQueriesBase(testFixture, output)
 {
-    public TestGetProductDetail(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     [Fact(DisplayName = "Should get ProductDetail Correctly")]
     public async Task Should_Get_ProductDetail_Correctly()
     {

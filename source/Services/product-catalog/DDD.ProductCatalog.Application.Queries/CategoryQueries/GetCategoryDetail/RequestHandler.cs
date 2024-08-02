@@ -7,14 +7,9 @@ using System.Text;
 
 namespace DDD.ProductCatalog.Application.Queries.CategoryQueries.GetCategoryDetail;
 
-public class RequestHandler : IRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>
+public class RequestHandler(IDbConnection dbConnection) : IRequestHandler<GetCategoryDetailRequest, GetCategoryDetailResult>
 {
-    private readonly IDbConnection _dbConnection;
-
-    public RequestHandler(IDbConnection dbConnection)
-    {
-        this._dbConnection = dbConnection;
-    }
+    private readonly IDbConnection _dbConnection = dbConnection;
 
     #region Implementation of IRequestHandler<in GetCategoryDetailRequest,GetCategoryDetailResult>
 

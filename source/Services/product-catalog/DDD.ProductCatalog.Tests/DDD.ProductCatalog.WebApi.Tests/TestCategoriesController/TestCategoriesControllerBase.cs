@@ -1,12 +1,8 @@
 ﻿using DDD.ProductCatalog.Core.Categories;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
-public abstract class TestCategoriesControllerBase : WebApiTestBase
+public abstract class TestCategoriesControllerBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : WebApiTestBase(testCollectionFixture, output)
 {
-    protected TestCategoriesControllerBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     protected Category Category { get; private set; } = default!;
 
     protected string BaseUrl => $"api/categories";

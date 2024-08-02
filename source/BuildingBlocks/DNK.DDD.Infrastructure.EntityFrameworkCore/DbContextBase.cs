@@ -2,10 +2,8 @@
 using System.Reflection;
 
 namespace DNK.DDD.Infrastructure.EntityFrameworkCore;
-public abstract class DbContextBase: DbContext
+public abstract class DbContextBase(DbContextOptions options) : DbContext(options)
 {
-    protected DbContextBase(DbContextOptions options) : base(options) { }
-
     public abstract Assembly AssemblyContainsConfigurations {  get; }
 
     protected virtual void SetDefaultSchema(ModelBuilder modelBuilder) { }

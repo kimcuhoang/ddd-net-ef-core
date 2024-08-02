@@ -11,12 +11,9 @@ namespace DDD.ProductCatalog.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoriesController : ControllerBase
+public class CategoriesController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public CategoriesController(ISender sender)
-        => this._sender = sender;
+    private readonly ISender _sender = sender;
 
     /// <summary>
     /// Create CategoryDetail

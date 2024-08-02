@@ -4,16 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DNK.DDD.Infrastructure.EntityFrameworkCore.MediatR.Pipelines;
 
-public class CommitTransactionCommandPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public class CommitTransactionCommandPipelineBehavior<TRequest, TResponse>(DbContext dbContext) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : ITransactionCommand<TResponse>
     where TResponse: notnull
 {
-    private readonly DbContext _dbContext;
-
-    public CommitTransactionCommandPipelineBehavior(DbContext dbContext)
-    {
-        this._dbContext = dbContext;
-    }
+    private readonly DbContext _dbContext = dbContext;
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {

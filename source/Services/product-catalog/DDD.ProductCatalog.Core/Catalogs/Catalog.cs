@@ -8,7 +8,7 @@ public class Catalog : AggregateRoot<CatalogId>
 {
     public string DisplayName { get; private set; }
 
-    private List<CatalogCategory> _categories = new List<CatalogCategory>();
+    private List<CatalogCategory> _categories = [];
 
     public IEnumerable<CatalogCategory> Categories => this._categories;
 

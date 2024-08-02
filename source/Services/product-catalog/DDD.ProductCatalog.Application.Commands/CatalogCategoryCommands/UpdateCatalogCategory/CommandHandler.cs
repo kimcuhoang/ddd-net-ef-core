@@ -6,14 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Application.Commands.CatalogCategoryCommands.UpdateCatalogCategory;
 
-public class CommandHandler : IRequestHandler<UpdateCatalogCategoryCommand, UpdateCatalogCategoryResult>
+public class CommandHandler(IRepository<Catalog, CatalogId> repository) : IRequestHandler<UpdateCatalogCategoryCommand, UpdateCatalogCategoryResult>
 {
-    private readonly IRepository<Catalog, CatalogId> _repository;
-
-    public CommandHandler(IRepository<Catalog, CatalogId> repository)
-    {
-        this._repository = repository;
-    }
+    private readonly IRepository<Catalog, CatalogId> _repository = repository;
 
 
     #region Overrides of IRequestHandler<UpdateCatalogCategoryCommand>

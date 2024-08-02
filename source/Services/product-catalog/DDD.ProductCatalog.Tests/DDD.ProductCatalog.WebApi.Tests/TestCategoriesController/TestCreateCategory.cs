@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
-public class TestCreateCategory : TestCategoriesControllerBase
+public class TestCreateCategory(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCategoriesControllerBase(testCollectionFixture, output)
 {
-    public TestCreateCategory(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/create";
 
     [Theory(DisplayName = "Create Category Successfully Should Return HttpStatusCode204")]

@@ -5,12 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests.TestCatalogProduct;
 
-public class TestCatalogProductBehaviors : TestEfCoreBase
+public class TestCatalogProductBehaviors(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : TestEfCoreBase(testFixture, output)
 {
-    public TestCatalogProductBehaviors(TestEfCoreCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     private Catalog Catalog = default!;
     private Category Category = default!;
     private Product Product = default!;

@@ -5,12 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
-public class TestUpdateCatalog : TestCatalogsControllerBase
+public class TestUpdateCatalog(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCatalogsControllerBase(testCollectionFixture, output)
 {
-    public TestUpdateCatalog(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Catalog.Id}";
 
 

@@ -5,12 +5,8 @@ using DDD.ProductCatalog.Application.Commands.ProductCommands.UpdateProduct;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
-public class TestUpdateProduct : TestProductsControllerBase
+public class TestUpdateProduct(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestProductsControllerBase(testCollectionFixture, output)
 {
-    public TestUpdateProduct(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Product.Id}";
 
     [Theory(DisplayName = "Update Product Successfully")]

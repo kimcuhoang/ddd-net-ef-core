@@ -6,6 +6,6 @@
 		<Nullable>enable</Nullable>
 		
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-		<ContainerImageTags>alpine-7.0.302</ContainerImageTags>
+		<ContainerImageTags>alpine-8.0.303</ContainerImageTags>
 	</PropertyGroup>
 </Project>

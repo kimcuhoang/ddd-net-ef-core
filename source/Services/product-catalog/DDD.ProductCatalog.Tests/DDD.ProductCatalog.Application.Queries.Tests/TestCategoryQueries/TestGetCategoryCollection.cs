@@ -2,12 +2,8 @@
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCategoryQueries;
 
-public class TestGetCategoryCollection : TestCategoryQueriesBase
+public class TestGetCategoryCollection(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : TestCategoryQueriesBase(testFixture, output)
 {
-    public TestGetCategoryCollection(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     [Theory(DisplayName = "Should GetCategoryCollection With Paging Correctly")]
     [InlineData(1, 1)]
     [InlineData(1, 2)]

@@ -6,21 +6,14 @@ using System.Text.Json;
 using Xunit.Abstractions;
 
 namespace DNK.DDD.IntegrationTests;
-public abstract class IntegrationTestBase<TTestCollectionFixture, TWebApplicationFactory, TProgram> : IAsyncLifetime
+public abstract class IntegrationTestBase<TTestCollectionFixture, TWebApplicationFactory, TProgram>(TTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : IAsyncLifetime
         where TTestCollectionFixture : TestCollectionFixtureBase<TWebApplicationFactory, TProgram>
         where TWebApplicationFactory: WebApplicationFactoryBase<TProgram>
         where TProgram : class
 {
-    protected TWebApplicationFactory Factory { get; }
-    protected readonly ITestOutputHelper _output;
-    protected readonly IFixture _fixture;
-
-    protected IntegrationTestBase(TTestCollectionFixture testCollectionFixture, ITestOutputHelper output)
-    {
-        this.Factory = testCollectionFixture.Factory;
-        this._output = output;
-        this._fixture = new Fixture();
-    }
+    protected TWebApplicationFactory Factory { get; } = testCollectionFixture.Factory;
+    protected readonly ITestOutputHelper _output = output;
+    protected readonly IFixture _fixture = new Fixture();
 
     protected async Task ExecuteTransactionDbContext(Func<DbContext, Task> func)
     {

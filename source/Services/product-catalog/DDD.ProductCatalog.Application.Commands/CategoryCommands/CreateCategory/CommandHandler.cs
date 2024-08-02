@@ -4,15 +4,10 @@ using MediatR;
 
 namespace DDD.ProductCatalog.Application.Commands.CategoryCommands.CreateCategory;
 
-public class CommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryResult>
+public class CommandHandler(IRepository<Category, CategoryId> repository) : IRequestHandler<CreateCategoryCommand, CreateCategoryResult>
 {
-    private readonly IRepository<Category, CategoryId> _repository;
+    private readonly IRepository<Category, CategoryId> _repository = repository;
 
-
-    public CommandHandler(IRepository<Category, CategoryId> repository)
-    {
-        this._repository = repository;
-    }
     public async Task<CreateCategoryResult> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
         var category = Category.Create(request.CategoryName);

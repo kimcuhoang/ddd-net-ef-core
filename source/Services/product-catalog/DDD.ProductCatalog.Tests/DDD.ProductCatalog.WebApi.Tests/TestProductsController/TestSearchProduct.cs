@@ -4,12 +4,8 @@ using DDD.ProductCatalog.Core.Products;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
-public class TestSearchProduct : TestProductsControllerBase
+public class TestSearchProduct(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestProductsControllerBase(testCollectionFixture, output)
 {
-    public TestSearchProduct(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/search";
 
     private List<Product> Products => new() { this.Product };

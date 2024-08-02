@@ -4,12 +4,8 @@ using DDD.ProductCatalog.Core.Products;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCatalogQueries;
 
-public abstract class TestCatalogQueriesBase : TestQueriesBase
+public abstract class TestCatalogQueriesBase(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : TestQueriesBase(testFixture, output)
 {
-    protected TestCatalogQueriesBase(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     protected List<Catalog> Catalogs { get; private set; } = new();
     protected Catalog CatalogHasCatalogCategory { get; private set; } = default!;
     protected Category Category { get; private set; } = default!;

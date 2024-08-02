@@ -4,10 +4,6 @@
 namespace DDD.ProductCatalog.Infrastructure.EfCore.Tests;
 
 [Collection(nameof(EfCoreTestCollection))]
-public abstract class TestEfCoreBase : IntegrationTestBase<TestEfCoreCollectionFixture, DefaultWebApplicationFactory, Program>
+public abstract class TestEfCoreBase(TestEfCoreCollectionFixture testCollectionFixture, ITestOutputHelper output) : IntegrationTestBase<TestEfCoreCollectionFixture, DefaultWebApplicationFactory, Program>(testCollectionFixture, output)
 {
-    protected TestEfCoreBase(TestEfCoreCollectionFixture testCollectionFixture, ITestOutputHelper output) 
-        : base(testCollectionFixture, output)
-    {
-    }
 }

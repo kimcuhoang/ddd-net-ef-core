@@ -1,12 +1,10 @@
 ﻿namespace DNK.DDD.Core.Models;
 
-public abstract class EntityBase<TIdentity> : IEquatable<EntityBase<TIdentity>> where TIdentity : IdentityBase
+public abstract class EntityBase<TIdentity>(TIdentity id) : IEquatable<EntityBase<TIdentity>> where TIdentity : IdentityBase
 {
-    public TIdentity Id { get; private set; }
+    public TIdentity Id { get; private set; } = id;
 
     #region Constructors
-
-    protected EntityBase(TIdentity id) => this.Id = id;
 
     #endregion
 

@@ -1,12 +1,10 @@
 ﻿namespace DNK.DDD.Core.Models;
 
-public abstract class IdentityBase : ValueObjectBase
+public abstract class IdentityBase(Guid id) : ValueObjectBase
 {
-    public Guid Id { get; private set; }
+    public Guid Id { get; private set; } = id;
 
     #region Constructors
-
-    protected IdentityBase(Guid id) => this.Id = id;
 
     #endregion
 

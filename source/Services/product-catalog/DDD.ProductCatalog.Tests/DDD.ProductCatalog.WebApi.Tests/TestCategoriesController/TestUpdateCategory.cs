@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCategoriesController;
 
-public class TestUpdateCategory : TestCategoriesControllerBase
+public class TestUpdateCategory(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCategoriesControllerBase(testCollectionFixture, output)
 {
-    public TestUpdateCategory(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     public string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Category.Id}";
 
     [Theory(DisplayName = "Update Category Successfully")]

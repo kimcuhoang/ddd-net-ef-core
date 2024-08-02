@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DDD.ProductCatalog.Application.Commands.CatalogCommands.CreateCatalogCategory;
 
-public class CommandHandler : IRequestHandler<CreateCatalogCategoryCommand, CreateCatalogCategoryResult>
+public class CommandHandler(IRepository<Catalog, CatalogId> repository) : IRequestHandler<CreateCatalogCategoryCommand, CreateCatalogCategoryResult>
 {
-    private readonly IRepository<Catalog, CatalogId> _repository;
-
-    public CommandHandler(IRepository<Catalog, CatalogId> repository)
-    {
-        this._repository = repository;
-    }
+    private readonly IRepository<Catalog, CatalogId> _repository = repository;
 
     public async Task<CreateCatalogCategoryResult> Handle(CreateCatalogCategoryCommand request, CancellationToken cancellationToken)
     {

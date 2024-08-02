@@ -3,12 +3,8 @@ using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestProductsController;
 
-public class TestGetProductDetail : TestProductsControllerBase
+public class TestGetProductDetail(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestProductsControllerBase(testCollectionFixture, output)
 {
-    public TestGetProductDetail(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/{(Guid)this.Product.Id}";
 
 

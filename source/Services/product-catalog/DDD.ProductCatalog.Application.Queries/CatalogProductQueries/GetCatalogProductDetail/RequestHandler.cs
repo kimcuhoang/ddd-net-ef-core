@@ -6,14 +6,9 @@ using MediatR;
 
 namespace DDD.ProductCatalog.Application.Queries.CatalogProductQueries.GetCatalogProductDetail;
 
-public class RequestHandler : IRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>
+public class RequestHandler(IDbConnection dbConnection) : IRequestHandler<GetCatalogProductDetailRequest, GetCatalogProductDetailResult>
 {
-    private readonly IDbConnection _dbConnection;
-
-    public RequestHandler(IDbConnection dbConnection)
-    {
-        this._dbConnection = dbConnection;
-    }
+    private readonly IDbConnection _dbConnection = dbConnection;
 
     #region Implementation of IRequestHandler<in GetCatalogProductDetailRequest,GetCatalogProductDetailResult>
 

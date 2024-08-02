@@ -3,11 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace DDD.ProductCatalog.Infrastructure.EfCore;
-public class ProductCatalogDbContext : MsSqlServerDbContext
+public class ProductCatalogDbContext(DbContextOptions options) : MsSqlServerDbContext(options)
 {
-    public ProductCatalogDbContext(DbContextOptions options) : base(options)
-    {
-    }
-
     public override Assembly AssemblyContainsConfigurations => Assembly.GetExecutingAssembly();
 }

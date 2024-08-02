@@ -8,12 +8,8 @@ using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
 
-public class TestCreateCatalog : TestCatalogsControllerBase
+public class TestCreateCatalog(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : TestCatalogsControllerBase(testCollectionFixture, output)
 {
-    public TestCreateCatalog(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     private string ApiUrl => $"{this.BaseUrl}/create";
 
     [Theory(DisplayName = "Create Catalog Successfully")]

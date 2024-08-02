@@ -7,12 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DDD.ProductCatalog.Application.Queries.Tests;
 
 [Collection(nameof(QueriesTestCollection))]
-public abstract class TestQueriesBase : IntegrationTestBase<TestQueriesCollectionFixture, DefaultWebApplicationFactory, Program>
+public abstract class TestQueriesBase(TestQueriesCollectionFixture testQueriesCollectionFixture, ITestOutputHelper output) : IntegrationTestBase<TestQueriesCollectionFixture, DefaultWebApplicationFactory, Program>(testQueriesCollectionFixture, output)
 {
-    protected TestQueriesBase(TestQueriesCollectionFixture testQueriesCollectionFixture, ITestOutputHelper output) : base(testQueriesCollectionFixture, output)
-    {
-    }
-
     public async Task ExecuteTestRequestHandler<TRequest, TResult>(TRequest request, Action<TResult> assert)
         where TRequest : IRequest<TResult>
     {

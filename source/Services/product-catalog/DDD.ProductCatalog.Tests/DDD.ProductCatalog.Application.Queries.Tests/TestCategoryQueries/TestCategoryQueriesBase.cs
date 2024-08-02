@@ -3,12 +3,8 @@ using DDD.ProductCatalog.Core.Categories;
 
 namespace DDD.ProductCatalog.Application.Queries.Tests.TestCategoryQueries;
 
-public abstract class TestCategoryQueriesBase : TestQueriesBase
+public abstract class TestCategoryQueriesBase(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : TestQueriesBase(testFixture, output)
 {
-    protected TestCategoryQueriesBase(TestQueriesCollectionFixture testFixture, ITestOutputHelper output) : base(testFixture, output)
-    {
-    }
-
     protected Category Category { get; private set; } = default!;
     protected Catalog Catalog { get; private set; } = default!;
     protected CatalogCategory CatalogCategory { get; private set; } = default!;

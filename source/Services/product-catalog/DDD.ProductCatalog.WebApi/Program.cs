@@ -4,7 +4,6 @@ using System.Text.Unicode;
 using DDD.ProductCatalog.Infrastructure;
 using DDD.ProductCatalog.WebApi.Infrastructures.Middlewares;
 using DDD.ProductCatalog.WebApi.Infrastructures;
-using DDD.ProductCatalog.WebApi.Infrastructures.HostedServices;
 using DDD.ProductCatalog.WebApi.Infrastructures.JsonConverters;
 
 var builder = WebApplication.CreateBuilder(args);

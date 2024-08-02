@@ -3,12 +3,8 @@ using DDD.ProductCatalog.Core.Categories;
 using DDD.ProductCatalog.Core.Products;
 
 namespace DDD.ProductCatalog.WebApi.Tests.TestCatalogsController;
-public abstract class TestCatalogsControllerBase : WebApiTestBase
+public abstract class TestCatalogsControllerBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : WebApiTestBase(testCollectionFixture, output)
 {
-    protected TestCatalogsControllerBase(WebApiTestCollectionFixture testCollectionFixture, ITestOutputHelper output) : base(testCollectionFixture, output)
-    {
-    }
-
     public string BaseUrl => @"api/catalogs";
     public Catalog Catalog { get; private set; } = default!;
     public Category Category { get; private set; } = default!;

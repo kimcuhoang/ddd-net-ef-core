@@ -10,14 +10,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
 
 namespace DNK.DDD.IntegrationTests;
-public abstract class WebApplicationFactoryBase<TProgram>: WebApplicationFactory<TProgram> where TProgram : class
+public abstract class WebApplicationFactoryBase<TProgram>(string connectionString) : WebApplicationFactory<TProgram> where TProgram : class
 {
-    private readonly string _connectionString;
-
-    protected WebApplicationFactoryBase(string connectionString)
-    {
-        this._connectionString = connectionString;
-    }
+    private readonly string _connectionString = connectionString;
 
     protected virtual Dictionary<string, string?> InMemorySettings
     {

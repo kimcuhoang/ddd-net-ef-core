@@ -10,7 +10,7 @@ public class CatalogCategoryId : IdentityBase
 
     #endregion
 
-    public static CatalogCategoryId New => new CatalogCategoryId(Guid.NewGuid());
-    public static CatalogCategoryId Of(Guid id) => new CatalogCategoryId(id);
-    public static CatalogCategoryId Empty => new CatalogCategoryId(Guid.Empty);
+    public static CatalogCategoryId New => new(Guid.NewGuid());
+    public static CatalogCategoryId Of(Guid id) => new(id);
+    public static CatalogCategoryId Empty => new(Guid.Empty);
 }

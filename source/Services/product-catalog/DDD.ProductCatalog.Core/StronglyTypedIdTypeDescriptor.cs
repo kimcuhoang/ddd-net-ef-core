@@ -1,21 +1,18 @@
 ﻿using DNK.DDD.Core.Models;
-using System;
-using System.Linq;
 using System.Reflection;
 
-namespace DDD.ProductCatalog.Core
+namespace DDD.ProductCatalog.Core;
+
+public static class StronglyTypedIdTypeDescriptor
 {
-    public static class StronglyTypedIdTypeDescriptor
+    public static void AddStronglyTypedIdConverter(Action<Type> additionalAction)
     {
-        public static void AddStronglyTypedIdConverter(Action<Type> additionalAction)
-        {
-            Assembly.GetExecutingAssembly()
-                .ExportedTypes
-                .Where(x => !x.IsGenericTypeDefinition && !x.IsAbstract && x.BaseType == typeof(IdentityBase))
-                .ToList().ForEach(idType =>
-                {
-                    additionalAction?.Invoke(idType);
-                });
-        }
+        Assembly.GetExecutingAssembly()
+            .ExportedTypes
+            .Where(x => !x.IsGenericTypeDefinition && !x.IsAbstract && x.BaseType == typeof(IdentityBase))
+            .ToList().ForEach(idType =>
+            {
+                additionalAction?.Invoke(idType);
+            });
     }
 }

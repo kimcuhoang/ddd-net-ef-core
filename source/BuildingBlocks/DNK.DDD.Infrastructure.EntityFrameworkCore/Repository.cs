@@ -5,13 +5,11 @@ using System.Linq.Expressions;
 
 namespace DNK.DDD.Infrastructure.EntityFrameworkCore;
 
-public class Repository<TAggregate, TIdentity> : IRepository<TAggregate, TIdentity>
+public class Repository<TAggregate, TIdentity>(DbContext dbContext) : IRepository<TAggregate, TIdentity>
                 where TAggregate : AggregateRoot<TIdentity>
                 where TIdentity : IdentityBase
 {
-    private readonly DbContext _dbContext;
-
-    public Repository(DbContext dbContext) => this._dbContext = dbContext;
+    private readonly DbContext _dbContext = dbContext;
 
     #region Implementation of IRepository<TAggregate>
 

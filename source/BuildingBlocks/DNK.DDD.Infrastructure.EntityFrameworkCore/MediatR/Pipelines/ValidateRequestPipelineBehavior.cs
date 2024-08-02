@@ -5,16 +5,10 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace DNK.DDD.Infrastructure.EntityFrameworkCore.MediatR.Pipelines;
-public class ValidateRequestPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class ValidateRequestPipelineBehavior<TRequest, TResponse>(IValidator<TRequest> validator, IOptions<JsonOptions> jsonOptions) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
-    private readonly IValidator<TRequest> _validator;
-    private readonly JsonSerializerOptions _jsonSerializerOptions;
-
-    public ValidateRequestPipelineBehavior(IValidator<TRequest> validator, IOptions<JsonOptions> jsonOptions)
-    {
-        this._validator = validator;
-        this._jsonSerializerOptions = jsonOptions.Value.JsonSerializerOptions;
-    }
+    private readonly IValidator<TRequest> _validator = validator;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = jsonOptions.Value.JsonSerializerOptions;
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
