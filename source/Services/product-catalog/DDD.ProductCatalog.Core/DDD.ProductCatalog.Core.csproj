@@ -1,6 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-	<ItemGroup>
-	  <ProjectReference Include="..\..\..\BuildingBlocks\DNK.DDD.Core\DNK.DDD.Core.csproj" />
-	</ItemGroup>
-
-</Project>
