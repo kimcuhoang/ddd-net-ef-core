@@ -19,4 +19,12 @@ public class Project(ProjectId id) : AggregationRoot<ProjectId>(id)
     {
         yield return this.Id;
     }
+
+    public static Project New(Action<Project> configureProject)
+    {
+        var projectId = new ProjectId(Guid.NewGuid());
+        var project = new Project(projectId);
+        configureProject(project);
+        return project;
+    }
 }

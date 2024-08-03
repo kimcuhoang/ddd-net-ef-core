@@ -5,6 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "__", "__", "{5197270C-AEFE-4CCF-8620-B04F76DFB33C}"
 	ProjectSection(SolutionItems) = preProject
+		.justfile = .justfile
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
@@ -13,11 +14,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "__", "__", "{5197270C-AEFE-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D80BC5E5-D1A9-4C80-A04A-36274E709877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEF.Core", "src\DDDEF.Core\DDDEF.Core.csproj", "{3EE31760-6CDE-486E-9E87-E381F2F9BC05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEF.Core", "src\DDDEF.Core\DDDEF.Core.csproj", "{3EE31760-6CDE-486E-9E87-E381F2F9BC05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEF.Application", "src\DDDEF.Application\DDDEF.Application.csproj", "{62E97D41-839B-4514-AC56-BE6A5203CDC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEF.Application", "src\DDDEF.Application\DDDEF.Application.csproj", "{62E97D41-839B-4514-AC56-BE6A5203CDC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEF.Infrastructure", "src\DDDEF.Infrastructure\DDDEF.Infrastructure.csproj", "{1F46216A-2822-4112-932F-3625D70ED45F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDDEF.Infrastructure", "src\DDDEF.Infrastructure\DDDEF.Infrastructure.csproj", "{1F46216A-2822-4112-932F-3625D70ED45F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEF.API", "src\DDDEF.API\DDDEF.API.csproj", "{0E83FEE6-ACB0-4ED7-B67A-CB8AF177AF6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDDEF.Tests", "src\DDDEF.Tests\DDDEF.Tests.csproj", "{A969231A-22C6-451D-A1FC-6BDDBB9D5556}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +42,14 @@ Global
 		{1F46216A-2822-4112-932F-3625D70ED45F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F46216A-2822-4112-932F-3625D70ED45F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F46216A-2822-4112-932F-3625D70ED45F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E83FEE6-ACB0-4ED7-B67A-CB8AF177AF6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E83FEE6-ACB0-4ED7-B67A-CB8AF177AF6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E83FEE6-ACB0-4ED7-B67A-CB8AF177AF6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E83FEE6-ACB0-4ED7-B67A-CB8AF177AF6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A969231A-22C6-451D-A1FC-6BDDBB9D5556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A969231A-22C6-451D-A1FC-6BDDBB9D5556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A969231A-22C6-451D-A1FC-6BDDBB9D5556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A969231A-22C6-451D-A1FC-6BDDBB9D5556}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,5 +58,10 @@ Global
 		{3EE31760-6CDE-486E-9E87-E381F2F9BC05} = {D80BC5E5-D1A9-4C80-A04A-36274E709877}
 		{62E97D41-839B-4514-AC56-BE6A5203CDC9} = {D80BC5E5-D1A9-4C80-A04A-36274E709877}
 		{1F46216A-2822-4112-932F-3625D70ED45F} = {D80BC5E5-D1A9-4C80-A04A-36274E709877}
+		{0E83FEE6-ACB0-4ED7-B67A-CB8AF177AF6B} = {D80BC5E5-D1A9-4C80-A04A-36274E709877}
+		{A969231A-22C6-451D-A1FC-6BDDBB9D5556} = {D80BC5E5-D1A9-4C80-A04A-36274E709877}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DCE619BC-19CF-40BF-8266-4BF74D34DB95}
 	EndGlobalSection
 EndGlobal

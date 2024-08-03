@@ -1,6 +1,16 @@
 # An Example of using DDD with .NET 8
 
 
+# Commands
+
+```bash
+just am [name-of-migration]
+```
+
+
+# Resources
+
+- [Justfile Cheat Sheet by linux_china](https://cheatography.com/linux-china/cheat-sheets/justfile/)
 
 
 ---

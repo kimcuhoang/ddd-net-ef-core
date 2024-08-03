@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Swashbuckle.AspNetCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\DDDEF.Infrastructure\DDDEF.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>
